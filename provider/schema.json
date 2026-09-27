@@ -860,6 +860,147 @@
         "status"
       ]
     },
+    "anthropic:identity:FederationMatch": {
+      "properties": {
+        "audience": {
+          "type": "string",
+          "description": "The required `aud` claim."
+        },
+        "claims": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Claims the token must carry, with exactly these values."
+        },
+        "condition": {
+          "type": "string",
+          "description": "A CEL expression over the token's claims that must evaluate to true, up to 4,096 characters."
+        },
+        "subjectPrefix": {
+          "type": "string",
+          "description": "A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted."
+        }
+      },
+      "type": "object"
+    },
+    "anthropic:identity:FederationTarget": {
+      "properties": {
+        "serviceAccountId": {
+          "type": "string",
+          "description": "The service account's ID."
+        }
+      },
+      "type": "object",
+      "required": [
+        "serviceAccountId"
+      ]
+    },
+    "anthropic:identity:Jwks": {
+      "properties": {
+        "caCertPem": {
+          "type": "string",
+          "description": "A PEM-encoded CA certificate to trust when fetching the keys, up to 8,192 characters. For `discovery` and `explicit_url`."
+        },
+        "discoveryBase": {
+          "type": "string",
+          "description": "The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`."
+        },
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            }
+          },
+          "description": "The signing keys, as JSON Web Keys. Required for `inline`."
+        },
+        "type": {
+          "$ref": "#/types/anthropic:identity:JwksType",
+          "description": "The source of the signing keys."
+        },
+        "url": {
+          "type": "string",
+          "description": "The JWKS URL. Required for `explicit_url`."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:identity:JwksType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Discover the keys through the issuer's OIDC discovery document.",
+          "value": "discovery"
+        },
+        {
+          "description": "Fetch the keys from an explicit JWKS URL.",
+          "value": "explicit_url"
+        },
+        {
+          "description": "Use keys supplied inline, for issuers that are not reachable.",
+          "value": "inline"
+        }
+      ]
+    },
+    "anthropic:identity:PollStatus": {
+      "properties": {
+        "consecutiveFailures": {
+          "type": "integer",
+          "description": "How many polls in a row have failed."
+        },
+        "lastFetchedAt": {
+          "type": "string",
+          "description": "When the keys were last fetched, in RFC 3339 format."
+        },
+        "nextPollAt": {
+          "type": "string",
+          "description": "When the keys will next be fetched, in RFC 3339 format."
+        }
+      },
+      "type": "object",
+      "required": [
+        "consecutiveFailures"
+      ]
+    },
+    "anthropic:identity:ServiceAccountRole": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Can use the API in the workspaces it is a member of.",
+          "value": "developer"
+        },
+        {
+          "description": "Can administer the organization. Creating an admin service account requires an interactive credential.",
+          "value": "admin"
+        }
+      ]
+    },
+    "anthropic:identity:WorkspaceRole": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Can use the workspace's resources.",
+          "value": "workspace_user"
+        },
+        {
+          "description": "Can use the API, with restricted access to the workspace's configuration.",
+          "value": "workspace_restricted_developer"
+        },
+        {
+          "description": "Can use the API and manage the workspace's resources.",
+          "value": "workspace_developer"
+        },
+        {
+          "description": "Can administer the workspace and its members.",
+          "value": "workspace_admin"
+        }
+      ]
+    },
     "anthropic:organization:ApiKeyStatus": {
       "type": "string",
       "enum": [
@@ -1019,6 +1160,59 @@
           "description": "Can manage the workspace's billing. The API only grants this role to an existing member, so the provider adds the member as `workspace_user` first, then grants it.",
           "value": "workspace_billing"
         }
+      ]
+    },
+    "anthropic:security:KeyProvider": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "AWS Key Management Service.",
+          "value": "aws"
+        },
+        {
+          "description": "Google Cloud Key Management Service.",
+          "value": "gcp"
+        },
+        {
+          "description": "Azure Key Vault.",
+          "value": "azure"
+        }
+      ]
+    },
+    "anthropic:security:ProviderConfig": {
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "description": "The client ID of the Azure application that accesses the key. Omit to use Anthropic's multitenant application. For `azure`."
+        },
+        "keyName": {
+          "type": "string",
+          "description": "The key's resource name. Required for `gcp` and `azure`."
+        },
+        "kmsArn": {
+          "type": "string",
+          "description": "The ARN of the AWS KMS key. Required for `aws`."
+        },
+        "region": {
+          "type": "string",
+          "description": "The AWS region of the key. Derived from the ARN if omitted. For `aws`."
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "The Azure tenant ID. Required for `azure`."
+        },
+        "type": {
+          "$ref": "#/types/anthropic:security:KeyProvider",
+          "description": "The cloud the key is held in."
+        },
+        "vaultUri": {
+          "type": "string",
+          "description": "The Azure Key Vault URI. Required for `azure`."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
       ]
     }
   },
@@ -1790,6 +1984,421 @@
         "auth"
       ]
     },
+    "anthropic:identity:FederationIssuer": {
+      "description": "A workload identity federation issuer: an OIDC identity provider, such as GitHub Actions, a Kubernetes cluster, or a cloud's workload identity service, whose signed tokens workloads exchange for short-lived Anthropic access tokens. Which tokens are accepted, and which service account they act as, is decided by `FederationRule`s.\n\nManaging federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).\n\nThe API cannot delete issuers, so deleting this resource archives the issuer. Archiving is refused while a live rule references the issuer.",
+      "properties": {
+        "checkJti": {
+          "type": "boolean",
+          "description": "Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the issuer was created, in RFC 3339 format."
+        },
+        "issuerUrl": {
+          "type": "string",
+          "description": "The issuer URL, which must match the `iss` claim of accepted tokens."
+        },
+        "jwks": {
+          "$ref": "#/types/anthropic:identity:Jwks",
+          "description": "Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL."
+        },
+        "maxJwtLifetimeSeconds": {
+          "type": "integer",
+          "description": "The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600."
+        },
+        "name": {
+          "type": "string",
+          "description": "A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters."
+        },
+        "pollStatus": {
+          "$ref": "#/types/anthropic:identity:PollStatus",
+          "description": "The health of the platform's polling of the issuer's signing keys."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the issuer was last updated, in RFC 3339 format."
+        }
+      },
+      "required": [
+        "name",
+        "issuerUrl",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "checkJti": {
+          "type": "boolean",
+          "description": "Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`."
+        },
+        "issuerUrl": {
+          "type": "string",
+          "description": "The issuer URL, which must match the `iss` claim of accepted tokens."
+        },
+        "jwks": {
+          "$ref": "#/types/anthropic:identity:Jwks",
+          "description": "Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL."
+        },
+        "maxJwtLifetimeSeconds": {
+          "type": "integer",
+          "description": "The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600."
+        },
+        "name": {
+          "type": "string",
+          "description": "A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters."
+        }
+      },
+      "requiredInputs": [
+        "name",
+        "issuerUrl"
+      ]
+    },
+    "anthropic:identity:FederationRule": {
+      "description": "A workload identity federation rule: tokens from an issuer that satisfy the rule's `match` are exchanged for access tokens that act as the rule's target service account, with the rule's OAuth scope.\n\nA rule applies either to all workspaces (`appliesToAllWorkspaces`) or to the workspace it is created in (`workspaceId`); bind it to further workspaces with `FederationRuleWorkspace`.\n\nManaging federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).\n\nThe API cannot delete rules, so deleting this resource archives the rule.",
+      "properties": {
+        "appliesToAllWorkspaces": {
+          "type": "boolean",
+          "description": "Whether the rule applies to every workspace. Otherwise `workspaceId` is required."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the rule was created, in RFC 3339 format."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the rule, up to 2,000 characters."
+        },
+        "issuerId": {
+          "type": "string",
+          "description": "The ID of the issuer whose tokens the rule accepts. Changing it replaces the rule.",
+          "replaceOnChanges": true
+        },
+        "issuerName": {
+          "type": "string",
+          "description": "The name of the rule's issuer."
+        },
+        "match": {
+          "$ref": "#/types/anthropic:identity:FederationMatch",
+          "description": "The conditions a token must satisfy. At least one of `subjectPrefix`, `claims`, or `condition` is required."
+        },
+        "name": {
+          "type": "string",
+          "description": "A lowercase slug that uniquely names the rule in the organization."
+        },
+        "oauthScope": {
+          "type": "string",
+          "description": "The space-separated OAuth scopes of the access tokens the rule issues, such as `workspace:developer`."
+        },
+        "target": {
+          "$ref": "#/types/anthropic:identity:FederationTarget",
+          "description": "The service account the rule's access tokens act as."
+        },
+        "tokenLifetimeSeconds": {
+          "type": "integer",
+          "description": "The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the rule was last updated, in RFC 3339 format."
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The workspace the rule is created in, required unless `appliesToAllWorkspaces` is set. Changing it replaces the rule; to bind the rule to further workspaces, use `FederationRuleWorkspace`.",
+          "replaceOnChanges": true
+        },
+        "workspaceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Every workspace the rule is bound to."
+        }
+      },
+      "required": [
+        "issuerId",
+        "name",
+        "oauthScope",
+        "target",
+        "match",
+        "issuerName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "appliesToAllWorkspaces": {
+          "type": "boolean",
+          "description": "Whether the rule applies to every workspace. Otherwise `workspaceId` is required."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the rule, up to 2,000 characters."
+        },
+        "issuerId": {
+          "type": "string",
+          "description": "The ID of the issuer whose tokens the rule accepts. Changing it replaces the rule.",
+          "replaceOnChanges": true
+        },
+        "match": {
+          "$ref": "#/types/anthropic:identity:FederationMatch",
+          "description": "The conditions a token must satisfy. At least one of `subjectPrefix`, `claims`, or `condition` is required."
+        },
+        "name": {
+          "type": "string",
+          "description": "A lowercase slug that uniquely names the rule in the organization."
+        },
+        "oauthScope": {
+          "type": "string",
+          "description": "The space-separated OAuth scopes of the access tokens the rule issues, such as `workspace:developer`."
+        },
+        "target": {
+          "$ref": "#/types/anthropic:identity:FederationTarget",
+          "description": "The service account the rule's access tokens act as."
+        },
+        "tokenLifetimeSeconds": {
+          "type": "integer",
+          "description": "The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600."
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The workspace the rule is created in, required unless `appliesToAllWorkspaces` is set. Changing it replaces the rule; to bind the rule to further workspaces, use `FederationRuleWorkspace`.",
+          "replaceOnChanges": true
+        }
+      },
+      "requiredInputs": [
+        "issuerId",
+        "name",
+        "oauthScope",
+        "target",
+        "match"
+      ]
+    },
+    "anthropic:identity:FederationRuleWorkspace": {
+      "description": "Binds a federation rule to a workspace, so that the rule's access tokens can act in it. The resource's ID is `\u003cfederation-rule-id\u003e/\u003cworkspace-id\u003e`.\n\nDo not also bind the workspace the rule was created in (its `workspaceId`): that binding belongs to the rule.\n\nManaging federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "When the binding was created, in RFC 3339 format."
+        },
+        "federationRuleId": {
+          "type": "string",
+          "description": "The federation rule's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The workspace's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceName": {
+          "type": "string",
+          "description": "The workspace's name when the binding was created."
+        }
+      },
+      "required": [
+        "federationRuleId",
+        "workspaceId",
+        "workspaceName",
+        "createdAt"
+      ],
+      "inputProperties": {
+        "federationRuleId": {
+          "type": "string",
+          "description": "The federation rule's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The workspace's ID.",
+          "replaceOnChanges": true
+        }
+      },
+      "requiredInputs": [
+        "federationRuleId",
+        "workspaceId"
+      ]
+    },
+    "anthropic:identity:RbacGroup": {
+      "description": "A role-based access control group of users. Add users with `RbacGroupMember`. Roles are attached to groups in the organization's admin settings, and are reported by `roleIds`.\n\nRBAC groups are available to Claude Enterprise organizations. Groups provisioned by SCIM cannot be changed or deleted while SCIM provisioning is active.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "When the group was created, in RFC 3339 format."
+        },
+        "name": {
+          "type": "string",
+          "description": "The group's name, 1 to 255 characters. Names need not be unique."
+        },
+        "roleIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The IDs of the roles attached to the group."
+        },
+        "sourceType": {
+          "type": "string",
+          "description": "How the group was provisioned: `direct` or `scim`."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the group was last updated, in RFC 3339 format."
+        }
+      },
+      "required": [
+        "name",
+        "sourceType",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "name": {
+          "type": "string",
+          "description": "The group's name, 1 to 255 characters. Names need not be unique."
+        }
+      },
+      "requiredInputs": [
+        "name"
+      ]
+    },
+    "anthropic:identity:RbacGroupMember": {
+      "description": "Adds a user to an RBAC group. The resource's ID is `\u003crbac-group-id\u003e/\u003cuser-id\u003e`.\n\nRBAC groups are available to Claude Enterprise organizations.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "When the user was added to the group, in RFC 3339 format."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address."
+        },
+        "rbacGroupId": {
+          "type": "string",
+          "description": "The group's ID.",
+          "replaceOnChanges": true
+        },
+        "userId": {
+          "type": "string",
+          "description": "The user's ID.",
+          "replaceOnChanges": true
+        }
+      },
+      "required": [
+        "rbacGroupId",
+        "userId",
+        "email",
+        "createdAt"
+      ],
+      "inputProperties": {
+        "rbacGroupId": {
+          "type": "string",
+          "description": "The group's ID.",
+          "replaceOnChanges": true
+        },
+        "userId": {
+          "type": "string",
+          "description": "The user's ID.",
+          "replaceOnChanges": true
+        }
+      },
+      "requiredInputs": [
+        "rbacGroupId",
+        "userId"
+      ]
+    },
+    "anthropic:identity:ServiceAccount": {
+      "description": "A service account: a non-human identity that workloads assume through workload identity federation (see `FederationRule`), in place of long-lived API keys. Grant it access to workspaces with `ServiceAccountWorkspace`.\n\nManaging service accounts requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); the API does not accept Admin API keys for them.\n\nThe API cannot delete service accounts, so deleting this resource archives it. Archiving is refused while a live federation rule targets the account.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "When the service account was created, in RFC 3339 format."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the service account, up to 2,000 characters."
+        },
+        "name": {
+          "type": "string",
+          "description": "A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.",
+          "replaceOnChanges": true
+        },
+        "organizationRole": {
+          "$ref": "#/types/anthropic:identity:ServiceAccountRole",
+          "description": "The service account's organization role. Defaults to `developer`."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the service account was last updated, in RFC 3339 format."
+        }
+      },
+      "required": [
+        "name",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "description": {
+          "type": "string",
+          "description": "A description of the service account, up to 2,000 characters."
+        },
+        "name": {
+          "type": "string",
+          "description": "A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.",
+          "replaceOnChanges": true
+        },
+        "organizationRole": {
+          "$ref": "#/types/anthropic:identity:ServiceAccountRole",
+          "description": "The service account's organization role. Defaults to `developer`."
+        }
+      },
+      "requiredInputs": [
+        "name"
+      ]
+    },
+    "anthropic:identity:ServiceAccountWorkspace": {
+      "description": "Grants a service account a role in a workspace. The resource's ID is `\u003cworkspace-id\u003e/\u003cservice-account-id\u003e`.\n\nEvery service account is implicitly a `workspace_user` of the organization's default workspace; that membership cannot be removed, so do not manage it with this resource.\n\nManaging service accounts requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).",
+      "properties": {
+        "serviceAccountId": {
+          "type": "string",
+          "description": "The service account's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The workspace's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceRole": {
+          "$ref": "#/types/anthropic:identity:WorkspaceRole",
+          "description": "The service account's role in the workspace."
+        }
+      },
+      "required": [
+        "workspaceId",
+        "serviceAccountId",
+        "workspaceRole"
+      ],
+      "inputProperties": {
+        "serviceAccountId": {
+          "type": "string",
+          "description": "The service account's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The workspace's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceRole": {
+          "$ref": "#/types/anthropic:identity:WorkspaceRole",
+          "description": "The service account's role in the workspace."
+        }
+      },
+      "requiredInputs": [
+        "workspaceId",
+        "serviceAccountId",
+        "workspaceRole"
+      ]
+    },
     "anthropic:organization:ApiKey": {
       "description": "An API key's name and status.\n\nAPI keys cannot be created through the API, only in the Claude Console, and their secret values are never returned. Creating this resource adopts an existing key by ID; fields left undeclared are left as they are.\n\nDeleting this resource archives the key, which permanently revokes it. To stop managing a key without revoking it, set the `retainOnDelete` resource option.",
       "properties": {
@@ -2152,6 +2761,62 @@
         "workspaceId",
         "userId",
         "workspaceRole"
+      ]
+    },
+    "anthropic:security:ExternalKey": {
+      "description": "A customer-managed encryption key (CMEK) held in AWS KMS, Google Cloud KMS, or Azure Key Vault. A workspace encrypts its data with the key once the workspace's `externalKeyId` refers to it.\n\nCreating the key validates it with a round trip to the KMS, and fails, leaving nothing behind, if Anthropic cannot use it. The key's provider configuration and geography cannot change once a workspace uses the key, so changing either replaces the key.\n\nDeleting the key is refused while a workspace uses it.",
+      "properties": {
+        "attachment": {
+          "type": "string",
+          "description": "Whether a workspace uses the key: `attached` or `unattached`."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the key was created, in RFC 3339 format."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "A display name for the key, 1 to 255 characters."
+        },
+        "geo": {
+          "type": "string",
+          "description": "The geography the key serves. The only accepted value is `us`.",
+          "replaceOnChanges": true
+        },
+        "providerConfig": {
+          "$ref": "#/types/anthropic:security:ProviderConfig",
+          "description": "Where the key is held.",
+          "replaceOnChanges": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the key was last updated, in RFC 3339 format."
+        }
+      },
+      "required": [
+        "providerConfig",
+        "attachment",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "displayName": {
+          "type": "string",
+          "description": "A display name for the key, 1 to 255 characters."
+        },
+        "geo": {
+          "type": "string",
+          "description": "The geography the key serves. The only accepted value is `us`.",
+          "replaceOnChanges": true
+        },
+        "providerConfig": {
+          "$ref": "#/types/anthropic:security:ProviderConfig",
+          "description": "Where the key is held.",
+          "replaceOnChanges": true
+        }
+      },
+      "requiredInputs": [
+        "providerConfig"
       ]
     },
     "anthropic:skills:Skill": {

@@ -24,7 +24,9 @@ import (
 
 	"github.com/pulumi/pulumi-anthropic/provider/agents"
 	"github.com/pulumi/pulumi-anthropic/provider/config"
+	"github.com/pulumi/pulumi-anthropic/provider/identity"
 	"github.com/pulumi/pulumi-anthropic/provider/organization"
+	"github.com/pulumi/pulumi-anthropic/provider/security"
 	"github.com/pulumi/pulumi-anthropic/provider/skills"
 )
 
@@ -53,6 +55,8 @@ func Provider() (p.Provider, error) {
 			agents.Resources(),
 			organization.Resources(),
 			skills.Resources(),
+			identity.Resources(),
+			security.Resources(),
 		)...).
 		Build()
 }
