@@ -24,6 +24,7 @@ import (
 
 	"github.com/pulumi/pulumi-anthropic/provider/agents"
 	"github.com/pulumi/pulumi-anthropic/provider/config"
+	"github.com/pulumi/pulumi-anthropic/provider/organization"
 	"github.com/pulumi/pulumi-anthropic/provider/skills"
 )
 
@@ -50,6 +51,7 @@ func Provider() (p.Provider, error) {
 		WithConfig(infer.Config(&config.Config{})).
 		WithResources(slices.Concat(
 			agents.Resources(),
+			organization.Resources(),
 			skills.Resources(),
 		)...).
 		Build()

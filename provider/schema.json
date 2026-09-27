@@ -859,6 +859,167 @@
       "required": [
         "status"
       ]
+    },
+    "anthropic:organization:ApiKeyStatus": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "The key can be used.",
+          "value": "active"
+        },
+        {
+          "description": "The key is disabled, and can be reactivated.",
+          "value": "inactive"
+        },
+        {
+          "description": "The key is permanently revoked.",
+          "value": "archived"
+        }
+      ]
+    },
+    "anthropic:organization:DataResidency": {
+      "properties": {
+        "allowedInferenceGeos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:organization:InferenceGeo"
+          },
+          "description": "The geographies inference may run in. Omit to allow any geography."
+        },
+        "defaultInferenceGeo": {
+          "$ref": "#/types/anthropic:organization:InferenceGeo",
+          "description": "The geography inference runs in when a request doesn't choose one."
+        },
+        "workspaceGeo": {
+          "$ref": "#/types/anthropic:organization:WorkspaceGeo",
+          "description": "Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.",
+          "replaceOnChanges": true
+        }
+      },
+      "type": "object"
+    },
+    "anthropic:organization:InferenceGeo": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Any geography.",
+          "value": "global"
+        },
+        {
+          "description": "The United States.",
+          "value": "us"
+        }
+      ]
+    },
+    "anthropic:organization:OrganizationRole": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Can use Claude.",
+          "value": "user"
+        },
+        {
+          "description": "Can also use the API and manage API keys.",
+          "value": "developer"
+        },
+        {
+          "description": "Can also manage billing.",
+          "value": "billing"
+        },
+        {
+          "description": "Can use Claude Code.",
+          "value": "claude_code_user"
+        },
+        {
+          "description": "A managed user of a Claude Enterprise organization.",
+          "value": "managed"
+        }
+      ]
+    },
+    "anthropic:organization:SpendLimitPeriod": {
+      "type": "string",
+      "enum": [
+        {
+          "value": "daily"
+        },
+        {
+          "value": "weekly"
+        },
+        {
+          "value": "monthly"
+        }
+      ]
+    },
+    "anthropic:organization:SpendLimitScope": {
+      "properties": {
+        "type": {
+          "$ref": "#/types/anthropic:organization:SpendLimitScopeType",
+          "description": "The kind of scope."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The user the limit applies to. Required for `user`."
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The workspace the limit applies to. Required for `workspace`."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:organization:SpendLimitScopeType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "One user. Claude Enterprise only.",
+          "value": "user"
+        },
+        {
+          "description": "One workspace.",
+          "value": "workspace"
+        },
+        {
+          "description": "The whole organization.",
+          "value": "organization"
+        }
+      ]
+    },
+    "anthropic:organization:WorkspaceGeo": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "The United States.",
+          "value": "us"
+        }
+      ]
+    },
+    "anthropic:organization:WorkspaceRole": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Can use the workspace's resources.",
+          "value": "workspace_user"
+        },
+        {
+          "description": "Can use the API, with restricted access to the workspace's configuration.",
+          "value": "workspace_restricted_developer"
+        },
+        {
+          "description": "Can use the API and manage the workspace's resources.",
+          "value": "workspace_developer"
+        },
+        {
+          "description": "Can administer the workspace and its members.",
+          "value": "workspace_admin"
+        },
+        {
+          "description": "Can manage the workspace's billing. The API only grants this role to an existing member, so the provider adds the member as `workspace_user` first, then grants it.",
+          "value": "workspace_billing"
+        }
+      ]
     }
   },
   "provider": {
@@ -1627,6 +1788,370 @@
       "requiredInputs": [
         "vaultId",
         "auth"
+      ]
+    },
+    "anthropic:organization:ApiKey": {
+      "description": "An API key's name and status.\n\nAPI keys cannot be created through the API, only in the Claude Console, and their secret values are never returned. Creating this resource adopts an existing key by ID; fields left undeclared are left as they are.\n\nDeleting this resource archives the key, which permanently revokes it. To stop managing a key without revoking it, set the `retainOnDelete` resource option.",
+      "properties": {
+        "apiKeyId": {
+          "type": "string",
+          "description": "The ID of the existing API key to manage.",
+          "replaceOnChanges": true
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the key was created, in RFC 3339 format."
+        },
+        "expiresAt": {
+          "type": "string",
+          "description": "When the key expires, in RFC 3339 format, if it does."
+        },
+        "name": {
+          "type": "string",
+          "description": "The key's name, 1 to 500 characters."
+        },
+        "partialKeyHint": {
+          "type": "string",
+          "description": "A redacted hint of the key's value, for recognizing it."
+        },
+        "status": {
+          "$ref": "#/types/anthropic:organization:ApiKeyStatus",
+          "description": "The key's status. An archived key cannot be reactivated."
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The ID of the workspace the key belongs to."
+        }
+      },
+      "required": [
+        "apiKeyId",
+        "partialKeyHint",
+        "workspaceId",
+        "createdAt",
+        "expiresAt"
+      ],
+      "inputProperties": {
+        "apiKeyId": {
+          "type": "string",
+          "description": "The ID of the existing API key to manage.",
+          "replaceOnChanges": true
+        },
+        "name": {
+          "type": "string",
+          "description": "The key's name, 1 to 500 characters."
+        },
+        "status": {
+          "$ref": "#/types/anthropic:organization:ApiKeyStatus",
+          "description": "The key's status. An archived key cannot be reactivated."
+        }
+      },
+      "requiredInputs": [
+        "apiKeyId"
+      ]
+    },
+    "anthropic:organization:ComplianceSettings": {
+      "description": "The organization's compliance settings, which control the Compliance API. An organization has exactly one set, so declare at most one of these per organization.\n\nAn organization with a parent inherits its parent's settings, and provisioning Access Transparency re-enables the Compliance API, which a refresh reports as drift.\n\nSettings cannot be deleted, so deleting this resource leaves them as they are.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the Compliance API is enabled."
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "inputProperties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the Compliance API is enabled."
+        }
+      },
+      "requiredInputs": [
+        "enabled"
+      ]
+    },
+    "anthropic:organization:Invite": {
+      "description": "An invitation to join the organization. Invitations cannot be changed, so any change replaces the invitation, and they expire 21 days after they are sent. Once accepted, the person is a user of the organization; manage their role with `anthropic.organization.User`.",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email address to invite.",
+          "replaceOnChanges": true
+        },
+        "expiresAt": {
+          "type": "string",
+          "description": "When the invitation expires, in RFC 3339 format."
+        },
+        "invitedAt": {
+          "type": "string",
+          "description": "When the invitation was sent, in RFC 3339 format."
+        },
+        "rbacGroupIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The RBAC groups the person joins. Claude Enterprise only.",
+          "replaceOnChanges": true
+        },
+        "role": {
+          "$ref": "#/types/anthropic:organization:OrganizationRole",
+          "description": "The organization role the person joins with.",
+          "replaceOnChanges": true
+        },
+        "status": {
+          "type": "string",
+          "description": "The invitation's status: `pending`, `accepted`, `expired`, or `deleted`."
+        }
+      },
+      "required": [
+        "email",
+        "role",
+        "status",
+        "invitedAt",
+        "expiresAt"
+      ],
+      "inputProperties": {
+        "email": {
+          "type": "string",
+          "description": "The email address to invite.",
+          "replaceOnChanges": true
+        },
+        "rbacGroupIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The RBAC groups the person joins. Claude Enterprise only.",
+          "replaceOnChanges": true
+        },
+        "role": {
+          "$ref": "#/types/anthropic:organization:OrganizationRole",
+          "description": "The organization role the person joins with.",
+          "replaceOnChanges": true
+        }
+      },
+      "requiredInputs": [
+        "email",
+        "role"
+      ]
+    },
+    "anthropic:organization:SpendLimit": {
+      "description": "A spend limit: the most a user, a workspace, or the whole organization may spend in a period.\n\nThere is at most one limit per scope and period, and the API sets a limit by overwriting whatever limit that scope and period already has, so creating this resource takes over an existing limit rather than failing. Changing the scope or period replaces the limit.\n\nUser limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount.",
+      "properties": {
+        "amount": {
+          "type": "string",
+          "description": "The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `\"50000\"` is $500.00. Omit for an explicit \"no limit\" override of this scope and period."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the limit was created, in RFC 3339 format."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The ISO 4217 code of the organization's billing currency, which `amount` is denominated in."
+        },
+        "period": {
+          "$ref": "#/types/anthropic:organization:SpendLimitPeriod",
+          "description": "The period the limit applies over. If omitted, the API's default applies.",
+          "replaceOnChanges": true
+        },
+        "scope": {
+          "$ref": "#/types/anthropic:organization:SpendLimitScope",
+          "description": "What the limit applies to.",
+          "replaceOnChanges": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the limit was last updated, in RFC 3339 format."
+        }
+      },
+      "required": [
+        "scope",
+        "currency",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "amount": {
+          "type": "string",
+          "description": "The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `\"50000\"` is $500.00. Omit for an explicit \"no limit\" override of this scope and period."
+        },
+        "period": {
+          "$ref": "#/types/anthropic:organization:SpendLimitPeriod",
+          "description": "The period the limit applies over. If omitted, the API's default applies.",
+          "replaceOnChanges": true
+        },
+        "scope": {
+          "$ref": "#/types/anthropic:organization:SpendLimitScope",
+          "description": "What the limit applies to.",
+          "replaceOnChanges": true
+        }
+      },
+      "requiredInputs": [
+        "scope"
+      ]
+    },
+    "anthropic:organization:User": {
+      "description": "A user of the organization, and their organization role.\n\nUsers cannot be created through the API: people join by accepting an `anthropic.organization.Invite`. Creating this resource adopts an existing user by ID and sets their role.\n\nDeleting this resource removes the user from the organization. To stop managing a user without removing them, set the `retainOnDelete` resource option.",
+      "properties": {
+        "addedAt": {
+          "type": "string",
+          "description": "When the user joined the organization, in RFC 3339 format."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address."
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's name."
+        },
+        "role": {
+          "$ref": "#/types/anthropic:organization:OrganizationRole",
+          "description": "The user's organization role. The `admin` role cannot be granted through the API."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the existing user to manage.",
+          "replaceOnChanges": true
+        }
+      },
+      "required": [
+        "userId",
+        "role",
+        "email",
+        "name",
+        "addedAt"
+      ],
+      "inputProperties": {
+        "role": {
+          "$ref": "#/types/anthropic:organization:OrganizationRole",
+          "description": "The user's organization role. The `admin` role cannot be granted through the API."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the existing user to manage.",
+          "replaceOnChanges": true
+        }
+      },
+      "requiredInputs": [
+        "userId",
+        "role"
+      ]
+    },
+    "anthropic:organization:Workspace": {
+      "description": "A workspace: a unit of isolation for API keys, usage, limits, and workspace-scoped resources such as agents and skills.\n\nThe API cannot delete workspaces, so deleting this resource archives the workspace, which cannot be undone.",
+      "properties": {
+        "compartmentId": {
+          "type": "string",
+          "description": "The ID of the storage compartment that holds the workspace's data."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the workspace was created, in RFC 3339 format."
+        },
+        "dataResidency": {
+          "$ref": "#/types/anthropic:organization:DataResidency",
+          "description": "Where the workspace's data is stored and where inference may run."
+        },
+        "displayColor": {
+          "type": "string",
+          "description": "The color the Console shows the workspace in, as `#RRGGBB`."
+        },
+        "externalKeyId": {
+          "type": "string",
+          "description": "The ID of a customer-managed encryption key (an `anthropic.security.ExternalKey`) that encrypts the workspace's data. It can be set on a workspace that has none, but once set it can never be changed or removed, so any change to it replaces the workspace."
+        },
+        "name": {
+          "type": "string",
+          "description": "The workspace's name, 1 to 40 characters."
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Tags for the workspace. Keys may not start with `anthropic`."
+        }
+      },
+      "required": [
+        "name",
+        "createdAt",
+        "compartmentId"
+      ],
+      "inputProperties": {
+        "dataResidency": {
+          "$ref": "#/types/anthropic:organization:DataResidency",
+          "description": "Where the workspace's data is stored and where inference may run."
+        },
+        "displayColor": {
+          "type": "string",
+          "description": "The color the Console shows the workspace in, as `#RRGGBB`."
+        },
+        "externalKeyId": {
+          "type": "string",
+          "description": "The ID of a customer-managed encryption key (an `anthropic.security.ExternalKey`) that encrypts the workspace's data. It can be set on a workspace that has none, but once set it can never be changed or removed, so any change to it replaces the workspace."
+        },
+        "name": {
+          "type": "string",
+          "description": "The workspace's name, 1 to 40 characters."
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Tags for the workspace. Keys may not start with `anthropic`."
+        }
+      },
+      "requiredInputs": [
+        "name"
+      ]
+    },
+    "anthropic:organization:WorkspaceMember": {
+      "description": "A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `\u003cworkspaceId\u003e/\u003cuserId\u003e`.",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The user's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The workspace's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceRole": {
+          "$ref": "#/types/anthropic:organization:WorkspaceRole",
+          "description": "The user's role in the workspace."
+        }
+      },
+      "required": [
+        "workspaceId",
+        "userId",
+        "workspaceRole"
+      ],
+      "inputProperties": {
+        "userId": {
+          "type": "string",
+          "description": "The user's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The workspace's ID.",
+          "replaceOnChanges": true
+        },
+        "workspaceRole": {
+          "$ref": "#/types/anthropic:organization:WorkspaceRole",
+          "description": "The user's role in the workspace."
+        }
+      },
+      "requiredInputs": [
+        "workspaceId",
+        "userId",
+        "workspaceRole"
       ]
     },
     "anthropic:skills:Skill": {
