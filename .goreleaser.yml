@@ -1,0 +1,22 @@
+version: 2
+project_name: pulumi-anthropic
+builds:
+  - id: provider
+    main: ./cmd/pulumi-resource-anthropic
+    binary: pulumi-resource-anthropic
+    env: [CGO_ENABLED=0]
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X github.com/pulumi/pulumi-anthropic/provider.Version={{.Version}}
+archives:
+  # Pulumi's github:// plugin download convention requires this exact asset name.
+  - name_template: "pulumi-resource-anthropic-v{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    formats: [tar.gz]
+    files: [LICENSE, README.md]
+checksum:
+  name_template: checksums.txt
+changelog:
+  use: github-native
+release:
+  prerelease: auto

@@ -1,0 +1,84 @@
+name: Release
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  provider:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sdks:
+    needs: provider
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: pulumi/actions@v6
+      - name: Generate SDKs for the release version
+        run: make sdks VERSION="${VERSION#v}"
+      - name: Publish the Node.js SDK
+        working-directory: sdk/nodejs
+        run: npm install && npm run build && npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish the Python SDK
+        working-directory: sdk/python
+        run: python -m pip install build twine && python -m build && python -m twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Publish the .NET SDK
+        working-directory: sdk/dotnet
+        run: |
+          dotnet pack -c Release -o nupkg
+          dotnet nuget push "nupkg/*.nupkg" -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_PUBLISH_KEY }}
+      - name: Publish the Java SDK
+        working-directory: sdk/java
+        run: gradle publishToSonatype closeAndReleaseSonatypeStagingRepository
+        env:
+          PACKAGE_VERSION: ${{ github.ref_name }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.JAVA_SIGNING_KEY }}
+          SIGNING_KEY_ID: ${{ secrets.JAVA_SIGNING_KEY_ID }}
+          SIGNING_PASSWORD: ${{ secrets.JAVA_SIGNING_PASSWORD }}
+      - name: Tag the Go SDK module
+        run: |
+          git tag "sdk/${VERSION}"
+          git push origin "sdk/${VERSION}"

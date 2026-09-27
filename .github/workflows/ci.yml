@@ -1,0 +1,48 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: pulumi/actions@v6
+      - uses: golangci/golangci-lint-action@v8
+      - run: make build test
+      - name: Check the schema and SDKs are up to date
+        run: |
+          make schema sdks
+          git diff --exit-code -- provider/schema.json sdk/
+
+  acceptance:
+    # Runs the examples against the live Anthropic API. Credentials are only available to
+    # pushes to main and to pull requests from this repository.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    needs: test
+    runs-on: ubuntu-latest
+    concurrency: acceptance
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ANTHROPIC_ADMIN_KEY: ${{ secrets.ANTHROPIC_ADMIN_KEY }}
+      ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+      ANTHROPIC_ACCEPTANCE_WORKSPACE_ID: ${{ vars.ANTHROPIC_ACCEPTANCE_WORKSPACE_ID }}
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: pulumi/actions@v6
+      - run: make test_acceptance
