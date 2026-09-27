@@ -1,0 +1,43 @@
+// Copyright 2026, Pulumi Corporation.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package functions holds the provider's functions, which read platform data that
+// programs need but do not manage. They surface in the index module, e.g.
+// anthropic:index:getModels.
+package functions
+
+import (
+	"github.com/pulumi/pulumi-go-provider/infer"
+
+	"github.com/pulumi/pulumi-anthropic/provider/config"
+	"github.com/pulumi/pulumi-anthropic/provider/internal/rest"
+)
+
+// Functions returns the provider's functions.
+func Functions() []infer.InferredFunction {
+	return []infer.InferredFunction{
+		infer.Function(&GetOrganization{}),
+		infer.Function(&GetModels{}),
+		infer.Function(&GetRateLimits{}),
+	}
+}
+
+// The collections the functions read.
+var (
+	// modelCollection is generally available, so it takes no beta parameter.
+	modelCollection        = rest.Collection{Plane: config.Workspace, Path: "v1/models", GA: true}
+	organizationCollection = rest.Collection{Plane: config.Admin, Path: "v1/organizations"}
+	rateLimitCollection    = rest.Collection{Plane: config.Admin, Path: "v1/organizations/rate_limits"}
+	workspaceCollection    = rest.Collection{Plane: config.Admin, Path: "v1/organizations/workspaces"}
+)

@@ -1001,6 +1001,108 @@
         }
       ]
     },
+    "anthropic:index:ModelInfo": {
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "When the model was released, in RFC 3339 format."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The model's human-readable name."
+        },
+        "id": {
+          "type": "string",
+          "description": "The model ID, such as `claude-opus-5-5`, as used in an agent's `model.id`."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "displayName",
+        "createdAt"
+      ]
+    },
+    "anthropic:index:RateLimit": {
+      "properties": {
+        "group": {
+          "$ref": "#/types/anthropic:index:RateLimitGroup",
+          "description": "The group of models or API feature the limits apply to."
+        },
+        "groupType": {
+          "type": "string",
+          "description": "What the limits apply to, such as `model_group`, `batch`, or `web_search`."
+        },
+        "id": {
+          "type": "string",
+          "description": "The rate limit's ID."
+        },
+        "limits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:index:RateLimitValue"
+          },
+          "description": "The limits."
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The models the limits apply to."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "groupType",
+        "group",
+        "models",
+        "limits"
+      ]
+    },
+    "anthropic:index:RateLimitGroup": {
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "The group's human-readable name, for model groups."
+        },
+        "id": {
+          "type": "string",
+          "description": "The group's ID."
+        },
+        "type": {
+          "type": "string",
+          "description": "The group's type, matching the rate limit's `groupType`."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ]
+    },
+    "anthropic:index:RateLimitValue": {
+      "properties": {
+        "orgLimit": {
+          "type": "integer",
+          "description": "For a workspace, the organization-wide limit that caps this one."
+        },
+        "type": {
+          "type": "string",
+          "description": "What is limited, such as `requests_per_minute`."
+        },
+        "value": {
+          "type": "integer",
+          "description": "The limit."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ]
+    },
     "anthropic:organization:ApiKeyStatus": {
       "type": "string",
       "enum": [
@@ -2864,6 +2966,79 @@
       "requiredInputs": [
         "source"
       ]
+    }
+  },
+  "functions": {
+    "anthropic:index:getModels": {
+      "description": "Lists the Claude models available to the provider's workspace, newest first.",
+      "inputs": {
+        "type": "object"
+      },
+      "outputs": {
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/anthropic:index:ModelInfo"
+            },
+            "description": "The available models, newest first."
+          }
+        },
+        "type": "object",
+        "required": [
+          "models"
+        ]
+      }
+    },
+    "anthropic:index:getOrganization": {
+      "description": "Reads the organization that the provider's Admin API key or OAuth token belongs to.",
+      "inputs": {
+        "type": "object"
+      },
+      "outputs": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The organization's name."
+          },
+          "organizationId": {
+            "type": "string",
+            "description": "The organization's ID, a UUID."
+          }
+        },
+        "type": "object",
+        "required": [
+          "organizationId",
+          "name"
+        ]
+      }
+    },
+    "anthropic:index:getRateLimits": {
+      "description": "Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.",
+      "inputs": {
+        "properties": {
+          "workspaceId": {
+            "type": "string",
+            "description": "The workspace to read limits for. Omit for the organization's limits."
+          }
+        },
+        "type": "object"
+      },
+      "outputs": {
+        "properties": {
+          "rateLimits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/anthropic:index:RateLimit"
+            },
+            "description": "The rate limits, one entry per group of models or API feature."
+          }
+        },
+        "type": "object",
+        "required": [
+          "rateLimits"
+        ]
+      }
     }
   }
 }

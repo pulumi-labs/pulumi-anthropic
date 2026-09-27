@@ -21,9 +21,11 @@ import (
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 
 	"github.com/pulumi/pulumi-anthropic/provider/agents"
 	"github.com/pulumi/pulumi-anthropic/provider/config"
+	"github.com/pulumi/pulumi-anthropic/provider/functions"
 	"github.com/pulumi/pulumi-anthropic/provider/identity"
 	"github.com/pulumi/pulumi-anthropic/provider/organization"
 	"github.com/pulumi/pulumi-anthropic/provider/security"
@@ -58,5 +60,8 @@ func Provider() (p.Provider, error) {
 			identity.Resources(),
 			security.Resources(),
 		)...).
+		WithFunctions(functions.Functions()...).
+		// Functions are package-level lookups, so they surface in the index module.
+		WithModuleMap(map[tokens.ModuleName]tokens.ModuleName{"functions": "index"}).
 		Build()
 }
