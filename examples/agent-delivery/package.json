@@ -1,0 +1,11 @@
+{
+  "name": "agent-delivery",
+  "main": "index.ts",
+  "devDependencies": {
+    "@types/node": "^22"
+  },
+  "dependencies": {
+    "@pulumi/anthropic": "^0.1.0",
+    "@pulumi/pulumi": "^3"
+  }
+}

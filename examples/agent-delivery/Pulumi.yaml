@@ -1,0 +1,3 @@
+name: agent-delivery
+runtime: nodejs
+description: Deliver a Claude Managed Agent with a canary and a pinned stable deployment.

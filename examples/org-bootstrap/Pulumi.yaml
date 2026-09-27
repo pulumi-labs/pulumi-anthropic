@@ -1,0 +1,7 @@
+name: org-bootstrap
+runtime:
+  name: python
+  options:
+    toolchain: pip
+    virtualenv: venv
+description: Bootstrap an Anthropic workspace with a service account, a spend limit, and members.
