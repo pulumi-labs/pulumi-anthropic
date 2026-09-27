@@ -1,0 +1,31 @@
+{
+    "name": "@pulumi/anthropic",
+    "version": "0.1.0-dev",
+    "keywords": [
+        "anthropic",
+        "claude",
+        "agents",
+        "ai",
+        "category/cloud",
+        "kind/native"
+    ],
+    "homepage": "https://www.pulumi.com",
+    "repository": "https://github.com/pulumi/pulumi-anthropic",
+    "license": "Apache-2.0",
+    "scripts": {
+        "build": "tsc"
+    },
+    "dependencies": {
+        "@pulumi/pulumi": "^3.142.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "typescript": "^4.7.0"
+    },
+    "pulumi": {
+        "resource": true,
+        "name": "anthropic",
+        "version": "0.1.0-dev",
+        "server": "github://api.github.com/pulumi/pulumi-anthropic"
+    }
+}
