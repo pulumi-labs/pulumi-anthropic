@@ -1,0 +1,10 @@
+/bin/
+/dist/
+**/node_modules/
+**/__pycache__/
+**/.venv/
+**/Pulumi.*.yaml
+!examples/**/Pulumi.yaml
+.DS_Store
+/.claude/scheduled_tasks.lock
+/sdk/nodejs/package-lock.json
