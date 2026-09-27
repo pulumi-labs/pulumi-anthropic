@@ -17,9 +17,12 @@
 package provider
 
 import (
+	"slices"
+
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 
+	"github.com/pulumi/pulumi-anthropic/provider/agents"
 	"github.com/pulumi/pulumi-anthropic/provider/config"
 )
 
@@ -44,5 +47,8 @@ func Provider() (p.Provider, error) {
 		WithPluginDownloadURL("github://api.github.com/pulumi/pulumi-anthropic").
 		WithGoImportPath("github.com/pulumi/pulumi-anthropic/sdk/go/anthropic").
 		WithConfig(infer.Config(&config.Config{})).
+		WithResources(slices.Concat(
+			agents.Resources(),
+		)...).
 		Build()
 }

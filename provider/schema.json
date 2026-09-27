@@ -1,0 +1,1633 @@
+{
+  "name": "anthropic",
+  "displayName": "Anthropic",
+  "version": "0.1.0",
+  "description": "Manage the Anthropic platform as code: Claude Managed Agents, skills, workspaces, members, service accounts, workload identity federation, and more.",
+  "keywords": [
+    "anthropic",
+    "claude",
+    "agents",
+    "ai",
+    "category/cloud",
+    "kind/native"
+  ],
+  "homepage": "https://www.pulumi.com",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pulumi/pulumi-anthropic",
+  "pluginDownloadURL": "github://api.github.com/pulumi/pulumi-anthropic",
+  "publisher": "Pulumi",
+  "namespace": "pulumi",
+  "language": {
+    "csharp": {
+      "respectSchemaVersion": true
+    },
+    "go": {
+      "generateResourceContainerTypes": true,
+      "importBasePath": "github.com/pulumi/pulumi-anthropic/sdk/go/anthropic",
+      "respectSchemaVersion": true
+    },
+    "nodejs": {
+      "respectSchemaVersion": true
+    },
+    "python": {
+      "pyproject": {
+        "enabled": true
+      },
+      "respectSchemaVersion": true
+    }
+  },
+  "config": {
+    "variables": {
+      "adminKey": {
+        "type": "string",
+        "description": "An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_ADMIN_KEY"
+          ]
+        },
+        "secret": true
+      },
+      "apiKey": {
+        "type": "string",
+        "description": "An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_API_KEY"
+          ]
+        },
+        "secret": true
+      },
+      "authToken": {
+        "type": "string",
+        "description": "An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_AUTH_TOKEN"
+          ]
+        },
+        "secret": true
+      },
+      "baseUrl": {
+        "type": "string",
+        "description": "The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_BASE_URL"
+          ]
+        }
+      },
+      "workspaceId": {
+        "type": "string",
+        "description": "The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace."
+      }
+    }
+  },
+  "types": {
+    "anthropic:agents:AccessType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Your product uses the API behind the scenes, and the profile is one of its end users.",
+          "value": "application"
+        },
+        {
+          "description": "You resell raw inference, and the profile is the company you resell to.",
+          "value": "passthrough"
+        }
+      ]
+    },
+    "anthropic:agents:AgentReference": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The agent's ID."
+        },
+        "version": {
+          "type": "integer",
+          "description": "The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id"
+      ]
+    },
+    "anthropic:agents:Budget": {
+      "properties": {
+        "maxListCost": {
+          "$ref": "#/types/anthropic:agents:MonetaryAmount",
+          "description": "The most the deployment may spend, at list price."
+        }
+      },
+      "type": "object",
+      "required": [
+        "maxListCost"
+      ]
+    },
+    "anthropic:agents:Checkout": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The branch. Required for `branch`."
+        },
+        "sha": {
+          "type": "string",
+          "description": "The commit SHA. Required for `commit`."
+        },
+        "type": {
+          "$ref": "#/types/anthropic:agents:CheckoutType",
+          "description": "Whether to check out a branch or a commit."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:CheckoutType": {
+      "type": "string",
+      "enum": [
+        {
+          "value": "branch"
+        },
+        {
+          "value": "commit"
+        }
+      ]
+    },
+    "anthropic:agents:CredentialAuth": {
+      "properties": {
+        "accessToken": {
+          "type": "string",
+          "description": "The OAuth access token. Required for `mcp_oauth`.",
+          "secret": true
+        },
+        "expiresAt": {
+          "type": "string",
+          "description": "When the access token expires, in RFC 3339 format. For `mcp_oauth`."
+        },
+        "injectionLocation": {
+          "$ref": "#/types/anthropic:agents:InjectionLocation",
+          "description": "Where in outbound requests the secret is injected. For `environment_variable`; both locations are enabled when omitted."
+        },
+        "mcpServerUrl": {
+          "type": "string",
+          "description": "The MCP server the credential is for, unique within the vault. Required for `mcp_oauth` and `static_bearer`. Changing it replaces the credential.",
+          "replaceOnChanges": true
+        },
+        "networking": {
+          "$ref": "#/types/anthropic:agents:CredentialNetworking",
+          "description": "The hosts the secret may be sent to. Required for `environment_variable`."
+        },
+        "refresh": {
+          "$ref": "#/types/anthropic:agents:OAuthRefresh",
+          "description": "How to refresh the access token. For `mcp_oauth`."
+        },
+        "secretName": {
+          "type": "string",
+          "description": "The environment variable's name, unique within the vault. Required for `environment_variable`. Changing it replaces the credential.",
+          "replaceOnChanges": true
+        },
+        "secretValue": {
+          "type": "string",
+          "description": "The secret's value. Required for `environment_variable`.",
+          "secret": true
+        },
+        "token": {
+          "type": "string",
+          "description": "The bearer token. Required for `static_bearer`.",
+          "secret": true
+        },
+        "type": {
+          "$ref": "#/types/anthropic:agents:CredentialType",
+          "description": "The kind of credential. Changing it replaces the credential.",
+          "replaceOnChanges": true
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:CredentialNetworking": {
+      "properties": {
+        "allowedHosts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The hosts the secret may be sent to, up to 16. Applies to `limited`."
+        },
+        "type": {
+          "$ref": "#/types/anthropic:agents:NetworkingType",
+          "description": "Whether the secret may be sent to any host or only to the listed ones."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:CredentialType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "An OAuth access token for an MCP server, optionally refreshed.",
+          "value": "mcp_oauth"
+        },
+        {
+          "description": "A static bearer token for an MCP server.",
+          "value": "static_bearer"
+        },
+        {
+          "description": "A secret exposed to the sandbox as an environment variable and injected into requests to allowed hosts.",
+          "value": "environment_variable"
+        }
+      ]
+    },
+    "anthropic:agents:DeploymentResource": {
+      "properties": {
+        "access": {
+          "$ref": "#/types/anthropic:agents:MemoryAccess",
+          "description": "Whether the agent can write to the memory store. For `memory_store`."
+        },
+        "authorizationToken": {
+          "type": "string",
+          "description": "A token that can read the repository. For `github_repository`.",
+          "secret": true
+        },
+        "checkout": {
+          "$ref": "#/types/anthropic:agents:Checkout",
+          "description": "The branch or commit to check out. For `github_repository`; defaults to the default branch."
+        },
+        "fileId": {
+          "type": "string",
+          "description": "The file's ID. Required for `file`."
+        },
+        "instructions": {
+          "type": "string",
+          "description": "How the agent should use the memory store. For `memory_store`."
+        },
+        "memoryStoreId": {
+          "type": "string",
+          "description": "The memory store's ID. Required for `memory_store`."
+        },
+        "mountPath": {
+          "type": "string",
+          "description": "Where the resource is mounted in the sandbox. For `github_repository` and `file`."
+        },
+        "type": {
+          "$ref": "#/types/anthropic:agents:DeploymentResourceType",
+          "description": "The kind of resource."
+        },
+        "url": {
+          "type": "string",
+          "description": "The repository's URL. Required for `github_repository`."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:DeploymentResourceType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "A GitHub repository, cloned into the sandbox.",
+          "value": "github_repository"
+        },
+        {
+          "description": "An uploaded file, mounted into the sandbox.",
+          "value": "file"
+        },
+        {
+          "description": "A memory store, mounted into the sandbox.",
+          "value": "memory_store"
+        }
+      ]
+    },
+    "anthropic:agents:Effort": {
+      "type": "string",
+      "enum": [
+        {
+          "value": "low"
+        },
+        {
+          "value": "medium"
+        },
+        {
+          "value": "high"
+        },
+        {
+          "value": "xhigh"
+        },
+        {
+          "value": "max"
+        }
+      ]
+    },
+    "anthropic:agents:EnvironmentConfig": {
+      "properties": {
+        "networking": {
+          "$ref": "#/types/anthropic:agents:EnvironmentNetworking",
+          "description": "The sandbox's network access. Applies to `cloud`."
+        },
+        "packages": {
+          "$ref": "#/types/anthropic:agents:Packages",
+          "description": "Packages installed in the sandbox. Applies to `cloud`."
+        },
+        "type": {
+          "$ref": "#/types/anthropic:agents:EnvironmentType",
+          "description": "Whether sessions run in an Anthropic-managed cloud sandbox or on your own infrastructure. Changing it replaces the environment.",
+          "replaceOnChanges": true
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:EnvironmentNetworking": {
+      "properties": {
+        "allowMcpServers": {
+          "type": "boolean",
+          "description": "Whether the agent's MCP servers are reachable. Applies to `limited`."
+        },
+        "allowPackageManagers": {
+          "type": "boolean",
+          "description": "Whether package registries are reachable, which installing `packages` requires. Applies to `limited`."
+        },
+        "allowedHosts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Hosts the sandbox can reach. Applies to `limited`."
+        },
+        "type": {
+          "$ref": "#/types/anthropic:agents:NetworkingType",
+          "description": "Whether network access is unrestricted or limited."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:EnvironmentScope": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Everyone in the organization.",
+          "value": "organization"
+        },
+        {
+          "description": "Only the account that created it.",
+          "value": "account"
+        }
+      ]
+    },
+    "anthropic:agents:EnvironmentType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "An Anthropic-managed cloud sandbox.",
+          "value": "cloud"
+        },
+        {
+          "description": "A sandbox you run on your own infrastructure, authenticated by an environment key created in the Console.",
+          "value": "self_hosted"
+        }
+      ]
+    },
+    "anthropic:agents:InjectionLocation": {
+      "properties": {
+        "body": {
+          "type": "boolean",
+          "description": "Whether the secret is substituted into request bodies."
+        },
+        "header": {
+          "type": "boolean",
+          "description": "Whether the secret is substituted into request headers."
+        }
+      },
+      "type": "object"
+    },
+    "anthropic:agents:MCPServer": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The server's name, which an `mcp_toolset` tool refers to."
+        },
+        "url": {
+          "type": "string",
+          "description": "The server's URL. Credentials for it are supplied by a vault at session time."
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "url"
+      ]
+    },
+    "anthropic:agents:MemoryAccess": {
+      "type": "string",
+      "enum": [
+        {
+          "value": "read_write"
+        },
+        {
+          "value": "read_only"
+        }
+      ]
+    },
+    "anthropic:agents:Model": {
+      "properties": {
+        "effort": {
+          "$ref": "#/types/anthropic:agents:Effort",
+          "description": "How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged."
+        },
+        "id": {
+          "type": "string",
+          "description": "The model ID, such as `claude-opus-5-5`."
+        },
+        "inferenceGeo": {
+          "type": "string",
+          "description": "Where inference runs, such as `us` or `global`."
+        },
+        "speed": {
+          "$ref": "#/types/anthropic:agents:Speed",
+          "description": "The inference speed tier."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id"
+      ]
+    },
+    "anthropic:agents:MonetaryAmount": {
+      "properties": {
+        "amount": {
+          "type": "string",
+          "description": "The amount in the currency's minor units, as an integer string: `2500` is $25.00."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The ISO 4217 currency code. Only `USD` is supported."
+        }
+      },
+      "type": "object",
+      "required": [
+        "amount",
+        "currency"
+      ]
+    },
+    "anthropic:agents:Multiagent": {
+      "properties": {
+        "agents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:RosterEntry"
+          },
+          "description": "The agents the coordinator can delegate to, between 1 and 20."
+        }
+      },
+      "type": "object",
+      "required": [
+        "agents"
+      ]
+    },
+    "anthropic:agents:NetworkingType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Any host is reachable.",
+          "value": "unrestricted"
+        },
+        {
+          "description": "Only the listed hosts, and optionally MCP servers and package managers, are reachable.",
+          "value": "limited"
+        }
+      ]
+    },
+    "anthropic:agents:OAuthRefresh": {
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "description": "The OAuth client ID. Changing it replaces the credential.",
+          "replaceOnChanges": true
+        },
+        "refreshToken": {
+          "type": "string",
+          "description": "The OAuth refresh token.",
+          "secret": true
+        },
+        "resource": {
+          "type": "string",
+          "description": "The OAuth resource indicator. Changing it replaces the credential.",
+          "replaceOnChanges": true
+        },
+        "scope": {
+          "type": "string",
+          "description": "The OAuth scope to request."
+        },
+        "tokenEndpoint": {
+          "type": "string",
+          "description": "The token endpoint's URL. Changing it replaces the credential.",
+          "replaceOnChanges": true
+        },
+        "tokenEndpointAuth": {
+          "$ref": "#/types/anthropic:agents:TokenEndpointAuth",
+          "description": "How the client authenticates to the token endpoint."
+        }
+      },
+      "type": "object",
+      "required": [
+        "clientId",
+        "refreshToken",
+        "tokenEndpoint",
+        "tokenEndpointAuth"
+      ]
+    },
+    "anthropic:agents:Packages": {
+      "properties": {
+        "apt": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Debian packages."
+        },
+        "cargo": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Rust crates."
+        },
+        "gem": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Ruby gems."
+        },
+        "go": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Go modules."
+        },
+        "npm": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "npm packages."
+        },
+        "pip": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Python packages."
+        }
+      },
+      "type": "object"
+    },
+    "anthropic:agents:PermissionPolicy": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Calls run without approval.",
+          "value": "always_allow"
+        },
+        {
+          "description": "Every call waits for approval.",
+          "value": "always_ask"
+        },
+        {
+          "description": "The platform decides per call.",
+          "value": "auto"
+        }
+      ]
+    },
+    "anthropic:agents:RosterEntry": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The agent's ID. Required for `agent`."
+        },
+        "model": {
+          "type": "string",
+          "description": "The advisor's model ID. Required for `advisor`."
+        },
+        "type": {
+          "$ref": "#/types/anthropic:agents:RosterEntryType",
+          "description": "The kind of roster entry."
+        },
+        "version": {
+          "type": "integer",
+          "description": "The agent version to delegate to. If omitted, the version current when the coordinator is saved is pinned; later versions are not picked up."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:RosterEntryType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Another agent, by ID and optionally version.",
+          "value": "agent"
+        },
+        {
+          "description": "The coordinator itself.",
+          "value": "self"
+        },
+        {
+          "description": "A model consulted for advice, by model ID.",
+          "value": "advisor"
+        }
+      ]
+    },
+    "anthropic:agents:Schedule": {
+      "properties": {
+        "expression": {
+          "type": "string",
+          "description": "A cron expression, such as `0 9 * * 1-5`."
+        },
+        "timezone": {
+          "type": "string",
+          "description": "The IANA time zone the expression is evaluated in, such as `America/New_York`."
+        }
+      },
+      "type": "object",
+      "required": [
+        "expression",
+        "timezone"
+      ]
+    },
+    "anthropic:agents:SkillRef": {
+      "properties": {
+        "skillId": {
+          "type": "string",
+          "description": "The skill's ID."
+        },
+        "type": {
+          "$ref": "#/types/anthropic:agents:SkillType",
+          "description": "Whether the skill is provided by Anthropic or uploaded to the organization."
+        },
+        "version": {
+          "type": "string",
+          "description": "The skill version to pin. Omit to always use the latest version."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "skillId"
+      ]
+    },
+    "anthropic:agents:SkillType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "A skill provided by Anthropic, such as `xlsx`.",
+          "value": "anthropic"
+        },
+        {
+          "description": "A skill uploaded to the organization, such as an `anthropic.skills.Skill`.",
+          "value": "custom"
+        }
+      ]
+    },
+    "anthropic:agents:Speed": {
+      "type": "string",
+      "enum": [
+        {
+          "value": "standard"
+        },
+        {
+          "value": "fast"
+        }
+      ]
+    },
+    "anthropic:agents:TokenEndpointAuth": {
+      "properties": {
+        "clientSecret": {
+          "type": "string",
+          "description": "The client secret. Required unless the type is `none`.",
+          "secret": true
+        },
+        "type": {
+          "$ref": "#/types/anthropic:agents:TokenEndpointAuthType",
+          "description": "The authentication method."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:TokenEndpointAuthType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "A public client, with no client secret.",
+          "value": "none"
+        },
+        {
+          "description": "The client secret, in an HTTP Basic header.",
+          "value": "client_secret_basic"
+        },
+        {
+          "description": "The client secret, in the request body.",
+          "value": "client_secret_post"
+        }
+      ]
+    },
+    "anthropic:agents:Tool": {
+      "properties": {
+        "configs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:ToolConfig"
+          },
+          "description": "Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`."
+        },
+        "defaultConfig": {
+          "$ref": "#/types/anthropic:agents:ToolDefaults",
+          "description": "Settings for tools without an entry in `configs`, for `agent_toolset_20260401` and `mcp_toolset`."
+        },
+        "description": {
+          "type": "string",
+          "description": "What the tool does, for the model. Required for `custom`."
+        },
+        "inputSchema": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "pulumi.json#/Any"
+          },
+          "description": "The JSON Schema of the tool's input. Required for `custom`."
+        },
+        "mcpServerName": {
+          "type": "string",
+          "description": "The `mcpServers` entry whose tools to grant. Required for `mcp_toolset`."
+        },
+        "name": {
+          "type": "string",
+          "description": "The tool's name. Required for `custom`."
+        },
+        "type": {
+          "$ref": "#/types/anthropic:agents:ToolType",
+          "description": "The kind of tool."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:ToolConfig": {
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the agent may use the tool."
+        },
+        "name": {
+          "type": "string",
+          "description": "The tool's name, such as `bash` or `web_fetch`."
+        },
+        "permissionPolicy": {
+          "$ref": "#/types/anthropic:agents:PermissionPolicy",
+          "description": "Whether a tool call needs approval."
+        }
+      },
+      "type": "object",
+      "required": [
+        "name"
+      ]
+    },
+    "anthropic:agents:ToolDefaults": {
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the agent may use the tools."
+        },
+        "permissionPolicy": {
+          "$ref": "#/types/anthropic:agents:PermissionPolicy",
+          "description": "Whether a tool call needs approval."
+        }
+      },
+      "type": "object"
+    },
+    "anthropic:agents:ToolType": {
+      "type": "string",
+      "enum": [
+        {
+          "description": "Anthropic's built-in agent tools: bash, edit, read, write, glob, grep, web_fetch, and web_search.",
+          "value": "agent_toolset_20260401"
+        },
+        {
+          "description": "The tools of an MCP server declared in `mcpServers`.",
+          "value": "mcp_toolset"
+        },
+        {
+          "description": "A tool the client executes, declared by name and input schema.",
+          "value": "custom"
+        }
+      ]
+    },
+    "anthropic:agents:TrustGrant": {
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "The grant's status: `active`, `pending`, or `rejected`."
+        }
+      },
+      "type": "object",
+      "required": [
+        "status"
+      ]
+    }
+  },
+  "provider": {
+    "properties": {
+      "adminKey": {
+        "type": "string",
+        "description": "An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_ADMIN_KEY"
+          ]
+        },
+        "secret": true
+      },
+      "apiKey": {
+        "type": "string",
+        "description": "An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_API_KEY"
+          ]
+        },
+        "secret": true
+      },
+      "authToken": {
+        "type": "string",
+        "description": "An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_AUTH_TOKEN"
+          ]
+        },
+        "secret": true
+      },
+      "baseUrl": {
+        "type": "string",
+        "description": "The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_BASE_URL"
+          ]
+        }
+      },
+      "workspaceId": {
+        "type": "string",
+        "description": "The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace."
+      }
+    },
+    "inputProperties": {
+      "adminKey": {
+        "type": "string",
+        "description": "An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_ADMIN_KEY"
+          ]
+        },
+        "secret": true
+      },
+      "apiKey": {
+        "type": "string",
+        "description": "An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_API_KEY"
+          ]
+        },
+        "secret": true
+      },
+      "authToken": {
+        "type": "string",
+        "description": "An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_AUTH_TOKEN"
+          ]
+        },
+        "secret": true
+      },
+      "baseUrl": {
+        "type": "string",
+        "description": "The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.",
+        "default": "",
+        "defaultInfo": {
+          "environment": [
+            "ANTHROPIC_BASE_URL"
+          ]
+        }
+      },
+      "workspaceId": {
+        "type": "string",
+        "description": "The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace."
+      }
+    }
+  },
+  "resources": {
+    "anthropic:agents:Agent": {
+      "description": "A Claude Managed Agents agent: the model, system prompt, tools, MCP servers, and skills that sessions run with.\n\nAgents are versioned. Every update that changes the configuration creates a new version, reported by the `version` output; sessions and deployments can pin a version, which makes canary and staged rollouts a matter of which version each deployment references.\n\nThe API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Running sessions continue; new sessions cannot use it.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "When the agent was created, in RFC 3339 format."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the agent, up to 2,048 characters."
+        },
+        "mcpServers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:MCPServer"
+          },
+          "description": "The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs, up to 16."
+        },
+        "model": {
+          "$ref": "#/types/anthropic:agents:Model",
+          "description": "The model the agent runs on."
+        },
+        "multiagent": {
+          "$ref": "#/types/anthropic:agents:Multiagent",
+          "description": "Makes the agent a coordinator that delegates to other agents."
+        },
+        "name": {
+          "type": "string",
+          "description": "The agent's name, 1 to 256 characters."
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:SkillRef"
+          },
+          "description": "The skills available to the agent."
+        },
+        "system": {
+          "type": "string",
+          "description": "The system prompt, up to 100,000 characters."
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:Tool"
+          },
+          "description": "The tools the agent can use, up to 128."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the agent was last updated, in RFC 3339 format."
+        },
+        "version": {
+          "type": "integer",
+          "description": "The agent's current version. It starts at 1 and increments with every update that changes the configuration."
+        }
+      },
+      "required": [
+        "name",
+        "model",
+        "version",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "description": {
+          "type": "string",
+          "description": "A description of the agent, up to 2,048 characters."
+        },
+        "mcpServers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:MCPServer"
+          },
+          "description": "The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs, up to 16."
+        },
+        "model": {
+          "$ref": "#/types/anthropic:agents:Model",
+          "description": "The model the agent runs on."
+        },
+        "multiagent": {
+          "$ref": "#/types/anthropic:agents:Multiagent",
+          "description": "Makes the agent a coordinator that delegates to other agents."
+        },
+        "name": {
+          "type": "string",
+          "description": "The agent's name, 1 to 256 characters."
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:SkillRef"
+          },
+          "description": "The skills available to the agent."
+        },
+        "system": {
+          "type": "string",
+          "description": "The system prompt, up to 100,000 characters."
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:Tool"
+          },
+          "description": "The tools the agent can use, up to 128."
+        }
+      },
+      "requiredInputs": [
+        "name",
+        "model"
+      ]
+    },
+    "anthropic:agents:Deployment": {
+      "description": "A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, run on a cron schedule or on demand.\n\nA deployment runs one version of its agent. Set `agent.version` to the agent's `version` output to roll the deployment forward with every change to the agent, or to a fixed number to hold it back: updating the agent creates a new version, and deployments move to it one at a time as their `agent.version` changes.\n\nThe API cannot delete deployments, so deleting this resource archives the deployment, which stops its schedule and cannot be undone.",
+      "properties": {
+        "agent": {
+          "$ref": "#/types/anthropic:agents:AgentReference",
+          "description": "The agent to run, and optionally the version to pin."
+        },
+        "budget": {
+          "$ref": "#/types/anthropic:agents:Budget",
+          "description": "A spending limit for the deployment."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the deployment was created, in RFC 3339 format."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the deployment."
+        },
+        "environmentId": {
+          "type": "string",
+          "description": "The environment sessions run in."
+        },
+        "initialEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            }
+          },
+          "description": "The events that start each session, 1 to 50, in the API's event format. For example: `{type: \"user.message\", content: [{type: \"text\", text: \"Triage new issues.\"}]}`."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs."
+        },
+        "name": {
+          "type": "string",
+          "description": "The deployment's name."
+        },
+        "paused": {
+          "type": "boolean",
+          "description": "Whether the deployment is paused. Omit to leave pausing to other tools."
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:DeploymentResource"
+          },
+          "description": "Repositories, files, and memory stores mounted into each session, up to 500."
+        },
+        "schedule": {
+          "$ref": "#/types/anthropic:agents:Schedule",
+          "description": "When to run. Omit to run only on demand."
+        },
+        "status": {
+          "type": "string",
+          "description": "Whether the deployment is `active` or `paused`. The platform also pauses a deployment when it cannot run, for example because its agent was archived."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the deployment was last updated, in RFC 3339 format."
+        },
+        "vaultIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Vaults whose credentials sessions can use, up to 50."
+        }
+      },
+      "required": [
+        "name",
+        "agent",
+        "environmentId",
+        "initialEvents",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "agent": {
+          "$ref": "#/types/anthropic:agents:AgentReference",
+          "description": "The agent to run, and optionally the version to pin."
+        },
+        "budget": {
+          "$ref": "#/types/anthropic:agents:Budget",
+          "description": "A spending limit for the deployment."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the deployment."
+        },
+        "environmentId": {
+          "type": "string",
+          "description": "The environment sessions run in."
+        },
+        "initialEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            }
+          },
+          "description": "The events that start each session, 1 to 50, in the API's event format. For example: `{type: \"user.message\", content: [{type: \"text\", text: \"Triage new issues.\"}]}`."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs."
+        },
+        "name": {
+          "type": "string",
+          "description": "The deployment's name."
+        },
+        "paused": {
+          "type": "boolean",
+          "description": "Whether the deployment is paused. Omit to leave pausing to other tools."
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:DeploymentResource"
+          },
+          "description": "Repositories, files, and memory stores mounted into each session, up to 500."
+        },
+        "schedule": {
+          "$ref": "#/types/anthropic:agents:Schedule",
+          "description": "When to run. Omit to run only on demand."
+        },
+        "vaultIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Vaults whose credentials sessions can use, up to 50."
+        }
+      },
+      "requiredInputs": [
+        "name",
+        "agent",
+        "environmentId",
+        "initialEvents"
+      ]
+    },
+    "anthropic:agents:Environment": {
+      "description": "A Claude Managed Agents environment: where sessions run, either an Anthropic-managed cloud sandbox or a sandbox you host yourself.\n\nEnvironments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource deletes the environment. The API refuses to delete an environment that sessions still reference, in which case it is archived instead: it becomes read-only, running sessions continue, and new sessions cannot use it.",
+      "properties": {
+        "config": {
+          "$ref": "#/types/anthropic:agents:EnvironmentConfig",
+          "description": "Where and how sessions run. Defaults to a cloud sandbox."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the environment was created, in RFC 3339 format."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the environment, up to 1,024 characters."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs."
+        },
+        "name": {
+          "type": "string",
+          "description": "The environment's name, 1 to 256 characters."
+        },
+        "scope": {
+          "$ref": "#/types/anthropic:agents:EnvironmentScope",
+          "description": "Who can use the environment. API organizations accept only `organization`."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the environment was last updated, in RFC 3339 format."
+        }
+      },
+      "required": [
+        "name",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "config": {
+          "$ref": "#/types/anthropic:agents:EnvironmentConfig",
+          "description": "Where and how sessions run. Defaults to a cloud sandbox."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the environment, up to 1,024 characters."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs."
+        },
+        "name": {
+          "type": "string",
+          "description": "The environment's name, 1 to 256 characters."
+        },
+        "scope": {
+          "$ref": "#/types/anthropic:agents:EnvironmentScope",
+          "description": "Who can use the environment. API organizations accept only `organization`."
+        }
+      },
+      "requiredInputs": [
+        "name"
+      ]
+    },
+    "anthropic:agents:MemoryStore": {
+      "description": "A Claude Managed Agents memory store: persistent memory that agents read and write across sessions, attached to sessions or deployments as a resource. The memories themselves are data that agents write at runtime, so they are not managed here.\n\nDeleting this resource deletes the store along with all of its memories and their versions.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "When the store was created, in RFC 3339 format."
+        },
+        "description": {
+          "type": "string",
+          "description": "What the store holds, up to 1,024 characters. It is shown to the agent."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs."
+        },
+        "name": {
+          "type": "string",
+          "description": "The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the store was last updated, in RFC 3339 format."
+        }
+      },
+      "required": [
+        "name",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "description": {
+          "type": "string",
+          "description": "What the store holds, up to 1,024 characters. It is shown to the agent."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs."
+        },
+        "name": {
+          "type": "string",
+          "description": "The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount."
+        }
+      },
+      "requiredInputs": [
+        "name"
+      ]
+    },
+    "anthropic:agents:Tunnel": {
+      "description": "An MCP tunnel, a research preview: a connection through which Managed Agents reach MCP servers on a private network, without exposing them to the internet. Run the tunnel client on the private network with the `tunnelToken` output, and trust its certificate authority with `TunnelCertificate`.\n\nTunnels cannot be updated, so changing the display name replaces the tunnel, which assigns a new domain and token. Deleting this resource archives the tunnel, which invalidates its token and archives its certificates; it cannot be undone.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "When the tunnel was created, in RFC 3339 format."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The tunnel's display name, 1 to 255 characters.",
+          "replaceOnChanges": true
+        },
+        "domain": {
+          "type": "string",
+          "description": "The tunnel's globally unique domain, which MCP server URLs use."
+        },
+        "tunnelToken": {
+          "type": "string",
+          "description": "The token the tunnel client authenticates with.",
+          "secret": true
+        }
+      },
+      "required": [
+        "domain",
+        "tunnelToken",
+        "createdAt"
+      ],
+      "inputProperties": {
+        "displayName": {
+          "type": "string",
+          "description": "The tunnel's display name, 1 to 255 characters.",
+          "replaceOnChanges": true
+        }
+      }
+    },
+    "anthropic:agents:TunnelCertificate": {
+      "description": "A CA certificate for an MCP tunnel, used to verify the certificates of MCP servers behind the tunnel. A tunnel holds at most two active certificates, which allows rotation.\n\nCertificates cannot be updated, so any change replaces the certificate. Deleting this resource archives the certificate. Its ID is `\u003ctunnelId\u003e/\u003ccertificateId\u003e`.",
+      "properties": {
+        "caCertificatePem": {
+          "type": "string",
+          "description": "A single PEM-encoded CA certificate, up to 8,192 characters.",
+          "replaceOnChanges": true
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the certificate was added, in RFC 3339 format."
+        },
+        "expiresAt": {
+          "type": "string",
+          "description": "When the certificate expires, in RFC 3339 format."
+        },
+        "fingerprint": {
+          "type": "string",
+          "description": "The certificate's SHA-256 fingerprint."
+        },
+        "tunnelId": {
+          "type": "string",
+          "description": "The tunnel that trusts the certificate.",
+          "replaceOnChanges": true
+        }
+      },
+      "required": [
+        "tunnelId",
+        "caCertificatePem",
+        "fingerprint",
+        "expiresAt",
+        "createdAt"
+      ],
+      "inputProperties": {
+        "caCertificatePem": {
+          "type": "string",
+          "description": "A single PEM-encoded CA certificate, up to 8,192 characters.",
+          "replaceOnChanges": true
+        },
+        "tunnelId": {
+          "type": "string",
+          "description": "The tunnel that trusts the certificate.",
+          "replaceOnChanges": true
+        }
+      },
+      "requiredInputs": [
+        "tunnelId",
+        "caCertificatePem"
+      ]
+    },
+    "anthropic:agents:UserProfile": {
+      "description": "A user profile: an entity your platform serves through the Anthropic API, such as an end user of your product or a company you resell Claude access to. Send its ID in the `anthropic-user-profile-id` header of Messages, Message Batches, and token counting requests to attribute them to the entity.\n\nThe API cannot delete user profiles, so deleting this resource only removes it from the stack; the profile remains.",
+      "properties": {
+        "accessType": {
+          "$ref": "#/types/anthropic:agents:AccessType",
+          "description": "How your platform uses the API on the entity's behalf. Defaults to `application`."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the profile was created, in RFC 3339 format."
+        },
+        "externalId": {
+          "type": "string",
+          "description": "Your platform's own identifier for the entity, up to 255 characters."
+        },
+        "externalUserOnboardedAt": {
+          "type": "string",
+          "description": "When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs, up to 16."
+        },
+        "name": {
+          "type": "string",
+          "description": "The entity's name, 1 to 255 characters."
+        },
+        "trustGrants": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/types/anthropic:agents:TrustGrant"
+          },
+          "description": "The profile's active or pending trust grants, by grant name."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the profile was last updated, in RFC 3339 format."
+        }
+      },
+      "required": [
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "accessType": {
+          "$ref": "#/types/anthropic:agents:AccessType",
+          "description": "How your platform uses the API on the entity's behalf. Defaults to `application`."
+        },
+        "externalId": {
+          "type": "string",
+          "description": "Your platform's own identifier for the entity, up to 255 characters."
+        },
+        "externalUserOnboardedAt": {
+          "type": "string",
+          "description": "When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs, up to 16."
+        },
+        "name": {
+          "type": "string",
+          "description": "The entity's name, 1 to 255 characters."
+        }
+      }
+    },
+    "anthropic:agents:Vault": {
+      "description": "A Claude Managed Agents vault: a container for the credentials sessions use to reach MCP servers and other services. Add credentials with `VaultCredential`, and attach vaults to sessions or deployments by ID.\n\nDeleting this resource deletes the vault and every credential in it.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "When the vault was created, in RFC 3339 format."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The vault's display name, 1 to 255 characters."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the vault was last updated, in RFC 3339 format."
+        }
+      },
+      "required": [
+        "displayName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "displayName": {
+          "type": "string",
+          "description": "The vault's display name, 1 to 255 characters."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs."
+        }
+      },
+      "requiredInputs": [
+        "displayName"
+      ]
+    },
+    "anthropic:agents:VaultCredential": {
+      "description": "A credential in a Claude Managed Agents vault: an OAuth grant or bearer token for an MCP server, or a secret injected into outbound requests as an environment variable.\n\nSecret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `\u003cvaultId\u003e/\u003ccredentialId\u003e`.",
+      "properties": {
+        "auth": {
+          "$ref": "#/types/anthropic:agents:CredentialAuth",
+          "description": "The credential itself."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "When the credential was created, in RFC 3339 format."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The credential's display name."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the credential was last updated, in RFC 3339 format."
+        },
+        "vaultId": {
+          "type": "string",
+          "description": "The vault holding the credential.",
+          "replaceOnChanges": true
+        }
+      },
+      "required": [
+        "vaultId",
+        "auth",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "auth": {
+          "$ref": "#/types/anthropic:agents:CredentialAuth",
+          "description": "The credential itself."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The credential's display name."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Arbitrary key-value pairs."
+        },
+        "vaultId": {
+          "type": "string",
+          "description": "The vault holding the credential.",
+          "replaceOnChanges": true
+        }
+      },
+      "requiredInputs": [
+        "vaultId",
+        "auth"
+      ]
+    }
+  }
+}
