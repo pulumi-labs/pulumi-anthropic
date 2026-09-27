@@ -1628,6 +1628,52 @@
         "vaultId",
         "auth"
       ]
+    },
+    "anthropic:skills:Skill": {
+      "description": "A custom Agent Skill: a directory of instructions, scripts, and resources, with a `SKILL.md` at its root, that Claude loads when relevant. Skills can be attached to Managed Agents and used from the Messages API.\n\nSkills are versioned. When the content of `source` changes, a new immutable version is uploaded and becomes `latestVersionId`; earlier versions are kept, so agents that pin one keep working. Deleting the resource deletes the skill and all of its versions.",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "When the skill was created, in RFC 3339 format."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.",
+          "replaceOnChanges": true
+        },
+        "latestVersionId": {
+          "type": "string",
+          "description": "The ID of the newest version (`skver_...`), which agents can pin in a skill reference's `version`."
+        },
+        "source": {
+          "$ref": "pulumi.json#/Archive",
+          "description": "The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "When the skill was last updated, in RFC 3339 format."
+        }
+      },
+      "required": [
+        "source",
+        "latestVersionId",
+        "createdAt",
+        "updatedAt"
+      ],
+      "inputProperties": {
+        "displayName": {
+          "type": "string",
+          "description": "A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.",
+          "replaceOnChanges": true
+        },
+        "source": {
+          "$ref": "pulumi.json#/Archive",
+          "description": "The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed."
+        }
+      },
+      "requiredInputs": [
+        "source"
+      ]
     }
   }
 }

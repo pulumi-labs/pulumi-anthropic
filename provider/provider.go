@@ -24,6 +24,7 @@ import (
 
 	"github.com/pulumi/pulumi-anthropic/provider/agents"
 	"github.com/pulumi/pulumi-anthropic/provider/config"
+	"github.com/pulumi/pulumi-anthropic/provider/skills"
 )
 
 // Name is the Pulumi package and plugin name.
@@ -49,6 +50,7 @@ func Provider() (p.Provider, error) {
 		WithConfig(infer.Config(&config.Config{})).
 		WithResources(slices.Concat(
 			agents.Resources(),
+			skills.Resources(),
 		)...).
 		Build()
 }
