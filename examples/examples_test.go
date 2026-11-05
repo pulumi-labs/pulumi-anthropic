@@ -31,7 +31,20 @@ import (
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 )
 
-// credentials skips a test unless the environment holds every named credential.
+// requireCredentials fails a test unless the environment holds every named credential.
+// The acceptance job runs only where the repository's secrets are available, so a
+// missing credential is a broken job rather than an expected condition. A skip would
+// report success for a test that checked nothing.
+func requireCredentials(t *testing.T, names ...string) {
+	for _, name := range names {
+		if os.Getenv(name) == "" {
+			t.Fatalf("%s is not set, so this test cannot reach the Anthropic API", name)
+		}
+	}
+}
+
+// credentials skips a test unless the environment holds every named credential. Use it
+// for a surface the acceptance organization is not required to grant.
 func credentials(t *testing.T, names ...string) {
 	for _, name := range names {
 		if os.Getenv(name) == "" {
@@ -87,7 +100,7 @@ func useLocalSDK(project, sdk string) error {
 }
 
 func TestAgentDelivery(t *testing.T) {
-	credentials(t, "ANTHROPIC_API_KEY")
+	requireCredentials(t, "ANTHROPIC_API_KEY")
 	opts := options(t, "agent-delivery")
 	// Stable is pinned to the agent's first version; the canary follows the latest.
 	opts.Config = map[string]string{"paused": "true", "stableVersion": "1"}
