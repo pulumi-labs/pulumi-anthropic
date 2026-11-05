@@ -72,6 +72,12 @@ func (MemoryStoreState) ElementType() reflect.Type {
 	return reflect.TypeOf((*memoryStoreState)(nil)).Elem()
 }
 
+// MemoryStoreExists checks whether an existing MemoryStore resource with the given ID exists.
+func MemoryStoreExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *MemoryStoreState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:agents:MemoryStore", id, state, "", opts...)
+}
+
 type memoryStoreArgs struct {
 	// What the store holds, up to 1,024 characters. It is shown to the agent.
 	Description *string `pulumi:"description"`

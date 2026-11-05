@@ -212,6 +212,12 @@ class UserProfile(pulumi.CustomResource):
         __props__.__dict__["updated_at"] = None
         return UserProfile(resource_name, opts=opts, __props__=__props__)
 
+    @staticmethod
+    def exists(id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> pulumi.Output[bool]:
+        __props__: dict = {}
+        return pulumi.runtime.exists_resource(None, 'anthropic:agents:UserProfile', id, __props__, opts or pulumi.ResourceOptions())
+
     @_builtins.property
     @pulumi.getter(name="accessType")
     def access_type(self) -> pulumi.Output[Optional['AccessType']]:

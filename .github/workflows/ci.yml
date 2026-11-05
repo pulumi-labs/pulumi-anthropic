@@ -13,12 +13,55 @@ jobs:
         with:
           go-version-file: go.mod
       - uses: pulumi/actions@v6
+        with:
+          # Keep in step with mise.toml. The SDK generator lives in the CLI, so
+          # an unpinned version changes the generated SDKs on its own.
+          pulumi-version: '3.274.1'
       - uses: golangci/golangci-lint-action@v8
       - run: make build test
-      - name: Check the schema and SDKs are up to date
+      - name: Check the schema is up to date
         run: |
-          make schema sdks
-          git diff --exit-code -- provider/schema.json sdk/
+          make schema
+          git diff --exit-code -- provider/schema.json
+
+  build_sdks:
+    # Each language generates and compiles in its own job. This replaces a byte
+    # comparison against the committed SDKs: that only proved the bytes matched,
+    # never that they compile, and it failed on every Pulumi codegen change.
+    needs: test
+    name: build_sdks (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [nodejs, python, go, dotnet, java]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: pulumi/actions@v6
+        with:
+          pulumi-version: '3.274.1'
+      - if: matrix.language == 'nodejs'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - if: matrix.language == 'dotnet'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - if: matrix.language == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - run: make sdk_${{ matrix.language }}
+      - run: make build_${{ matrix.language }}
 
   acceptance:
     # Runs the examples against the live Anthropic API. Credentials are only available to
@@ -45,4 +88,6 @@ jobs:
         with:
           python-version: "3.12"
       - uses: pulumi/actions@v6
+        with:
+          pulumi-version: '3.274.1'
       - run: make test_acceptance

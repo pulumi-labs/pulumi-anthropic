@@ -153,7 +153,7 @@ func (k *ExternalKey) validate(ctx context.Context, id string) error {
 		return fmt.Errorf("decoding the key's validation: %w", err)
 	}
 	if result.Status != "success" {
-		return fmt.Errorf("Anthropic could not use the key: %s", result.Error)
+		return fmt.Errorf("the key failed validation: %s", result.Error)
 	}
 	return nil
 }

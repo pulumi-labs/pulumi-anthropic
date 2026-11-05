@@ -77,6 +77,12 @@ func (WorkspaceMemberState) ElementType() reflect.Type {
 	return reflect.TypeOf((*workspaceMemberState)(nil)).Elem()
 }
 
+// WorkspaceMemberExists checks whether an existing WorkspaceMember resource with the given ID exists.
+func WorkspaceMemberExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *WorkspaceMemberState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:organization:WorkspaceMember", id, state, "", opts...)
+}
+
 type workspaceMemberArgs struct {
 	// The user's ID.
 	UserId string `pulumi:"userId"`

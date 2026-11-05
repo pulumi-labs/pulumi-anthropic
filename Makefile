@@ -43,6 +43,29 @@ sdk_go: $(SCHEMA)
 build_nodejs: sdk_nodejs ## Build the Node.js SDK into sdk/nodejs/bin.
 	cd sdk/nodejs && npm install && npx tsc && cp package.json ../../README.md bin/
 
+# Compiling each SDK catches a generated SDK that is well-formed but does not
+# build, which a byte comparison against the committed SDK never does.
+.PHONY: build_go
+build_go: sdk_go ## Compile the Go SDK.
+	cd sdk && go build ./...
+
+.PHONY: build_python
+build_python: sdk_python ## Build the Python SDK wheel into sdk/python/dist.
+	python3 -m venv bin/python-sdk-venv
+	bin/python-sdk-venv/bin/python -m pip install --quiet --upgrade pip build
+	cd sdk/python && $(CURDIR)/bin/python-sdk-venv/bin/python -m build --wheel --outdir dist/
+
+.PHONY: build_dotnet
+build_dotnet: sdk_dotnet ## Build the .NET SDK.
+	cd sdk/dotnet && dotnet build
+
+.PHONY: build_java
+build_java: sdk_java ## Build the Java SDK. Gradle 9 needs JDK 17 or newer to run.
+	cd sdk/java && gradle build
+
+.PHONY: build_sdks
+build_sdks: $(foreach lang,$(LANGUAGES),build_$(lang)) ## Generate and compile every language SDK.
+
 .PHONY: test_acceptance
 test_acceptance: build build_nodejs sdk_python ## Run the examples against the live Anthropic API (needs credentials).
 	cd examples && go test -v -timeout 60m -tags acceptance ./...

@@ -83,6 +83,12 @@ func (FederationIssuerState) ElementType() reflect.Type {
 	return reflect.TypeOf((*federationIssuerState)(nil)).Elem()
 }
 
+// FederationIssuerExists checks whether an existing FederationIssuer resource with the given ID exists.
+func FederationIssuerExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *FederationIssuerState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:identity:FederationIssuer", id, state, "", opts...)
+}
+
 type federationIssuerArgs struct {
 	// Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
 	CheckJti *bool `pulumi:"checkJti"`

@@ -113,7 +113,7 @@ class Environment(pulumi.CustomResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 config: pulumi.Input[Optional[Union['EnvironmentConfigArgs', 'EnvironmentConfigArgsDict']]] = None,
+                 config: pulumi.Input[Optional[Union['EnvironmentConfigArgs', 'EnvironmentConfigArgsDict', 'outputs.EnvironmentConfig']]] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
@@ -126,7 +126,7 @@ class Environment(pulumi.CustomResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Union['EnvironmentConfigArgs', 'EnvironmentConfigArgsDict']] config: Where and how sessions run. Defaults to a cloud sandbox.
+        :param pulumi.Input[Union['EnvironmentConfigArgs', 'EnvironmentConfigArgsDict', 'outputs.EnvironmentConfig']] config: Where and how sessions run. Defaults to a cloud sandbox.
         :param pulumi.Input[_builtins.str] description: A description of the environment, up to 1,024 characters.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
         :param pulumi.Input[_builtins.str] name: The environment's name, 1 to 256 characters.
@@ -158,7 +158,7 @@ class Environment(pulumi.CustomResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 config: pulumi.Input[Optional[Union['EnvironmentConfigArgs', 'EnvironmentConfigArgsDict']]] = None,
+                 config: pulumi.Input[Optional[Union['EnvironmentConfigArgs', 'EnvironmentConfigArgsDict', 'outputs.EnvironmentConfig']]] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
@@ -213,6 +213,12 @@ class Environment(pulumi.CustomResource):
         __props__.__dict__["scope"] = None
         __props__.__dict__["updated_at"] = None
         return Environment(resource_name, opts=opts, __props__=__props__)
+
+    @staticmethod
+    def exists(id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> pulumi.Output[bool]:
+        __props__: dict = {}
+        return pulumi.runtime.exists_resource(None, 'anthropic:agents:Environment', id, __props__, opts or pulumi.ResourceOptions())
 
     @_builtins.property
     @pulumi.getter

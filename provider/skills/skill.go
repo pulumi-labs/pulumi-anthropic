@@ -195,7 +195,7 @@ func (s *Skill) upload(
 	if err != nil {
 		return fmt.Errorf("reading source: %w", err)
 	}
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
 	for {
 		name, blob, err := reader.Next()
 		if errors.Is(err, io.EOF) {
@@ -208,7 +208,7 @@ func (s *Skill) upload(
 		if err == nil {
 			_, err = io.Copy(part, blob)
 		}
-		blob.Close()
+		_ = blob.Close()
 		if err != nil {
 			return fmt.Errorf("encoding %s: %w", name, err)
 		}

@@ -177,14 +177,14 @@ class Agent(pulumi.CustomResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
-                 mcp_servers: pulumi.Input[Optional[Sequence[pulumi.Input[Union['MCPServerArgs', 'MCPServerArgsDict']]]]] = None,
+                 mcp_servers: pulumi.Input[Optional[Sequence[pulumi.Input[Union['MCPServerArgs', 'MCPServerArgsDict', 'outputs.MCPServer']]]]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
-                 model: pulumi.Input[Optional[Union['ModelArgs', 'ModelArgsDict']]] = None,
-                 multiagent: pulumi.Input[Optional[Union['MultiagentArgs', 'MultiagentArgsDict']]] = None,
+                 model: pulumi.Input[Optional[Union['ModelArgs', 'ModelArgsDict', 'outputs.Model']]] = None,
+                 multiagent: pulumi.Input[Optional[Union['MultiagentArgs', 'MultiagentArgsDict', 'outputs.Multiagent']]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
-                 skills: pulumi.Input[Optional[Sequence[pulumi.Input[Union['SkillRefArgs', 'SkillRefArgsDict']]]]] = None,
+                 skills: pulumi.Input[Optional[Sequence[pulumi.Input[Union['SkillRefArgs', 'SkillRefArgsDict', 'outputs.SkillRef']]]]] = None,
                  system: pulumi.Input[Optional[_builtins.str]] = None,
-                 tools: pulumi.Input[Optional[Sequence[pulumi.Input[Union['ToolArgs', 'ToolArgsDict']]]]] = None,
+                 tools: pulumi.Input[Optional[Sequence[pulumi.Input[Union['ToolArgs', 'ToolArgsDict', 'outputs.Tool']]]]] = None,
                  __props__=None):
         """
         A Claude Managed Agents agent: the model, system prompt, tools, MCP servers, and skills that sessions run with.
@@ -196,14 +196,14 @@ class Agent(pulumi.CustomResource):
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.str] description: A description of the agent, up to 2,048 characters.
-        :param pulumi.Input[Sequence[pulumi.Input[Union['MCPServerArgs', 'MCPServerArgsDict']]]] mcp_servers: The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
+        :param pulumi.Input[Sequence[pulumi.Input[Union['MCPServerArgs', 'MCPServerArgsDict', 'outputs.MCPServer']]]] mcp_servers: The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs, up to 16.
-        :param pulumi.Input[Union['ModelArgs', 'ModelArgsDict']] model: The model the agent runs on.
-        :param pulumi.Input[Union['MultiagentArgs', 'MultiagentArgsDict']] multiagent: Makes the agent a coordinator that delegates to other agents.
+        :param pulumi.Input[Union['ModelArgs', 'ModelArgsDict', 'outputs.Model']] model: The model the agent runs on.
+        :param pulumi.Input[Union['MultiagentArgs', 'MultiagentArgsDict', 'outputs.Multiagent']] multiagent: Makes the agent a coordinator that delegates to other agents.
         :param pulumi.Input[_builtins.str] name: The agent's name, 1 to 256 characters.
-        :param pulumi.Input[Sequence[pulumi.Input[Union['SkillRefArgs', 'SkillRefArgsDict']]]] skills: The skills available to the agent.
+        :param pulumi.Input[Sequence[pulumi.Input[Union['SkillRefArgs', 'SkillRefArgsDict', 'outputs.SkillRef']]]] skills: The skills available to the agent.
         :param pulumi.Input[_builtins.str] system: The system prompt, up to 100,000 characters.
-        :param pulumi.Input[Sequence[pulumi.Input[Union['ToolArgs', 'ToolArgsDict']]]] tools: The tools the agent can use, up to 128.
+        :param pulumi.Input[Sequence[pulumi.Input[Union['ToolArgs', 'ToolArgsDict', 'outputs.Tool']]]] tools: The tools the agent can use, up to 128.
         """
         ...
     @overload
@@ -234,14 +234,14 @@ class Agent(pulumi.CustomResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
-                 mcp_servers: pulumi.Input[Optional[Sequence[pulumi.Input[Union['MCPServerArgs', 'MCPServerArgsDict']]]]] = None,
+                 mcp_servers: pulumi.Input[Optional[Sequence[pulumi.Input[Union['MCPServerArgs', 'MCPServerArgsDict', 'outputs.MCPServer']]]]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
-                 model: pulumi.Input[Optional[Union['ModelArgs', 'ModelArgsDict']]] = None,
-                 multiagent: pulumi.Input[Optional[Union['MultiagentArgs', 'MultiagentArgsDict']]] = None,
+                 model: pulumi.Input[Optional[Union['ModelArgs', 'ModelArgsDict', 'outputs.Model']]] = None,
+                 multiagent: pulumi.Input[Optional[Union['MultiagentArgs', 'MultiagentArgsDict', 'outputs.Multiagent']]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
-                 skills: pulumi.Input[Optional[Sequence[pulumi.Input[Union['SkillRefArgs', 'SkillRefArgsDict']]]]] = None,
+                 skills: pulumi.Input[Optional[Sequence[pulumi.Input[Union['SkillRefArgs', 'SkillRefArgsDict', 'outputs.SkillRef']]]]] = None,
                  system: pulumi.Input[Optional[_builtins.str]] = None,
-                 tools: pulumi.Input[Optional[Sequence[pulumi.Input[Union['ToolArgs', 'ToolArgsDict']]]]] = None,
+                 tools: pulumi.Input[Optional[Sequence[pulumi.Input[Union['ToolArgs', 'ToolArgsDict', 'outputs.Tool']]]]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -302,6 +302,12 @@ class Agent(pulumi.CustomResource):
         __props__.__dict__["updated_at"] = None
         __props__.__dict__["version"] = None
         return Agent(resource_name, opts=opts, __props__=__props__)
+
+    @staticmethod
+    def exists(id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> pulumi.Output[bool]:
+        __props__: dict = {}
+        return pulumi.runtime.exists_resource(None, 'anthropic:agents:Agent', id, __props__, opts or pulumi.ResourceOptions())
 
     @_builtins.property
     @pulumi.getter(name="createdAt")

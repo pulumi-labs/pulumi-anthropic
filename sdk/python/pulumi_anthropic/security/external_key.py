@@ -83,7 +83,7 @@ class ExternalKey(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  display_name: pulumi.Input[Optional[_builtins.str]] = None,
                  geo: pulumi.Input[Optional[_builtins.str]] = None,
-                 provider_config: pulumi.Input[Optional[Union['ProviderConfigArgs', 'ProviderConfigArgsDict']]] = None,
+                 provider_config: pulumi.Input[Optional[Union['ProviderConfigArgs', 'ProviderConfigArgsDict', 'outputs.ProviderConfig']]] = None,
                  __props__=None):
         """
         A customer-managed encryption key (CMEK) held in AWS KMS, Google Cloud KMS, or Azure Key Vault. A workspace encrypts its data with the key once the workspace's `externalKeyId` refers to it.
@@ -96,7 +96,7 @@ class ExternalKey(pulumi.CustomResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.str] display_name: A display name for the key, 1 to 255 characters.
         :param pulumi.Input[_builtins.str] geo: The geography the key serves. The only accepted value is `us`.
-        :param pulumi.Input[Union['ProviderConfigArgs', 'ProviderConfigArgsDict']] provider_config: Where the key is held.
+        :param pulumi.Input[Union['ProviderConfigArgs', 'ProviderConfigArgsDict', 'outputs.ProviderConfig']] provider_config: Where the key is held.
         """
         ...
     @overload
@@ -128,7 +128,7 @@ class ExternalKey(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  display_name: pulumi.Input[Optional[_builtins.str]] = None,
                  geo: pulumi.Input[Optional[_builtins.str]] = None,
-                 provider_config: pulumi.Input[Optional[Union['ProviderConfigArgs', 'ProviderConfigArgsDict']]] = None,
+                 provider_config: pulumi.Input[Optional[Union['ProviderConfigArgs', 'ProviderConfigArgsDict', 'outputs.ProviderConfig']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -177,6 +177,12 @@ class ExternalKey(pulumi.CustomResource):
         __props__.__dict__["provider_config"] = None
         __props__.__dict__["updated_at"] = None
         return ExternalKey(resource_name, opts=opts, __props__=__props__)
+
+    @staticmethod
+    def exists(id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> pulumi.Output[bool]:
+        __props__: dict = {}
+        return pulumi.runtime.exists_resource(None, 'anthropic:security:ExternalKey', id, __props__, opts or pulumi.ResourceOptions())
 
     @_builtins.property
     @pulumi.getter

@@ -81,6 +81,12 @@ func (ServiceAccountWorkspaceState) ElementType() reflect.Type {
 	return reflect.TypeOf((*serviceAccountWorkspaceState)(nil)).Elem()
 }
 
+// ServiceAccountWorkspaceExists checks whether an existing ServiceAccountWorkspace resource with the given ID exists.
+func ServiceAccountWorkspaceExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *ServiceAccountWorkspaceState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:identity:ServiceAccountWorkspace", id, state, "", opts...)
+}
+
 type serviceAccountWorkspaceArgs struct {
 	// The service account's ID.
 	ServiceAccountId string `pulumi:"serviceAccountId"`

@@ -114,7 +114,7 @@ class FederationIssuer(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  check_jti: pulumi.Input[Optional[_builtins.bool]] = None,
                  issuer_url: pulumi.Input[Optional[_builtins.str]] = None,
-                 jwks: pulumi.Input[Optional[Union['JwksArgs', 'JwksArgsDict']]] = None,
+                 jwks: pulumi.Input[Optional[Union['JwksArgs', 'JwksArgsDict', 'outputs.Jwks']]] = None,
                  max_jwt_lifetime_seconds: pulumi.Input[Optional[_builtins.int]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
@@ -129,7 +129,7 @@ class FederationIssuer(pulumi.CustomResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.bool] check_jti: Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
         :param pulumi.Input[_builtins.str] issuer_url: The issuer URL, which must match the `iss` claim of accepted tokens.
-        :param pulumi.Input[Union['JwksArgs', 'JwksArgsDict']] jwks: Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL.
+        :param pulumi.Input[Union['JwksArgs', 'JwksArgsDict', 'outputs.Jwks']] jwks: Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL.
         :param pulumi.Input[_builtins.int] max_jwt_lifetime_seconds: The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
         :param pulumi.Input[_builtins.str] name: A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
         """
@@ -163,7 +163,7 @@ class FederationIssuer(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  check_jti: pulumi.Input[Optional[_builtins.bool]] = None,
                  issuer_url: pulumi.Input[Optional[_builtins.str]] = None,
-                 jwks: pulumi.Input[Optional[Union['JwksArgs', 'JwksArgsDict']]] = None,
+                 jwks: pulumi.Input[Optional[Union['JwksArgs', 'JwksArgsDict', 'outputs.Jwks']]] = None,
                  max_jwt_lifetime_seconds: pulumi.Input[Optional[_builtins.int]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
@@ -218,6 +218,12 @@ class FederationIssuer(pulumi.CustomResource):
         __props__.__dict__["poll_status"] = None
         __props__.__dict__["updated_at"] = None
         return FederationIssuer(resource_name, opts=opts, __props__=__props__)
+
+    @staticmethod
+    def exists(id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> pulumi.Output[bool]:
+        __props__: dict = {}
+        return pulumi.runtime.exists_resource(None, 'anthropic:identity:FederationIssuer', id, __props__, opts or pulumi.ResourceOptions())
 
     @_builtins.property
     @pulumi.getter(name="checkJti")

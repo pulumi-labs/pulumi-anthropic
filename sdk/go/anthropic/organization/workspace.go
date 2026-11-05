@@ -80,6 +80,12 @@ func (WorkspaceState) ElementType() reflect.Type {
 	return reflect.TypeOf((*workspaceState)(nil)).Elem()
 }
 
+// WorkspaceExists checks whether an existing Workspace resource with the given ID exists.
+func WorkspaceExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *WorkspaceState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:organization:Workspace", id, state, "", opts...)
+}
+
 type workspaceArgs struct {
 	// Where the workspace's data is stored and where inference may run.
 	DataResidency *DataResidency `pulumi:"dataResidency"`

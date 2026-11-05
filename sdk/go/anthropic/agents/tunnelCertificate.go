@@ -80,6 +80,12 @@ func (TunnelCertificateState) ElementType() reflect.Type {
 	return reflect.TypeOf((*tunnelCertificateState)(nil)).Elem()
 }
 
+// TunnelCertificateExists checks whether an existing TunnelCertificate resource with the given ID exists.
+func TunnelCertificateExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *TunnelCertificateState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:agents:TunnelCertificate", id, state, "", opts...)
+}
+
 type tunnelCertificateArgs struct {
 	// A single PEM-encoded CA certificate, up to 8,192 characters.
 	CaCertificatePem string `pulumi:"caCertificatePem"`

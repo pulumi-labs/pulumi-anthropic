@@ -81,6 +81,12 @@ func (SpendLimitState) ElementType() reflect.Type {
 	return reflect.TypeOf((*spendLimitState)(nil)).Elem()
 }
 
+// SpendLimitExists checks whether an existing SpendLimit resource with the given ID exists.
+func SpendLimitExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *SpendLimitState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:organization:SpendLimit", id, state, "", opts...)
+}
+
 type spendLimitArgs struct {
 	// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
 	Amount *string `pulumi:"amount"`

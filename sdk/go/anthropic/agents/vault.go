@@ -70,6 +70,12 @@ func (VaultState) ElementType() reflect.Type {
 	return reflect.TypeOf((*vaultState)(nil)).Elem()
 }
 
+// VaultExists checks whether an existing Vault resource with the given ID exists.
+func VaultExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *VaultState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:agents:Vault", id, state, "", opts...)
+}
+
 type vaultArgs struct {
 	// The vault's display name, 1 to 255 characters.
 	DisplayName string `pulumi:"displayName"`

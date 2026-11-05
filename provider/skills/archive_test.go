@@ -40,7 +40,7 @@ func TestCanonicalPathArchiveFromEngine(t *testing.T) {
 
 	contents, err := c.Open()
 	require.NoError(t, err)
-	defer contents.Close()
+	defer func() { _ = contents.Close() }()
 	name, _, err := contents.Next()
 	require.NoError(t, err)
 	assert.Equal(t, "SKILL.md", name)

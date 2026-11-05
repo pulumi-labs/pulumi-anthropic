@@ -96,7 +96,7 @@ class VaultCredential(pulumi.CustomResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 auth: pulumi.Input[Optional[Union['CredentialAuthArgs', 'CredentialAuthArgsDict']]] = None,
+                 auth: pulumi.Input[Optional[Union['CredentialAuthArgs', 'CredentialAuthArgsDict', 'outputs.CredentialAuth']]] = None,
                  display_name: pulumi.Input[Optional[_builtins.str]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  vault_id: pulumi.Input[Optional[_builtins.str]] = None,
@@ -108,7 +108,7 @@ class VaultCredential(pulumi.CustomResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Union['CredentialAuthArgs', 'CredentialAuthArgsDict']] auth: The credential itself.
+        :param pulumi.Input[Union['CredentialAuthArgs', 'CredentialAuthArgsDict', 'outputs.CredentialAuth']] auth: The credential itself.
         :param pulumi.Input[_builtins.str] display_name: The credential's display name.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
         :param pulumi.Input[_builtins.str] vault_id: The vault holding the credential.
@@ -139,7 +139,7 @@ class VaultCredential(pulumi.CustomResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 auth: pulumi.Input[Optional[Union['CredentialAuthArgs', 'CredentialAuthArgsDict']]] = None,
+                 auth: pulumi.Input[Optional[Union['CredentialAuthArgs', 'CredentialAuthArgsDict', 'outputs.CredentialAuth']]] = None,
                  display_name: pulumi.Input[Optional[_builtins.str]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  vault_id: pulumi.Input[Optional[_builtins.str]] = None,
@@ -193,6 +193,12 @@ class VaultCredential(pulumi.CustomResource):
         __props__.__dict__["updated_at"] = None
         __props__.__dict__["vault_id"] = None
         return VaultCredential(resource_name, opts=opts, __props__=__props__)
+
+    @staticmethod
+    def exists(id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> pulumi.Output[bool]:
+        __props__: dict = {}
+        return pulumi.runtime.exists_resource(None, 'anthropic:agents:VaultCredential', id, __props__, opts or pulumi.ResourceOptions())
 
     @_builtins.property
     @pulumi.getter

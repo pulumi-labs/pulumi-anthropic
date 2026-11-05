@@ -66,6 +66,12 @@ func (ComplianceSettingsState) ElementType() reflect.Type {
 	return reflect.TypeOf((*complianceSettingsState)(nil)).Elem()
 }
 
+// ComplianceSettingsExists checks whether an existing ComplianceSettings resource with the given ID exists.
+func ComplianceSettingsExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *ComplianceSettingsState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:organization:ComplianceSettings", id, state, "", opts...)
+}
+
 type complianceSettingsArgs struct {
 	// Whether the Compliance API is enabled.
 	Enabled bool `pulumi:"enabled"`

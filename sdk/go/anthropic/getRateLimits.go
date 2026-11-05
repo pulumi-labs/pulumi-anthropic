@@ -33,12 +33,8 @@ type GetRateLimitsResult struct {
 }
 
 func GetRateLimitsOutput(ctx *pulumi.Context, args GetRateLimitsOutputArgs, opts ...pulumi.InvokeOption) GetRateLimitsResultOutput {
-	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetRateLimitsResultOutput, error) {
-			args := v.(GetRateLimitsArgs)
-			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("anthropic:index:getRateLimits", args, GetRateLimitsResultOutput{}, options).(GetRateLimitsResultOutput), nil
-		}).(GetRateLimitsResultOutput)
+	options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
+	return ctx.InvokeOutput("anthropic:index:getRateLimits", args, GetRateLimitsResultOutput{}, options).(GetRateLimitsResultOutput)
 }
 
 type GetRateLimitsOutputArgs struct {

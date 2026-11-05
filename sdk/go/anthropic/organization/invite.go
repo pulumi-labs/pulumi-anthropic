@@ -81,6 +81,12 @@ func (InviteState) ElementType() reflect.Type {
 	return reflect.TypeOf((*inviteState)(nil)).Elem()
 }
 
+// InviteExists checks whether an existing Invite resource with the given ID exists.
+func InviteExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *InviteState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:organization:Invite", id, state, "", opts...)
+}
+
 type inviteArgs struct {
 	// The email address to invite.
 	Email string `pulumi:"email"`
