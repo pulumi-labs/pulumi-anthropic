@@ -76,6 +76,12 @@ func (SkillState) ElementType() reflect.Type {
 	return reflect.TypeOf((*skillState)(nil)).Elem()
 }
 
+// SkillExists checks whether an existing Skill resource with the given ID exists.
+func SkillExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *SkillState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:skills:Skill", id, state, "", opts...)
+}
+
 type skillArgs struct {
 	// A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
 	DisplayName *string `pulumi:"displayName"`

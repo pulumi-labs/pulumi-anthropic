@@ -78,6 +78,12 @@ func (ServiceAccountState) ElementType() reflect.Type {
 	return reflect.TypeOf((*serviceAccountState)(nil)).Elem()
 }
 
+// ServiceAccountExists checks whether an existing ServiceAccount resource with the given ID exists.
+func ServiceAccountExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *ServiceAccountState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:identity:ServiceAccount", id, state, "", opts...)
+}
+
 type serviceAccountArgs struct {
 	// A description of the service account, up to 2,000 characters.
 	Description *string `pulumi:"description"`

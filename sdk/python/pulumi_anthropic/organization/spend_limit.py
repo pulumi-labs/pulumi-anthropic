@@ -83,7 +83,7 @@ class SpendLimit(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  amount: pulumi.Input[Optional[_builtins.str]] = None,
                  period: pulumi.Input[Optional['SpendLimitPeriod']] = None,
-                 scope: pulumi.Input[Optional[Union['SpendLimitScopeArgs', 'SpendLimitScopeArgsDict']]] = None,
+                 scope: pulumi.Input[Optional[Union['SpendLimitScopeArgs', 'SpendLimitScopeArgsDict', 'outputs.SpendLimitScope']]] = None,
                  __props__=None):
         """
         A spend limit: the most a user, a workspace, or the whole organization may spend in a period.
@@ -96,7 +96,7 @@ class SpendLimit(pulumi.CustomResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.str] amount: The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
         :param pulumi.Input['SpendLimitPeriod'] period: The period the limit applies over. If omitted, the API's default applies.
-        :param pulumi.Input[Union['SpendLimitScopeArgs', 'SpendLimitScopeArgsDict']] scope: What the limit applies to.
+        :param pulumi.Input[Union['SpendLimitScopeArgs', 'SpendLimitScopeArgsDict', 'outputs.SpendLimitScope']] scope: What the limit applies to.
         """
         ...
     @overload
@@ -128,7 +128,7 @@ class SpendLimit(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  amount: pulumi.Input[Optional[_builtins.str]] = None,
                  period: pulumi.Input[Optional['SpendLimitPeriod']] = None,
-                 scope: pulumi.Input[Optional[Union['SpendLimitScopeArgs', 'SpendLimitScopeArgsDict']]] = None,
+                 scope: pulumi.Input[Optional[Union['SpendLimitScopeArgs', 'SpendLimitScopeArgsDict', 'outputs.SpendLimitScope']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -177,6 +177,12 @@ class SpendLimit(pulumi.CustomResource):
         __props__.__dict__["scope"] = None
         __props__.__dict__["updated_at"] = None
         return SpendLimit(resource_name, opts=opts, __props__=__props__)
+
+    @staticmethod
+    def exists(id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> pulumi.Output[bool]:
+        __props__: dict = {}
+        return pulumi.runtime.exists_resource(None, 'anthropic:organization:SpendLimit', id, __props__, opts or pulumi.ResourceOptions())
 
     @_builtins.property
     @pulumi.getter

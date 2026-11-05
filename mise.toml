@@ -1,0 +1,10 @@
+[tools]
+# Matches the pulumi-version pinned in .github/workflows/ci.yml, so that local
+# SDK regeneration produces the same output as CI. The SDK generator lives in
+# the Pulumi CLI, not in this provider, so an unpinned CLI makes `make sdks`
+# produce different bytes on different machines.
+pulumi = "3.274.0"
+
+# The system golangci-lint is often built against an older Go than go.mod
+# targets, which makes it refuse to run. Pin one built against a new enough Go.
+golangci-lint = "2.15.0"

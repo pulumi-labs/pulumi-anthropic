@@ -80,6 +80,12 @@ func (FederationRuleWorkspaceState) ElementType() reflect.Type {
 	return reflect.TypeOf((*federationRuleWorkspaceState)(nil)).Elem()
 }
 
+// FederationRuleWorkspaceExists checks whether an existing FederationRuleWorkspace resource with the given ID exists.
+func FederationRuleWorkspaceExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *FederationRuleWorkspaceState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:identity:FederationRuleWorkspace", id, state, "", opts...)
+}
+
 type federationRuleWorkspaceArgs struct {
 	// The federation rule's ID.
 	FederationRuleId string `pulumi:"federationRuleId"`

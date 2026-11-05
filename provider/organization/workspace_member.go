@@ -104,7 +104,7 @@ func (m *WorkspaceMember) Create(
 		resp.Output.WorkspaceMemberArgs = req.Inputs
 		return resp, err
 	}
-	updated, err := m.Child.Update(ctx, infer.UpdateRequest[WorkspaceMemberArgs, WorkspaceMemberState]{
+	updated, err := m.Update(ctx, infer.UpdateRequest[WorkspaceMemberArgs, WorkspaceMemberState]{
 		ID: resp.ID, State: resp.Output, Inputs: req.Inputs,
 	})
 	if err != nil {

@@ -87,6 +87,12 @@ func (VaultCredentialState) ElementType() reflect.Type {
 	return reflect.TypeOf((*vaultCredentialState)(nil)).Elem()
 }
 
+// VaultCredentialExists checks whether an existing VaultCredential resource with the given ID exists.
+func VaultCredentialExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *VaultCredentialState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:agents:VaultCredential", id, state, "", opts...)
+}
+
 type vaultCredentialArgs struct {
 	// The credential itself.
 	Auth CredentialAuth `pulumi:"auth"`

@@ -113,7 +113,7 @@ class Workspace(pulumi.CustomResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 data_residency: pulumi.Input[Optional[Union['DataResidencyArgs', 'DataResidencyArgsDict']]] = None,
+                 data_residency: pulumi.Input[Optional[Union['DataResidencyArgs', 'DataResidencyArgsDict', 'outputs.DataResidency']]] = None,
                  display_color: pulumi.Input[Optional[_builtins.str]] = None,
                  external_key_id: pulumi.Input[Optional[_builtins.str]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
@@ -126,7 +126,7 @@ class Workspace(pulumi.CustomResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Union['DataResidencyArgs', 'DataResidencyArgsDict']] data_residency: Where the workspace's data is stored and where inference may run.
+        :param pulumi.Input[Union['DataResidencyArgs', 'DataResidencyArgsDict', 'outputs.DataResidency']] data_residency: Where the workspace's data is stored and where inference may run.
         :param pulumi.Input[_builtins.str] display_color: The color the Console shows the workspace in, as `#RRGGBB`.
         :param pulumi.Input[_builtins.str] external_key_id: The ID of a customer-managed encryption key (an `anthropic.security.ExternalKey`) that encrypts the workspace's data. It can be set on a workspace that has none, but once set it can never be changed or removed, so any change to it replaces the workspace.
         :param pulumi.Input[_builtins.str] name: The workspace's name, 1 to 40 characters.
@@ -158,7 +158,7 @@ class Workspace(pulumi.CustomResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 data_residency: pulumi.Input[Optional[Union['DataResidencyArgs', 'DataResidencyArgsDict']]] = None,
+                 data_residency: pulumi.Input[Optional[Union['DataResidencyArgs', 'DataResidencyArgsDict', 'outputs.DataResidency']]] = None,
                  display_color: pulumi.Input[Optional[_builtins.str]] = None,
                  external_key_id: pulumi.Input[Optional[_builtins.str]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
@@ -213,6 +213,12 @@ class Workspace(pulumi.CustomResource):
         __props__.__dict__["name"] = None
         __props__.__dict__["tags"] = None
         return Workspace(resource_name, opts=opts, __props__=__props__)
+
+    @staticmethod
+    def exists(id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> pulumi.Output[bool]:
+        __props__: dict = {}
+        return pulumi.runtime.exists_resource(None, 'anthropic:organization:Workspace', id, __props__, opts or pulumi.ResourceOptions())
 
     @_builtins.property
     @pulumi.getter(name="compartmentId")

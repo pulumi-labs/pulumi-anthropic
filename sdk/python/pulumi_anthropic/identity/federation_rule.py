@@ -175,10 +175,10 @@ class FederationRule(pulumi.CustomResource):
                  applies_to_all_workspaces: pulumi.Input[Optional[_builtins.bool]] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
                  issuer_id: pulumi.Input[Optional[_builtins.str]] = None,
-                 match: pulumi.Input[Optional[Union['FederationMatchArgs', 'FederationMatchArgsDict']]] = None,
+                 match: pulumi.Input[Optional[Union['FederationMatchArgs', 'FederationMatchArgsDict', 'outputs.FederationMatch']]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  oauth_scope: pulumi.Input[Optional[_builtins.str]] = None,
-                 target: pulumi.Input[Optional[Union['FederationTargetArgs', 'FederationTargetArgsDict']]] = None,
+                 target: pulumi.Input[Optional[Union['FederationTargetArgs', 'FederationTargetArgsDict', 'outputs.FederationTarget']]] = None,
                  token_lifetime_seconds: pulumi.Input[Optional[_builtins.int]] = None,
                  workspace_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
@@ -196,10 +196,10 @@ class FederationRule(pulumi.CustomResource):
         :param pulumi.Input[_builtins.bool] applies_to_all_workspaces: Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
         :param pulumi.Input[_builtins.str] description: A description of the rule, up to 2,000 characters.
         :param pulumi.Input[_builtins.str] issuer_id: The ID of the issuer whose tokens the rule accepts. Changing it replaces the rule.
-        :param pulumi.Input[Union['FederationMatchArgs', 'FederationMatchArgsDict']] match: The conditions a token must satisfy. At least one of `subjectPrefix`, `claims`, or `condition` is required.
+        :param pulumi.Input[Union['FederationMatchArgs', 'FederationMatchArgsDict', 'outputs.FederationMatch']] match: The conditions a token must satisfy. At least one of `subjectPrefix`, `claims`, or `condition` is required.
         :param pulumi.Input[_builtins.str] name: A lowercase slug that uniquely names the rule in the organization.
         :param pulumi.Input[_builtins.str] oauth_scope: The space-separated OAuth scopes of the access tokens the rule issues, such as `workspace:developer`.
-        :param pulumi.Input[Union['FederationTargetArgs', 'FederationTargetArgsDict']] target: The service account the rule's access tokens act as.
+        :param pulumi.Input[Union['FederationTargetArgs', 'FederationTargetArgsDict', 'outputs.FederationTarget']] target: The service account the rule's access tokens act as.
         :param pulumi.Input[_builtins.int] token_lifetime_seconds: The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
         :param pulumi.Input[_builtins.str] workspace_id: The workspace the rule is created in, required unless `appliesToAllWorkspaces` is set. Changing it replaces the rule; to bind the rule to further workspaces, use `FederationRuleWorkspace`.
         """
@@ -236,10 +236,10 @@ class FederationRule(pulumi.CustomResource):
                  applies_to_all_workspaces: pulumi.Input[Optional[_builtins.bool]] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
                  issuer_id: pulumi.Input[Optional[_builtins.str]] = None,
-                 match: pulumi.Input[Optional[Union['FederationMatchArgs', 'FederationMatchArgsDict']]] = None,
+                 match: pulumi.Input[Optional[Union['FederationMatchArgs', 'FederationMatchArgsDict', 'outputs.FederationMatch']]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  oauth_scope: pulumi.Input[Optional[_builtins.str]] = None,
-                 target: pulumi.Input[Optional[Union['FederationTargetArgs', 'FederationTargetArgsDict']]] = None,
+                 target: pulumi.Input[Optional[Union['FederationTargetArgs', 'FederationTargetArgsDict', 'outputs.FederationTarget']]] = None,
                  token_lifetime_seconds: pulumi.Input[Optional[_builtins.int]] = None,
                  workspace_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
@@ -312,6 +312,12 @@ class FederationRule(pulumi.CustomResource):
         __props__.__dict__["workspace_id"] = None
         __props__.__dict__["workspace_ids"] = None
         return FederationRule(resource_name, opts=opts, __props__=__props__)
+
+    @staticmethod
+    def exists(id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> pulumi.Output[bool]:
+        __props__: dict = {}
+        return pulumi.runtime.exists_resource(None, 'anthropic:identity:FederationRule', id, __props__, opts or pulumi.ResourceOptions())
 
     @_builtins.property
     @pulumi.getter(name="appliesToAllWorkspaces")

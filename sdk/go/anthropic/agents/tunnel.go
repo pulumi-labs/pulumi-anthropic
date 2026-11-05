@@ -74,6 +74,12 @@ func (TunnelState) ElementType() reflect.Type {
 	return reflect.TypeOf((*tunnelState)(nil)).Elem()
 }
 
+// TunnelExists checks whether an existing Tunnel resource with the given ID exists.
+func TunnelExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *TunnelState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:agents:Tunnel", id, state, "", opts...)
+}
+
 type tunnelArgs struct {
 	// The tunnel's display name, 1 to 255 characters.
 	DisplayName *string `pulumi:"displayName"`

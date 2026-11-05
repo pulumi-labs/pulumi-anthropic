@@ -72,6 +72,12 @@ func (RbacGroupState) ElementType() reflect.Type {
 	return reflect.TypeOf((*rbacGroupState)(nil)).Elem()
 }
 
+// RbacGroupExists checks whether an existing RbacGroup resource with the given ID exists.
+func RbacGroupExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *RbacGroupState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:identity:RbacGroup", id, state, "", opts...)
+}
+
 type rbacGroupArgs struct {
 	// The group's name, 1 to 255 characters. Names need not be unique.
 	Name string `pulumi:"name"`

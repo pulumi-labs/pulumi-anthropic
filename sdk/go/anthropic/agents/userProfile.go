@@ -74,6 +74,12 @@ func (UserProfileState) ElementType() reflect.Type {
 	return reflect.TypeOf((*userProfileState)(nil)).Elem()
 }
 
+// UserProfileExists checks whether an existing UserProfile resource with the given ID exists.
+func UserProfileExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *UserProfileState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:agents:UserProfile", id, state, "", opts...)
+}
+
 type userProfileArgs struct {
 	// How your platform uses the API on the entity's behalf. Defaults to `application`.
 	AccessType *AccessType `pulumi:"accessType"`

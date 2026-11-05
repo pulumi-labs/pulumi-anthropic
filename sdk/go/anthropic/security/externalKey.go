@@ -81,6 +81,12 @@ func (ExternalKeyState) ElementType() reflect.Type {
 	return reflect.TypeOf((*externalKeyState)(nil)).Elem()
 }
 
+// ExternalKeyExists checks whether an existing ExternalKey resource with the given ID exists.
+func ExternalKeyExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *ExternalKeyState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("anthropic:security:ExternalKey", id, state, "", opts...)
+}
+
 type externalKeyArgs struct {
 	// A display name for the key, 1 to 255 characters.
 	DisplayName *string `pulumi:"displayName"`

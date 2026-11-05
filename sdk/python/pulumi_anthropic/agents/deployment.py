@@ -206,16 +206,16 @@ class Deployment(pulumi.CustomResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 agent: pulumi.Input[Optional[Union['AgentReferenceArgs', 'AgentReferenceArgsDict']]] = None,
-                 budget: pulumi.Input[Optional[Union['BudgetArgs', 'BudgetArgsDict']]] = None,
+                 agent: pulumi.Input[Optional[Union['AgentReferenceArgs', 'AgentReferenceArgsDict', 'outputs.AgentReference']]] = None,
+                 budget: pulumi.Input[Optional[Union['BudgetArgs', 'BudgetArgsDict', 'outputs.Budget']]] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
                  environment_id: pulumi.Input[Optional[_builtins.str]] = None,
                  initial_events: pulumi.Input[Optional[Sequence[pulumi.Input[Mapping[str, Any]]]]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  paused: pulumi.Input[Optional[_builtins.bool]] = None,
-                 resources: pulumi.Input[Optional[Sequence[pulumi.Input[Union['DeploymentResourceArgs', 'DeploymentResourceArgsDict']]]]] = None,
-                 schedule: pulumi.Input[Optional[Union['ScheduleArgs', 'ScheduleArgsDict']]] = None,
+                 resources: pulumi.Input[Optional[Sequence[pulumi.Input[Union['DeploymentResourceArgs', 'DeploymentResourceArgsDict', 'outputs.DeploymentResource']]]]] = None,
+                 schedule: pulumi.Input[Optional[Union['ScheduleArgs', 'ScheduleArgsDict', 'outputs.Schedule']]] = None,
                  vault_ids: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  __props__=None):
         """
@@ -227,16 +227,16 @@ class Deployment(pulumi.CustomResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Union['AgentReferenceArgs', 'AgentReferenceArgsDict']] agent: The agent to run, and optionally the version to pin.
-        :param pulumi.Input[Union['BudgetArgs', 'BudgetArgsDict']] budget: A spending limit for the deployment.
+        :param pulumi.Input[Union['AgentReferenceArgs', 'AgentReferenceArgsDict', 'outputs.AgentReference']] agent: The agent to run, and optionally the version to pin.
+        :param pulumi.Input[Union['BudgetArgs', 'BudgetArgsDict', 'outputs.Budget']] budget: A spending limit for the deployment.
         :param pulumi.Input[_builtins.str] description: A description of the deployment.
         :param pulumi.Input[_builtins.str] environment_id: The environment sessions run in.
         :param pulumi.Input[Sequence[pulumi.Input[Mapping[str, Any]]]] initial_events: The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
         :param pulumi.Input[_builtins.str] name: The deployment's name.
         :param pulumi.Input[_builtins.bool] paused: Whether the deployment is paused. Omit to leave pausing to other tools.
-        :param pulumi.Input[Sequence[pulumi.Input[Union['DeploymentResourceArgs', 'DeploymentResourceArgsDict']]]] resources: Repositories, files, and memory stores mounted into each session, up to 500.
-        :param pulumi.Input[Union['ScheduleArgs', 'ScheduleArgsDict']] schedule: When to run. Omit to run only on demand.
+        :param pulumi.Input[Sequence[pulumi.Input[Union['DeploymentResourceArgs', 'DeploymentResourceArgsDict', 'outputs.DeploymentResource']]]] resources: Repositories, files, and memory stores mounted into each session, up to 500.
+        :param pulumi.Input[Union['ScheduleArgs', 'ScheduleArgsDict', 'outputs.Schedule']] schedule: When to run. Omit to run only on demand.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] vault_ids: Vaults whose credentials sessions can use, up to 50.
         """
         ...
@@ -267,16 +267,16 @@ class Deployment(pulumi.CustomResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 agent: pulumi.Input[Optional[Union['AgentReferenceArgs', 'AgentReferenceArgsDict']]] = None,
-                 budget: pulumi.Input[Optional[Union['BudgetArgs', 'BudgetArgsDict']]] = None,
+                 agent: pulumi.Input[Optional[Union['AgentReferenceArgs', 'AgentReferenceArgsDict', 'outputs.AgentReference']]] = None,
+                 budget: pulumi.Input[Optional[Union['BudgetArgs', 'BudgetArgsDict', 'outputs.Budget']]] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
                  environment_id: pulumi.Input[Optional[_builtins.str]] = None,
                  initial_events: pulumi.Input[Optional[Sequence[pulumi.Input[Mapping[str, Any]]]]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  paused: pulumi.Input[Optional[_builtins.bool]] = None,
-                 resources: pulumi.Input[Optional[Sequence[pulumi.Input[Union['DeploymentResourceArgs', 'DeploymentResourceArgsDict']]]]] = None,
-                 schedule: pulumi.Input[Optional[Union['ScheduleArgs', 'ScheduleArgsDict']]] = None,
+                 resources: pulumi.Input[Optional[Sequence[pulumi.Input[Union['DeploymentResourceArgs', 'DeploymentResourceArgsDict', 'outputs.DeploymentResource']]]]] = None,
+                 schedule: pulumi.Input[Optional[Union['ScheduleArgs', 'ScheduleArgsDict', 'outputs.Schedule']]] = None,
                  vault_ids: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
@@ -346,6 +346,12 @@ class Deployment(pulumi.CustomResource):
         __props__.__dict__["updated_at"] = None
         __props__.__dict__["vault_ids"] = None
         return Deployment(resource_name, opts=opts, __props__=__props__)
+
+    @staticmethod
+    def exists(id: pulumi.Input[str],
+            opts: Optional[pulumi.ResourceOptions] = None) -> pulumi.Output[bool]:
+        __props__: dict = {}
+        return pulumi.runtime.exists_resource(None, 'anthropic:agents:Deployment', id, __props__, opts or pulumi.ResourceOptions())
 
     @_builtins.property
     @pulumi.getter
