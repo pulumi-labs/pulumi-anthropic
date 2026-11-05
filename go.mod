@@ -1,4 +1,4 @@
-module github.com/pulumi/pulumi-anthropic
+module github.com/pulumi-labs/pulumi-anthropic
 
 go 1.26.4
 

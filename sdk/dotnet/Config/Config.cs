@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Pulumi.Anthropic
+namespace Pulumi.Labs.Anthropic
 {
     public static class Config
     {

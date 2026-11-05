@@ -1,4 +1,4 @@
-module github.com/pulumi/pulumi-anthropic/examples
+module github.com/pulumi-labs/pulumi-anthropic/examples
 
 go 1.26.6
 

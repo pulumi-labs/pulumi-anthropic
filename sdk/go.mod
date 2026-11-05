@@ -1,4 +1,4 @@
-module github.com/pulumi/pulumi-anthropic/sdk
+module github.com/pulumi-labs/pulumi-anthropic/sdk
 
 go 1.26.6
 

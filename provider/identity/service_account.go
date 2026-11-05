@@ -17,7 +17,7 @@ package identity
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 
-	"github.com/pulumi/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // ServiceAccount is a non-human identity that workloads authenticate as through workload

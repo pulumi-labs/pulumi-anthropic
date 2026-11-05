@@ -17,7 +17,7 @@ package agents
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 
-	"github.com/pulumi/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // MemoryStore is persistent memory that agents read and write across sessions.

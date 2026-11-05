@@ -32,7 +32,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pulumi/pulumi-anthropic/provider/internal/fakeapi"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/fakeapi"
 )
 
 // These tests guard whole classes of defect across every resource, rather than one

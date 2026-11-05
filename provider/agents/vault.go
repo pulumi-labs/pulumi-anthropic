@@ -17,7 +17,7 @@ package agents
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 
-	"github.com/pulumi/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // Vault holds credentials that Managed Agents sessions use to reach MCP servers and

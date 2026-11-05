@@ -1,6 +1,6 @@
 PROVIDER     := pulumi-resource-anthropic
 VERSION      ?= 0.1.0-dev
-LDFLAGS      := -X github.com/pulumi/pulumi-anthropic/provider.Version=$(VERSION)
+LDFLAGS      := -X github.com/pulumi-labs/pulumi-anthropic/provider.Version=$(VERSION)
 SCHEMA       := provider/schema.json
 LANGUAGES    := nodejs python go dotnet java
 

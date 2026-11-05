@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pulumi/pulumi-anthropic/provider"
+	"github.com/pulumi-labs/pulumi-anthropic/provider"
 )
 
 func main() {

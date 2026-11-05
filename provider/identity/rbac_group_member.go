@@ -17,7 +17,7 @@ package identity
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 
-	"github.com/pulumi/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // RbacGroupMember adds a user to an RBAC group.

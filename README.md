@@ -7,7 +7,7 @@ limits.
 
 ```typescript
 import * as pulumi from "@pulumi/pulumi";
-import * as anthropic from "@pulumi/anthropic";
+import * as anthropic from "@pulumi-labs/anthropic";
 
 const triage = new anthropic.skills.Skill("triage", {
     source: new pulumi.asset.FileArchive("./skills/triage"),
@@ -34,11 +34,11 @@ The provider is available in every Pulumi language:
 
 | Language | Package |
 |---|---|
-| TypeScript/JavaScript | `npm install @pulumi/anthropic` |
-| Python | `pip install pulumi-anthropic` |
-| Go | `go get github.com/pulumi/pulumi-anthropic/sdk/go/anthropic` |
-| .NET | `dotnet add package Pulumi.Anthropic` |
-| Java | `com.pulumi:anthropic` |
+| TypeScript/JavaScript | `npm install @pulumi-labs/anthropic` |
+| Python | `pip install pulumi-labs-anthropic` |
+| Go | `go get github.com/pulumi-labs/pulumi-anthropic/sdk/go/anthropic` |
+| .NET | `dotnet add package Pulumi.Labs.Anthropic` |
+| Java | `com.pulumi.labs:anthropic` |
 
 YAML programs can use it directly.
 

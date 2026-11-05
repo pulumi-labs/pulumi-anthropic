@@ -26,8 +26,8 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/property"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pulumi/pulumi-anthropic/provider"
-	"github.com/pulumi/pulumi-anthropic/provider/internal/fakeapi"
+	"github.com/pulumi-labs/pulumi-anthropic/provider"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/fakeapi"
 )
 
 // New starts a fake API and a provider configured against it with every credential.

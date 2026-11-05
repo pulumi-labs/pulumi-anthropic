@@ -1,5 +1,5 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as anthropic from "@pulumi/anthropic";
+import * as anthropic from "@pulumi-labs/anthropic";
 
 const config = new pulumi.Config();
 

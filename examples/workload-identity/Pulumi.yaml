@@ -7,7 +7,7 @@ description: >
 config:
   repository:
     type: string
-    default: pulumi/pulumi-anthropic
+    default: pulumi-labs/pulumi-anthropic
   workspaceId:
     type: string
 

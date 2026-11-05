@@ -13,23 +13,29 @@
   ],
   "homepage": "https://www.pulumi.com",
   "license": "Apache-2.0",
-  "repository": "https://github.com/pulumi/pulumi-anthropic",
-  "pluginDownloadURL": "github://api.github.com/pulumi/pulumi-anthropic",
-  "publisher": "Pulumi",
-  "namespace": "pulumi",
+  "repository": "https://github.com/pulumi-labs/pulumi-anthropic",
+  "pluginDownloadURL": "github://api.github.com/pulumi-labs/pulumi-anthropic",
+  "publisher": "Pulumi Labs",
   "language": {
     "csharp": {
-      "respectSchemaVersion": true
+      "respectSchemaVersion": true,
+      "rootNamespace": "Pulumi.Labs"
     },
     "go": {
       "generateResourceContainerTypes": true,
-      "importBasePath": "github.com/pulumi/pulumi-anthropic/sdk/go/anthropic",
+      "importBasePath": "github.com/pulumi-labs/pulumi-anthropic/sdk/go/anthropic",
+      "respectSchemaVersion": true
+    },
+    "java": {
+      "basePackage": "com.pulumi.labs",
       "respectSchemaVersion": true
     },
     "nodejs": {
+      "packageName": "@pulumi-labs/anthropic",
       "respectSchemaVersion": true
     },
     "python": {
+      "packageName": "pulumi_labs_anthropic",
       "pyproject": {
         "enabled": true
       },

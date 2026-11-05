@@ -23,7 +23,7 @@ agent's latest version, and a stable deployment pinned to a version until it is 
 
 ```typescript
 import * as pulumi from "@pulumi/pulumi";
-import * as anthropic from "@pulumi/anthropic";
+import * as anthropic from "@pulumi-labs/anthropic";
 
 const config = new pulumi.Config();
 
@@ -69,7 +69,7 @@ new anthropic.agents.Deployment("stable", {
 
 ```python
 import pulumi
-import pulumi_anthropic as anthropic
+import pulumi_labs_anthropic as anthropic
 
 config = pulumi.Config()
 

@@ -8,7 +8,7 @@ builds:
     goos: [darwin, linux, windows]
     goarch: [amd64, arm64]
     ldflags:
-      - -s -w -X github.com/pulumi/pulumi-anthropic/provider.Version={{.Version}}
+      - -s -w -X github.com/pulumi-labs/pulumi-anthropic/provider.Version={{.Version}}
 archives:
   # Pulumi's github:// plugin download convention requires this exact asset name.
   - name_template: "pulumi-resource-anthropic-v{{ .Version }}-{{ .Os }}-{{ .Arch }}"

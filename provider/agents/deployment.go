@@ -21,7 +21,7 @@ import (
 
 	"github.com/pulumi/pulumi-go-provider/infer"
 
-	"github.com/pulumi/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // Deployment runs an agent in an environment, on a schedule or on demand.

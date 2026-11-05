@@ -24,8 +24,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pulumi/pulumi-anthropic/provider/internal/fakeapi"
-	"github.com/pulumi/pulumi-anthropic/provider/internal/providertest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/fakeapi"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/providertest"
 )
 
 const apiKeyPath = "/v1/organizations/api_keys/apikey_1"

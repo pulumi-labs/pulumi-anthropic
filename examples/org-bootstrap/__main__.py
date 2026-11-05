@@ -1,5 +1,5 @@
 import pulumi
-import pulumi_anthropic as anthropic
+import pulumi_labs_anthropic as anthropic
 
 config = pulumi.Config()
 team = config.get("team") or "research"
