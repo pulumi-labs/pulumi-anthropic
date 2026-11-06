@@ -54,9 +54,11 @@ type behaviorRecord struct {
 // needsVerdict walks a resource's optional input fields, nested ones included, and
 // returns the paths whose removal behavior the API alone can settle.
 //
-// A secret is exempt: the API never returns one, so a removal cannot be observed. A
-// replaceOnChanges field is exempt: removing it replaces the resource, so there is no
-// clear to verify.
+// A field required within its own type is exempt, whether it sits at the top level or
+// inside a nested object: a program cannot drop model.id and keep model. A secret is
+// exempt, because the API never returns one and a removal cannot be observed. A
+// replaceOnChanges field is exempt, because removing it replaces the resource and there
+// is no clear to verify.
 func needsVerdict(doc schemaDoc, props map[string]schemaProperty, required map[string]bool,
 	prefix string, seen map[string]bool,
 ) []string {
@@ -66,29 +68,28 @@ func needsVerdict(doc schemaDoc, props map[string]schemaProperty, required map[s
 		if prop.Secret || prop.ReplaceOnChanges {
 			continue
 		}
-		if obj, ok := typeOf(doc, prop); ok {
-			if len(obj.Enum) > 0 {
-				if prefix != "" || !required[name] {
-					paths = append(paths, path)
-				}
-				continue
-			}
-			key := strings.TrimPrefix(prop.Ref, "#/types/")
-			if seen[key] {
-				continue
-			}
-			seen[key] = true
-			req := map[string]bool{}
-			for _, r := range obj.Required {
-				req[r] = true
-			}
-			paths = append(paths, needsVerdict(doc, obj.Properties, req, path+".", seen)...)
-			delete(seen, key)
-			continue
-		}
-		if prefix != "" || !required[name] {
+		// An optional field is removable whatever its shape, so it needs a verdict.
+		// An optional object needs one of its own as well as one per optional field
+		// it holds: dropping the whole object is a different question from dropping
+		// one field inside it.
+		if !required[name] {
 			paths = append(paths, path)
 		}
+		obj, ok := typeOf(doc, prop)
+		if !ok || len(obj.Enum) > 0 {
+			continue
+		}
+		key := strings.TrimPrefix(prop.Ref, "#/types/")
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		req := map[string]bool{}
+		for _, r := range obj.Required {
+			req[r] = true
+		}
+		paths = append(paths, needsVerdict(doc, obj.Properties, req, path+".", seen)...)
+		delete(seen, key)
 	}
 	return paths
 }
