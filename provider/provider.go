@@ -35,9 +35,6 @@ import (
 // Name is the Pulumi package and plugin name.
 const Name = "anthropic"
 
-// Version is the provider version, overridden at release time by the linker.
-var Version = "0.1.0-dev"
-
 // Provider builds the Anthropic provider.
 func Provider() (p.Provider, error) {
 	return infer.NewProviderBuilder().
