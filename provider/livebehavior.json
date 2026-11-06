@@ -8,8 +8,8 @@
         "status": "cleared"
       },
       "mcpServers": {
-        "issue": 11,
-        "status": "pending"
+        "status": "cleared",
+        "observed": "an empty collection; the key survives and holds nothing"
       },
       "metadata": {
         "status": "cleared"
@@ -20,48 +20,34 @@
         "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
         "issue": 11
       },
-      "model.id": {
-        "issue": 11,
-        "status": "pending"
-      },
       "model.inferenceGeo": {
-        "issue": 11,
-        "status": "pending"
+        "status": "cleared"
       },
       "model.speed": {
         "status": "cleared",
         "observed": "standard, the server default"
       },
-      "multiagent.agents": {
-        "issue": 11,
-        "status": "pending"
+      "multiagent": {
+        "status": "cleared"
       },
       "skills": {
-        "issue": 11,
-        "status": "pending"
+        "status": "cleared",
+        "observed": "an empty collection; the key survives and holds nothing"
       },
       "system": {
         "status": "cleared"
       },
       "tools": {
-        "issue": 11,
-        "status": "pending"
+        "status": "cleared",
+        "observed": "an empty collection; the key survives and holds nothing"
       }
     },
     "anthropic:agents:Deployment": {
-      "agent.id": {
-        "issue": 11,
-        "status": "pending"
-      },
       "agent.version": {
         "issue": 11,
         "status": "pending"
       },
-      "budget.maxListCost.amount": {
-        "issue": 11,
-        "status": "pending"
-      },
-      "budget.maxListCost.currency": {
+      "budget": {
         "issue": 11,
         "status": "pending"
       },
@@ -81,11 +67,7 @@
         "issue": 11,
         "status": "pending"
       },
-      "schedule.expression": {
-        "issue": 11,
-        "status": "pending"
-      },
-      "schedule.timezone": {
+      "schedule": {
         "issue": 11,
         "status": "pending"
       },
@@ -95,6 +77,14 @@
       }
     },
     "anthropic:agents:Environment": {
+      "config": {
+        "issue": 11,
+        "status": "pending"
+      },
+      "config.networking": {
+        "issue": 11,
+        "status": "pending"
+      },
       "config.networking.allowMcpServers": {
         "issue": 11,
         "status": "pending"
@@ -107,7 +97,7 @@
         "issue": 11,
         "status": "pending"
       },
-      "config.networking.type": {
+      "config.packages": {
         "issue": 11,
         "status": "pending"
       },
@@ -191,6 +181,10 @@
         "issue": 11,
         "status": "pending"
       },
+      "auth.injectionLocation": {
+        "issue": 11,
+        "status": "pending"
+      },
       "auth.injectionLocation.body": {
         "issue": 11,
         "status": "pending"
@@ -199,19 +193,19 @@
         "issue": 11,
         "status": "pending"
       },
+      "auth.networking": {
+        "issue": 11,
+        "status": "pending"
+      },
       "auth.networking.allowedHosts": {
         "issue": 11,
         "status": "pending"
       },
-      "auth.networking.type": {
+      "auth.refresh": {
         "issue": 11,
         "status": "pending"
       },
       "auth.refresh.scope": {
-        "issue": 11,
-        "status": "pending"
-      },
-      "auth.refresh.tokenEndpointAuth.type": {
         "issue": 11,
         "status": "pending"
       },
@@ -229,6 +223,10 @@
         "issue": 11,
         "status": "pending"
       },
+      "jwks": {
+        "issue": 11,
+        "status": "pending"
+      },
       "jwks.caCertPem": {
         "issue": 11,
         "status": "pending"
@@ -238,10 +236,6 @@
         "status": "pending"
       },
       "jwks.keys": {
-        "issue": 11,
-        "status": "pending"
-      },
-      "jwks.type": {
         "issue": 11,
         "status": "pending"
       },
@@ -279,10 +273,6 @@
         "issue": 11,
         "status": "pending"
       },
-      "target.serviceAccountId": {
-        "issue": 11,
-        "status": "pending"
-      },
       "tokenLifetimeSeconds": {
         "issue": 11,
         "status": "pending"
@@ -315,6 +305,10 @@
       }
     },
     "anthropic:organization:Workspace": {
+      "dataResidency": {
+        "issue": 11,
+        "status": "pending"
+      },
       "dataResidency.allowedInferenceGeos": {
         "issue": 11,
         "status": "pending"

@@ -198,6 +198,20 @@ func writeVerdicts(t *testing.T, token string, found map[string]verdict) {
 	t.Logf("recorded %d verdict(s) for %s in %s", len(found), token, recordPath)
 }
 
+// isEmptyCollection reports whether a value is an array or a map that holds nothing.
+// The API reports a cleared array as [] rather than by dropping the key, and an empty
+// collection carries no configuration, so it counts as cleared.
+func isEmptyCollection(v property.Value) bool {
+	switch {
+	case v.IsArray():
+		return v.AsArray().Len() == 0
+	case v.IsMap():
+		return v.AsMap().Len() == 0
+	default:
+		return false
+	}
+}
+
 // show renders a property value for the record, so that an entry reads "low" rather
 // than the struct's default formatting.
 func show(v property.Value) string {
@@ -310,6 +324,89 @@ func TestAgentOptionalFieldsClear(t *testing.T) {
 				})),
 			})
 		},
+	}, {
+		field:  []string{"model", "inferenceGeo"},
+		record: "model.inferenceGeo",
+		withField: func(n string) property.Map {
+			return agentInputs(n, map[string]property.Value{
+				"model": baseModel(map[string]property.Value{
+					"inferenceGeo": property.New("us"),
+				}),
+			})
+		},
+		bare: func(n string) property.Map { return agentInputs(n, nil) },
+	}, {
+		// rest.Project treats a slice differently from a struct: it takes the
+		// server's slice whole unless the lengths match. These three array cases are
+		// the only live cover that path has.
+		// The provider's Check refuses an MCP server that no mcp_toolset tool
+		// references, so the server and its tool arrive and depart together.
+		field:  []string{"mcpServers"},
+		record: "mcpServers",
+		withField: func(n string) property.Map {
+			return agentInputs(n, map[string]property.Value{
+				"mcpServers": property.New([]property.Value{
+					property.New(property.NewMap(map[string]property.Value{
+						"name": property.New("docs"),
+						"url":  property.New("https://mcp.example.com"),
+					})),
+				}),
+				"tools": property.New([]property.Value{
+					property.New(property.NewMap(map[string]property.Value{
+						"type":          property.New("mcp_toolset"),
+						"mcpServerName": property.New("docs"),
+					})),
+				}),
+			})
+		},
+		bare: func(n string) property.Map { return agentInputs(n, nil) },
+	}, {
+		field:  []string{"tools"},
+		record: "tools",
+		withField: func(n string) property.Map {
+			return agentInputs(n, map[string]property.Value{
+				"tools": property.New([]property.Value{
+					property.New(property.NewMap(map[string]property.Value{
+						"type": property.New("agent_toolset_20260401"),
+					})),
+				}),
+			})
+		},
+		bare: func(n string) property.Map { return agentInputs(n, nil) },
+	}, {
+		// An anthropic skill reference needs no skill of our own, which keeps this
+		// case free of a second object. pdf is one of the four skills every
+		// workspace holds; see guinsnotes/agent-surface-baseline.json.
+		field:  []string{"skills"},
+		record: "skills",
+		withField: func(n string) property.Map {
+			return agentInputs(n, map[string]property.Value{
+				"skills": property.New([]property.Value{
+					property.New(property.NewMap(map[string]property.Value{
+						"type":    property.New("anthropic"),
+						"skillId": property.New("pdf"),
+					})),
+				}),
+			})
+		},
+		bare: func(n string) property.Map { return agentInputs(n, nil) },
+	}, {
+		// A roster entry of type self needs no other agent, which keeps this case
+		// free of a second object.
+		field:  []string{"multiagent", "agents"},
+		record: "multiagent",
+		withField: func(n string) property.Map {
+			return agentInputs(n, map[string]property.Value{
+				"multiagent": property.New(property.NewMap(map[string]property.Value{
+					"agents": property.New([]property.Value{
+						property.New(property.NewMap(map[string]property.Value{
+							"type": property.New("self"),
+						})),
+					}),
+				})),
+			})
+		},
+		bare: func(n string) property.Map { return agentInputs(n, nil) },
 	}}
 
 	s := newLive(t)
@@ -341,6 +438,11 @@ func TestAgentOptionalFieldsClear(t *testing.T) {
 			switch {
 			case !present:
 				verdicts[c.record] = verdict{Status: "cleared"}
+			case isEmptyCollection(got):
+				// A collection the API reports as empty holds nothing, so the
+				// removal took effect even though the key survives.
+				verdicts[c.record] = verdict{Status: "cleared",
+					Observed: "an empty collection; the key survives and holds nothing"}
 			case c.defaulted != "" && fmt.Sprint(got) == fmt.Sprint(property.New(c.defaulted)):
 				verdicts[c.record] = verdict{Status: "cleared",
 					Observed: c.defaulted + ", the server default"}
