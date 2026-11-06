@@ -140,10 +140,33 @@ func (a *Agent) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckR
 func (a *Agent) Update(
 	ctx context.Context, req infer.UpdateRequest[AgentArgs, AgentState],
 ) (infer.UpdateResponse[AgentState], error) {
+	warnKeptEffort(ctx, req.State.Model, req.Inputs.Model)
 	resp, err := a.UpdateWith(ctx, req, map[string]any{"version": req.State.Version})
 	if rest.IsConflict(err) {
 		return resp, fmt.Errorf("agent %s was changed outside of Pulumi since version %d; "+
 			"run `pulumi refresh` to reconcile, then update again: %w", req.ID, req.State.Version, err)
 	}
 	return resp, err
+}
+
+// warnKeptEffort reports that the API keeps model.effort after a program stops declaring
+// it. The provider sends the field as null, in the same request body that clears
+// model.speed, and the API honours the one and ignores the other. Neither the update nor
+// a later refresh shows the stale value: refresh projects the server object onto what the
+// program declared, so a field the program dropped is not compared at all.
+//
+// The remedy belongs to the program, not to the provider: declaring the field in
+// replaceOnChanges makes a removal recreate the agent, which does clear it. Doing that
+// here would replace the agent on every effort change, and a deployment pins an agent by
+// id and version.
+//
+// TODO #pulumi-labs/pulumi-anthropic/11
+func warnKeptEffort(ctx context.Context, old, new Model) {
+	if old.Effort == nil || new.Effort != nil {
+		return
+	}
+	p.GetLogger(ctx).Warningf("the Anthropic API keeps model.effort at %q once it is set, "+
+		"so removing it from the program leaves the agent unchanged and a refresh reports "+
+		"no drift. To clear it, add \"model.effort\" to the resource's replaceOnChanges "+
+		"option, which recreates the agent.", string(*old.Effort))
 }
