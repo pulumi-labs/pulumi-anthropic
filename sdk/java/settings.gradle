@@ -10,4 +10,4 @@ pluginManagement {
   }
 }
 
-rootProject.name = "com.pulumi.anthropic"
+rootProject.name = "com.pulumi.labs.anthropic"

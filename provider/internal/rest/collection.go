@@ -31,7 +31,7 @@ import (
 	"github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
 
-	"github.com/pulumi/pulumi-anthropic/provider/config"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
 )
 
 // Collection is a REST collection in the Anthropic API, such as v1/agents or

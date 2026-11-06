@@ -25,8 +25,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pulumi/pulumi-anthropic/provider/internal/fakeapi"
-	"github.com/pulumi/pulumi-anthropic/provider/internal/providertest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/fakeapi"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/providertest"
 )
 
 const externalKeyToken = "anthropic:security:ExternalKey"

@@ -20,8 +20,8 @@ package functions
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 
-	"github.com/pulumi/pulumi-anthropic/provider/config"
-	"github.com/pulumi/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // Functions returns the provider's functions.

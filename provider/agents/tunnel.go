@@ -20,7 +20,7 @@ import (
 
 	"github.com/pulumi/pulumi-go-provider/infer"
 
-	"github.com/pulumi/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // Tunnel exposes MCP servers on a private network to Managed Agents.

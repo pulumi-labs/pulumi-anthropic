@@ -8,7 +8,7 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
-group = "com.pulumi."
+group = "com.pulumi.labs"
 
 def resolvedVersion = System.getenv("PACKAGE_VERSION") ?:
     (project.version == "unspecified"
@@ -70,7 +70,7 @@ def genPulumiResources = tasks.register('genPulumiResources') {
         builder {
             resource true
             name "anthropic"
-            server "github://api.github.com/pulumi/pulumi-anthropic"
+            server "github://api.github.com/pulumi-labs/pulumi-anthropic"
             version resolvedVersion
         }
         def infoJson = builder.toPrettyString()
@@ -85,7 +85,7 @@ jar.configure {
 publishing {
     publications {
         mainPublication(MavenPublication) {
-            groupId = "com.pulumi."
+            groupId = "com.pulumi.labs"
             artifactId = "anthropic"
             version = resolvedVersion
             from components.java
@@ -98,12 +98,12 @@ publishing {
                 packaging = "jar"
                 description = $/Manage the Anthropic platform as code: Claude Managed Agents, skills, workspaces, members, service accounts, workload identity federation, and more./$
 
-                url = "https://github.com/pulumi/pulumi-anthropic"
+                url = "https://github.com/pulumi-labs/pulumi-anthropic"
 
                 scm {
-                    connection = "git@github.com/pulumi/pulumi-anthropic.git"
-                    developerConnection = "git@github.com/pulumi/pulumi-anthropic.git"
-                    url = "https://github.com/pulumi/pulumi-anthropic"
+                    connection = "git@github.com/pulumi-labs/pulumi-anthropic.git"
+                    developerConnection = "git@github.com/pulumi-labs/pulumi-anthropic.git"
+                    url = "https://github.com/pulumi-labs/pulumi-anthropic"
                 }
 
                 licenses {

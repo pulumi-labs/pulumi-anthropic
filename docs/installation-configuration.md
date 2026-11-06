@@ -8,11 +8,11 @@ layout: package
 
 The Anthropic provider is available as a package in all Pulumi languages:
 
-* JavaScript/TypeScript: [`@pulumi/anthropic`](https://www.npmjs.com/package/@pulumi/anthropic)
-* Python: [`pulumi-anthropic`](https://pypi.org/project/pulumi-anthropic/)
-* Go: [`github.com/pulumi/pulumi-anthropic/sdk/go/anthropic`](https://pkg.go.dev/github.com/pulumi/pulumi-anthropic/sdk/go/anthropic)
-* .NET: [`Pulumi.Anthropic`](https://www.nuget.org/packages/Pulumi.Anthropic)
-* Java: [`com.pulumi/anthropic`](https://central.sonatype.com/artifact/com.pulumi/anthropic)
+* JavaScript/TypeScript: [`@pulumi-labs/anthropic`](https://www.npmjs.com/package/@pulumi-labs/anthropic)
+* Python: [`pulumi-labs-anthropic`](https://pypi.org/project/pulumi-labs-anthropic/)
+* Go: [`github.com/pulumi-labs/pulumi-anthropic/sdk/go/anthropic`](https://pkg.go.dev/github.com/pulumi-labs/pulumi-anthropic/sdk/go/anthropic)
+* .NET: [`Pulumi.Labs.Anthropic`](https://www.nuget.org/packages/Pulumi.Labs.Anthropic)
+* Java: [`com.pulumi.labs/anthropic`](https://central.sonatype.com/artifact/com.pulumi.labs/anthropic)
 
 ## Credentials
 

@@ -23,35 +23,59 @@ import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 
-	"github.com/pulumi/pulumi-anthropic/provider/agents"
-	"github.com/pulumi/pulumi-anthropic/provider/config"
-	"github.com/pulumi/pulumi-anthropic/provider/functions"
-	"github.com/pulumi/pulumi-anthropic/provider/identity"
-	"github.com/pulumi/pulumi-anthropic/provider/organization"
-	"github.com/pulumi/pulumi-anthropic/provider/security"
-	"github.com/pulumi/pulumi-anthropic/provider/skills"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/agents"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/functions"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/identity"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/organization"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/security"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/skills"
 )
 
 // Name is the Pulumi package and plugin name.
 const Name = "anthropic"
 
-// Version is the provider version, overridden at release time by the linker.
-var Version = "0.1.0-dev"
-
 // Provider builds the Anthropic provider.
 func Provider() (p.Provider, error) {
 	return infer.NewProviderBuilder().
-		WithNamespace("pulumi").
 		WithDisplayName("Anthropic").
 		WithDescription("Manage the Anthropic platform as code: Claude Managed Agents, skills, "+
 			"workspaces, members, service accounts, workload identity federation, and more.").
 		WithKeywords("anthropic", "claude", "agents", "ai", "category/cloud", "kind/native").
 		WithHomepage("https://www.pulumi.com").
-		WithRepository("https://github.com/pulumi/pulumi-anthropic").
-		WithPublisher("Pulumi").
+		WithRepository("https://github.com/pulumi-labs/pulumi-anthropic").
+		WithPublisher("Pulumi Labs").
 		WithLicense("Apache-2.0").
-		WithPluginDownloadURL("github://api.github.com/pulumi/pulumi-anthropic").
-		WithGoImportPath("github.com/pulumi/pulumi-anthropic/sdk/go/anthropic").
+		WithPluginDownloadURL("github://api.github.com/pulumi-labs/pulumi-anthropic").
+		WithGoImportPath("github.com/pulumi-labs/pulumi-anthropic/sdk/go/anthropic").
+		// Each language's package name is set explicitly. Left unset, the Java
+		// generator derives a group of "com.pulumi." from the publisher, with a
+		// trailing dot. This map replaces the one the builder would otherwise
+		// synthesize, so it also carries the defaults that map held.
+		WithLanguageMap(map[string]any{
+			"nodejs": map[string]any{
+				"packageName":          "@pulumi-labs/anthropic",
+				"respectSchemaVersion": true,
+			},
+			"python": map[string]any{
+				"packageName":          "pulumi_labs_anthropic",
+				"pyproject":            map[string]any{"enabled": true},
+				"respectSchemaVersion": true,
+			},
+			"java": map[string]any{
+				"basePackage":          "com.pulumi.labs",
+				"respectSchemaVersion": true,
+			},
+			"csharp": map[string]any{
+				"rootNamespace":        "Pulumi.Labs",
+				"respectSchemaVersion": true,
+			},
+			"go": map[string]any{
+				"importBasePath":                 "github.com/pulumi-labs/pulumi-anthropic/sdk/go/anthropic",
+				"generateResourceContainerTypes": true,
+				"respectSchemaVersion":           true,
+			},
+		}).
 		WithConfig(infer.Config(&config.Config{})).
 		WithResources(slices.Concat(
 			agents.Resources(),

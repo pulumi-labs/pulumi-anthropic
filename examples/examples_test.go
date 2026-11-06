@@ -80,7 +80,7 @@ func useLocalSDK(project, sdk string) error {
 		if err := json.Unmarshal(raw, &pkg); err != nil {
 			return err
 		}
-		pkg["dependencies"].(map[string]any)["@pulumi/anthropic"] = "file:" + filepath.Join(sdk, "nodejs", "bin")
+		pkg["dependencies"].(map[string]any)["@pulumi-labs/anthropic"] = "file:" + filepath.Join(sdk, "nodejs", "bin")
 		raw, err := json.MarshalIndent(pkg, "", "  ")
 		if err != nil {
 			return err
@@ -90,7 +90,7 @@ func useLocalSDK(project, sdk string) error {
 	if raw, err := os.ReadFile(filepath.Join(project, "requirements.txt")); err == nil {
 		lines := strings.Split(string(raw), "\n")
 		for i, line := range lines {
-			if strings.HasPrefix(line, "pulumi-anthropic") {
+			if strings.HasPrefix(line, "pulumi-labs-anthropic") {
 				lines[i] = filepath.Join(sdk, "python")
 			}
 		}

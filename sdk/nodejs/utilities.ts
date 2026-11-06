@@ -53,7 +53,7 @@ export function getVersion(): string {
 
 /** @internal */
 export function resourceOptsDefaults(): any {
-    return { version: getVersion(), pluginDownloadURL: "github://api.github.com/pulumi/pulumi-anthropic" };
+    return { version: getVersion(), pluginDownloadURL: "github://api.github.com/pulumi-labs/pulumi-anthropic" };
 }
 
 /** @internal */
