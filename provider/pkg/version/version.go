@@ -12,25 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Command pulumi-resource-anthropic is the Anthropic provider plugin.
-package main
+// Package version holds the provider version.
+package version
 
-import (
-	"context"
-	"fmt"
-	"os"
-
-	"github.com/pulumi-labs/pulumi-anthropic/provider"
-)
-
-func main() {
-	prov, err := provider.Provider()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(1)
-	}
-	if err := prov.Run(context.Background(), provider.Name, provider.Version); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(1)
-	}
-}
+// Version is the provider version, overridden at release time by the linker.
+var Version = "0.1.0-dev"
