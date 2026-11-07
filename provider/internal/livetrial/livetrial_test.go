@@ -87,37 +87,94 @@ func urn(token string) resource.URN {
 	return resource.NewURN("trial", "trial", "", tokens.Type(token), "trial")
 }
 
-// create checks and creates a resource, and registers its deletion.
-func create(t *testing.T, s integration.Server, u resource.URN, inputs property.Map) p.CreateResponse {
+// createForTrial creates a resource for a trial, and registers its deletion.
+//
+// The deletion is verified, not assumed. rest.Forget returns no error while leaving the
+// object behind, so a resource that declares it accumulates garbage no sweeper can find.
+// agents:UserProfile declared Forget while the API does support DELETE, which left 29
+// profiles in a workspace before anyone noticed.
+func createForTrial(
+	t *testing.T, s integration.Server, u resource.URN, inputs property.Map,
+) (p.CreateResponse, error) {
 	t.Helper()
 	check, err := s.Check(p.CheckRequest{Urn: u, Inputs: inputs})
-	require.NoError(t, err)
-	require.Empty(t, check.Failures)
+	if err != nil {
+		return p.CreateResponse{}, err
+	}
+	if len(check.Failures) > 0 {
+		return p.CreateResponse{}, fmt.Errorf("the provider rejected the inputs: %v", check.Failures)
+	}
 	resp, err := s.Create(p.CreateRequest{Urn: u, Properties: check.Inputs})
-	require.NoError(t, err)
+	if err != nil {
+		return p.CreateResponse{}, err
+	}
 	require.NotEmpty(t, resp.ID, "create returned no ID")
 	t.Cleanup(func() {
 		if err := s.Delete(p.DeleteRequest{ID: resp.ID, Urn: u, Properties: resp.Properties}); err != nil {
 			t.Errorf("LEAKED %s %s: delete failed: %v", u.Type(), resp.ID, err)
+			return
+		}
+		// A read after the delete must report the object gone. An archived object
+		// reads as gone too, so this covers rest.Archive as well as rest.Delete.
+		got, err := s.Read(p.ReadRequest{ID: resp.ID, Urn: u})
+		if err == nil && got.ID != "" {
+			t.Errorf("LEAKED %s %s: delete reported success and the object is still there. "+
+				"Check the resource's EndOfLife: rest.Forget abandons an object silently",
+				u.Type(), resp.ID)
 		}
 	})
-	return resp
+	return resp, nil
 }
 
-// update applies new inputs to a created resource.
+// update applies new inputs to a created resource. An error is a finding rather than a
+// harness fault: the API refuses to clear some fields and says so, and the record needs
+// to hold what it said.
 func update(
 	t *testing.T, s integration.Server, u resource.URN, created p.CreateResponse,
 	oldInputs, newInputs property.Map,
-) p.UpdateResponse {
+) error {
 	t.Helper()
 	check, err := s.Check(p.CheckRequest{Urn: u, State: created.Properties, Inputs: newInputs})
-	require.NoError(t, err)
-	require.Empty(t, check.Failures)
-	resp, err := s.Update(p.UpdateRequest{
+	if err != nil {
+		return err
+	}
+	if len(check.Failures) > 0 {
+		return fmt.Errorf("the provider rejected the inputs: %v", check.Failures)
+	}
+	_, err = s.Update(p.UpdateRequest{
 		ID: created.ID, Urn: u, State: created.Properties, Inputs: check.Inputs,
 	})
-	require.NoError(t, err)
-	return resp
+	return err
+}
+
+// apiMessage reduces a provider error to the API's own message, so that the record reads
+// as evidence rather than as a Go error chain.
+func apiMessage(err error) string {
+	s := err.Error()
+	i := strings.Index(s, `"message":"`)
+	if i < 0 {
+		if len(s) > 200 {
+			return s[:200]
+		}
+		return s
+	}
+	s = s[i+len(`"message":"`):]
+	// The message is JSON, so it can hold an escaped quote: a field name arrives as
+	// \"expires_at\". Stop at the first unescaped quote and unescape what is left.
+	var out []rune
+	runes := []rune(s)
+	for k := 0; k < len(runes); k++ {
+		if runes[k] == '\\' && k+1 < len(runes) {
+			out = append(out, runes[k+1])
+			k++
+			continue
+		}
+		if runes[k] == '"' {
+			break
+		}
+		out = append(out, runes[k])
+	}
+	return string(out)
 }
 
 // onServer reads an object as an import, which adopts the server's values wholesale.
@@ -198,17 +255,21 @@ func writeVerdicts(t *testing.T, token string, found map[string]verdict) {
 	t.Logf("recorded %d verdict(s) for %s in %s", len(found), token, recordPath)
 }
 
-// isEmptyCollection reports whether a value is an array or a map that holds nothing.
-// The API reports a cleared array as [] rather than by dropping the key, and an empty
-// collection carries no configuration, so it counts as cleared.
-func isEmptyCollection(v property.Value) bool {
+// emptyAs reports how the API represents a cleared value that keeps its key, and "" when
+// the value is not empty. The API is not consistent about this: it drops
+// agents:Agent description, reports a cleared array as [], and reports a cleared
+// agents:MemoryStore description as the empty string. Each form carries no
+// configuration, so each counts as cleared, and the record states which one appeared.
+func emptyAs(v property.Value) string {
 	switch {
-	case v.IsArray():
-		return v.AsArray().Len() == 0
-	case v.IsMap():
-		return v.AsMap().Len() == 0
+	case v.IsString() && v.AsString() == "":
+		return "the empty string; the key survives and holds nothing"
+	case v.IsArray() && v.AsArray().Len() == 0:
+		return "an empty array; the key survives and holds nothing"
+	case v.IsMap() && v.AsMap().Len() == 0:
+		return "an empty map; the key survives and holds nothing"
 	default:
-		return false
+		return ""
 	}
 }
 
@@ -409,16 +470,42 @@ func TestAgentOptionalFieldsClear(t *testing.T) {
 		bare: func(n string) property.Map { return agentInputs(n, nil) },
 	}}
 
-	s := newLive(t)
-	u := urn(agentToken)
+	runRemovals(t, agentToken, cases)
+}
+
+// runRemovals drives each case for one resource and records what it found. Every case
+// creates its own object, so one failure does not hide the rest.
+func runRemovals(t *testing.T, token string, cases []removalCase) {
+	t.Helper()
+	runRemovalsWith(t, newLive(t), token, cases)
+}
+
+// runRemovalsWith is runRemovals against an existing server, for a resource whose cases
+// need a parent object created first.
+func runRemovalsWith(t *testing.T, s integration.Server, token string, cases []removalCase) {
+	t.Helper()
+	u := urn(token)
 	verdicts := map[string]verdict{}
+	t.Cleanup(func() { writeVerdicts(t, token, verdicts) })
 
 	for _, c := range cases {
 		name := strings.Join(c.field, ".")
 		t.Run(name, func(t *testing.T) {
 			objName := trialName(strings.ReplaceAll(name, ".", "-"))
 			withField := c.withField(objName)
-			created := create(t, s, u, withField)
+
+			// A create the API refuses settles the question: the field is not on the
+			// surface, whatever the schema says. Record what the API said.
+			created, err := createForTrial(t, s, u, withField)
+			if err != nil {
+				verdicts[c.record] = verdict{Status: "unverifiable",
+					Observed: apiMessage(err),
+					Note: "The API refuses a create that sets this field, so a removal " +
+						"cannot be observed. The schema offers a field the API lacks.",
+					Issue: 21}
+				t.Errorf("%s: the API refuses a create that sets it: %s", name, apiMessage(err))
+				return
+			}
 
 			before := onServer(t, s, u, created.ID)
 			set, ok := at(before, c.field...)
@@ -428,8 +515,16 @@ func TestAgentOptionalFieldsClear(t *testing.T) {
 			}
 			t.Logf("after create:  %s = %v", name, set)
 
-			bare := c.bare(objName)
-			update(t, s, u, created, withField, bare)
+			// An update the API refuses is also an answer: the field cannot be
+			// cleared, and the API says so rather than ignoring the null.
+			if err := update(t, s, u, created, withField, c.bare(objName)); err != nil {
+				verdicts[c.record] = verdict{Status: "kept", Observed: apiMessage(err),
+					Note: "The API refuses the null the provider sends, so removing this " +
+						"field from a program fails the deployment rather than clearing it.",
+					Issue: 11}
+				t.Errorf("%s: the API refuses the removal: %s", name, apiMessage(err))
+				return
+			}
 
 			after := onServer(t, s, u, created.ID)
 			got, present := at(after, c.field...)
@@ -438,11 +533,8 @@ func TestAgentOptionalFieldsClear(t *testing.T) {
 			switch {
 			case !present:
 				verdicts[c.record] = verdict{Status: "cleared"}
-			case isEmptyCollection(got):
-				// A collection the API reports as empty holds nothing, so the
-				// removal took effect even though the key survives.
-				verdicts[c.record] = verdict{Status: "cleared",
-					Observed: "an empty collection; the key survives and holds nothing"}
+			case emptyAs(got) != "":
+				verdicts[c.record] = verdict{Status: "cleared", Observed: emptyAs(got)}
 			case c.defaulted != "" && fmt.Sprint(got) == fmt.Sprint(property.New(c.defaulted)):
 				verdicts[c.record] = verdict{Status: "cleared",
 					Observed: c.defaulted + ", the server default"}
@@ -461,6 +553,225 @@ func TestAgentOptionalFieldsClear(t *testing.T) {
 			}
 		})
 	}
+}
 
-	t.Cleanup(func() { writeVerdicts(t, agentToken, verdicts) })
+// inputs builds a property map from a required base and the field under test.
+func inputs(base, extra map[string]property.Value) property.Map {
+	m := map[string]property.Value{}
+	for k, v := range base {
+		m[k] = v
+	}
+	for k, v := range extra {
+		m[k] = v
+	}
+	return property.NewMap(m)
+}
+
+// metadataCases returns the two cases every resource with a metadata map needs: the map
+// itself, and one key inside it. A key removal travels as the resource's tombstone.
+func metadataCases(base func(name string) map[string]property.Value) []removalCase {
+	withMeta := func(n string) property.Map {
+		return inputs(base(n), map[string]property.Value{
+			"metadata": property.New(property.NewMap(map[string]property.Value{
+				"team": property.New("trial"),
+				"tier": property.New("1"),
+			})),
+		})
+	}
+	return []removalCase{{
+		field:     []string{"metadata", "tier"},
+		record:    "metadata",
+		withField: withMeta,
+		bare: func(n string) property.Map {
+			return inputs(base(n), map[string]property.Value{
+				"metadata": property.New(property.NewMap(map[string]property.Value{
+					"team": property.New("trial"),
+				})),
+			})
+		},
+	}}
+}
+
+func TestVaultOptionalFieldsClear(t *testing.T) {
+	base := func(n string) map[string]property.Value {
+		return map[string]property.Value{"displayName": property.New(n)}
+	}
+	runRemovals(t, "anthropic:agents:Vault", metadataCases(base))
+}
+
+func TestUserProfileOptionalFieldsClear(t *testing.T) {
+	base := func(n string) map[string]property.Value { return nil }
+	str := func(field, value string) removalCase {
+		return removalCase{
+			field:  []string{field},
+			record: field,
+			withField: func(n string) property.Map {
+				return inputs(base(n), map[string]property.Value{field: property.New(value)})
+			},
+			bare: func(n string) property.Map { return inputs(base(n), nil) },
+		}
+	}
+	cases := append(metadataCases(base),
+		str("name", "pulumi trial profile"),
+		str("externalId", "trial-external-id"),
+		str("externalUserOnboardedAt", "2026-01-01T00:00:00Z"),
+		removalCase{
+			field:     []string{"accessType"},
+			record:    "accessType",
+			defaulted: "application",
+			withField: func(n string) property.Map {
+				return inputs(base(n), map[string]property.Value{
+					"accessType": property.New("passthrough"),
+				})
+			},
+			bare: func(n string) property.Map { return inputs(base(n), nil) },
+		})
+	runRemovals(t, "anthropic:agents:UserProfile", cases)
+}
+
+// parentVault creates a vault for a credential to live in, and registers its deletion.
+func parentVault(t *testing.T, s integration.Server) string {
+	t.Helper()
+	u := urn("anthropic:agents:Vault")
+	created, err := createForTrial(t, s, u, property.NewMap(map[string]property.Value{
+		"displayName": property.New(trialName("parent-vault")),
+	}))
+	require.NoError(t, err, "a credential needs a vault to live in")
+	return created.ID
+}
+
+func TestVaultCredentialOptionalFieldsClear(t *testing.T) {
+	s := newLive(t)
+	vaultID := parentVault(t, s)
+
+	// static_bearer is the cheapest credential type: it needs a token and nothing
+	// else. The two auth.refresh fields belong to mcp_oauth, which needs an OAuth
+	// endpoint, so they stay pending.
+	base := func(n string) map[string]property.Value {
+		return map[string]property.Value{
+			"vaultId":     property.New(vaultID),
+			"displayName": property.New(n),
+			"auth": property.New(property.NewMap(map[string]property.Value{
+				"type":         property.New("static_bearer"),
+				"token":        property.New("trial-token-value").WithSecret(true),
+				"mcpServerUrl": property.New("https://mcp.example.com/" + n),
+			})),
+		}
+	}
+	authWith := func(n string, extra map[string]property.Value) property.Map {
+		auth := map[string]property.Value{
+			"type":         property.New("static_bearer"),
+			"token":        property.New("trial-token-value").WithSecret(true),
+			"mcpServerUrl": property.New("https://mcp.example.com/" + n),
+		}
+		for k, v := range extra {
+			auth[k] = v
+		}
+		return property.NewMap(map[string]property.Value{
+			"vaultId":     property.New(vaultID),
+			"displayName": property.New(n),
+			"auth":        property.New(property.NewMap(auth)),
+		})
+	}
+
+	cases := []removalCase{{
+		field:  []string{"auth", "expiresAt"},
+		record: "auth.expiresAt",
+		withField: func(n string) property.Map {
+			return authWith(n, map[string]property.Value{
+				"expiresAt": property.New("2030-01-01T00:00:00Z"),
+			})
+		},
+		bare: func(n string) property.Map { return authWith(n, nil) },
+	}, {
+		field:  []string{"auth", "injectionLocation"},
+		record: "auth.injectionLocation",
+		withField: func(n string) property.Map {
+			return authWith(n, map[string]property.Value{
+				"injectionLocation": property.New(property.NewMap(map[string]property.Value{
+					"header": property.New(true),
+					"body":   property.New(true),
+				})),
+			})
+		},
+		bare: func(n string) property.Map { return authWith(n, nil) },
+	}, {
+		field:  []string{"auth", "injectionLocation", "body"},
+		record: "auth.injectionLocation.body",
+		withField: func(n string) property.Map {
+			return authWith(n, map[string]property.Value{
+				"injectionLocation": property.New(property.NewMap(map[string]property.Value{
+					"header": property.New(true),
+					"body":   property.New(true),
+				})),
+			})
+		},
+		bare: func(n string) property.Map {
+			return authWith(n, map[string]property.Value{
+				"injectionLocation": property.New(property.NewMap(map[string]property.Value{
+					"header": property.New(true),
+				})),
+			})
+		},
+	}, {
+		field:  []string{"auth", "networking"},
+		record: "auth.networking",
+		withField: func(n string) property.Map {
+			return authWith(n, map[string]property.Value{
+				"networking": property.New(property.NewMap(map[string]property.Value{
+					"type":         property.New("limited"),
+					"allowedHosts": property.New([]property.Value{property.New("api.example.com")}),
+				})),
+			})
+		},
+		bare: func(n string) property.Map { return authWith(n, nil) },
+	}, {
+		field:  []string{"auth", "networking", "allowedHosts"},
+		record: "auth.networking.allowedHosts",
+		withField: func(n string) property.Map {
+			return authWith(n, map[string]property.Value{
+				"networking": property.New(property.NewMap(map[string]property.Value{
+					"type":         property.New("limited"),
+					"allowedHosts": property.New([]property.Value{property.New("api.example.com")}),
+				})),
+			})
+		},
+		bare: func(n string) property.Map {
+			return authWith(n, map[string]property.Value{
+				"networking": property.New(property.NewMap(map[string]property.Value{
+					"type": property.New("unrestricted"),
+				})),
+			})
+		},
+	}, {
+		field:  []string{"displayName"},
+		record: "displayName",
+		withField: func(n string) property.Map {
+			return inputs(base(n), nil)
+		},
+		bare: func(n string) property.Map {
+			m := base(n)
+			delete(m, "displayName")
+			return inputs(m, nil)
+		},
+	}}
+	cases = append(cases, metadataCases(base)...)
+	runRemovalsWith(t, s, "anthropic:agents:VaultCredential", cases)
+}
+
+func TestMemoryStoreOptionalFieldsClear(t *testing.T) {
+	base := func(n string) map[string]property.Value {
+		return map[string]property.Value{"name": property.New(n)}
+	}
+	cases := append(metadataCases(base), removalCase{
+		field:  []string{"description"},
+		record: "description",
+		withField: func(n string) property.Map {
+			return inputs(base(n), map[string]property.Value{
+				"description": property.New("a trial memory store"),
+			})
+		},
+		bare: func(n string) property.Map { return inputs(base(n), nil) },
+	})
+	runRemovals(t, "anthropic:agents:MemoryStore", cases)
 }

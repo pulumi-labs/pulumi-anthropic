@@ -1,45 +1,45 @@
 {
   "api": "api.anthropic.com",
   "comment": "What the live Anthropic API does when a program stops declaring an optional field. Produced by `make trial`; see provider/internal/livetrial. A field that is secret or replaceOnChanges is exempt by rule and absent here: the guard in provider/behavior_test.go derives those from the schema.",
-  "recorded": "2026-11-06",
+  "recorded": "2026-11-07",
   "removal": {
     "anthropic:agents:Agent": {
       "description": {
         "status": "cleared"
       },
       "mcpServers": {
-        "status": "cleared",
-        "observed": "an empty collection; the key survives and holds nothing"
+        "observed": "an empty array; the key survives and holds nothing",
+        "status": "cleared"
       },
       "metadata": {
         "status": "cleared"
       },
       "model.effort": {
-        "status": "kept",
-        "observed": "low",
+        "issue": 11,
         "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
-        "issue": 11
+        "observed": "low",
+        "status": "kept"
       },
       "model.inferenceGeo": {
         "status": "cleared"
       },
       "model.speed": {
-        "status": "cleared",
-        "observed": "standard, the server default"
+        "observed": "standard, the server default",
+        "status": "cleared"
       },
       "multiagent": {
         "status": "cleared"
       },
       "skills": {
-        "status": "cleared",
-        "observed": "an empty collection; the key survives and holds nothing"
+        "observed": "an empty array; the key survives and holds nothing",
+        "status": "cleared"
       },
       "system": {
         "status": "cleared"
       },
       "tools": {
-        "status": "cleared",
-        "observed": "an empty collection; the key survives and holds nothing"
+        "observed": "an empty array; the key survives and holds nothing",
+        "status": "cleared"
       }
     },
     "anthropic:agents:Deployment": {
@@ -140,66 +140,81 @@
     },
     "anthropic:agents:MemoryStore": {
       "description": {
-        "issue": 11,
-        "status": "pending"
+        "status": "cleared",
+        "observed": "the empty string; the key survives and holds nothing"
       },
       "metadata": {
-        "issue": 11,
-        "status": "pending"
+        "status": "cleared"
       }
     },
     "anthropic:agents:UserProfile": {
       "accessType": {
         "issue": 11,
-        "status": "pending"
+        "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
+        "observed": "passthrough",
+        "status": "kept"
       },
       "externalId": {
         "issue": 11,
-        "status": "pending"
+        "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
+        "observed": "trial-external-id",
+        "status": "kept"
       },
       "externalUserOnboardedAt": {
         "issue": 11,
-        "status": "pending"
+        "note": "The API refuses the null the provider sends, so removing this field from a program fails the deployment rather than clearing it.",
+        "observed": "Failed to parse request: external_user_onboarded_at: must not be null; omit it instead (the value cannot be cleared)",
+        "status": "kept"
       },
       "metadata": {
-        "issue": 11,
-        "status": "pending"
+        "status": "cleared"
       },
       "name": {
         "issue": 11,
-        "status": "pending"
+        "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
+        "observed": "pulumi trial profile",
+        "status": "kept"
       }
     },
     "anthropic:agents:Vault": {
       "metadata": {
-        "issue": 11,
-        "status": "pending"
+        "status": "cleared"
       }
     },
     "anthropic:agents:VaultCredential": {
       "auth.expiresAt": {
-        "issue": 11,
-        "status": "pending"
+        "issue": 21,
+        "note": "The API refuses a create that sets this field, so a removal cannot be observed. The schema offers a field the API lacks.",
+        "observed": "Failed to parse request body: unknown field \"expires_at\"",
+        "status": "unverifiable"
       },
       "auth.injectionLocation": {
-        "issue": 11,
-        "status": "pending"
+        "issue": 21,
+        "note": "The API refuses a create that sets this field, so a removal cannot be observed. The schema offers a field the API lacks.",
+        "observed": "Failed to parse request body: unknown field \"injection_location\"",
+        "status": "unverifiable"
       },
       "auth.injectionLocation.body": {
-        "issue": 11,
-        "status": "pending"
+        "issue": 21,
+        "note": "The API refuses a create that sets this field, so a removal cannot be observed. The schema offers a field the API lacks.",
+        "observed": "Failed to parse request body: unknown field \"injection_location\"",
+        "status": "unverifiable"
       },
       "auth.injectionLocation.header": {
         "issue": 11,
         "status": "pending"
       },
       "auth.networking": {
-        "issue": 11,
-        "status": "pending"
+        "issue": 21,
+        "note": "The API refuses a create that sets this field, so a removal cannot be observed. The schema offers a field the API lacks.",
+        "observed": "Failed to parse request body: unknown field \"networking\"",
+        "status": "unverifiable"
       },
       "auth.networking.allowedHosts": {
-        "issue": 11,
-        "status": "pending"
+        "issue": 21,
+        "note": "The API refuses a create that sets this field, so a removal cannot be observed. The schema offers a field the API lacks.",
+        "observed": "Failed to parse request body: unknown field \"networking\"",
+        "status": "unverifiable"
       },
       "auth.refresh": {
         "issue": 11,
@@ -211,11 +226,12 @@
       },
       "displayName": {
         "issue": 11,
-        "status": "pending"
+        "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
+        "observed": "pulumi-trial-displayName-1794013610571865000",
+        "status": "kept"
       },
       "metadata": {
-        "issue": 11,
-        "status": "pending"
+        "status": "cleared"
       }
     },
     "anthropic:identity:FederationIssuer": {
