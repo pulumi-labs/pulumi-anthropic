@@ -78,8 +78,9 @@ build_sdks: $(foreach lang,$(LANGUAGES),build_$(lang)) ## Generate and compile e
 # reach them. They answer questions a refresh cannot: see provider/internal/livetrial.
 #
 # CAUTION: each trial creates real objects in the workspace the key belongs to, and
-# deletes them again. A failed delete logs "LEAKED" with the object's ID.
-# guinsnotes/agent-surface-baseline.json records what the workspace held beforehand.
+# deletes them again. A failed delete logs "LEAKED" with the object's ID. List what the
+# workspace holds before the first run, and keep that list, so a cleanup can delete only
+# what the list does not name.
 TRIAL_KEY_FILE ?= $(HOME)/.config/anthropic/trial-key
 
 .PHONY: trial

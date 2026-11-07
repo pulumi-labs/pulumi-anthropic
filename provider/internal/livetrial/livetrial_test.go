@@ -50,9 +50,8 @@ import (
 	"github.com/pulumi-labs/pulumi-anthropic/provider"
 )
 
-// namePrefix marks every object a trial creates, so that a leftover can be told from
-// an object that was already in the workspace. guinsnotes/agent-surface-baseline.json
-// records what was there before.
+// namePrefix marks every object a trial creates, so that a leftover can be told from an
+// object that was already in the workspace.
 const namePrefix = "pulumi-trial"
 
 // trialName returns a name unique to this run.
@@ -477,8 +476,7 @@ func TestAgentOptionalFieldsClear(t *testing.T) {
 		bare: func(n string) property.Map { return agentInputs(n, nil) },
 	}, {
 		// An anthropic skill reference needs no skill of our own, which keeps this
-		// case free of a second object. pdf is one of the four skills every
-		// workspace holds; see guinsnotes/agent-surface-baseline.json.
+		// case free of a second object. The pdf skill is one Anthropic provides.
 		field:  []string{"skills"},
 		record: "skills",
 		withField: func(n string) property.Map {

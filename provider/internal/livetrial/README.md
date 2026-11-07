@@ -107,10 +107,12 @@ The target reads a key from `~/.config/anthropic/trial-key`. Override the path w
 `TRIAL_KEY_FILE`.
 
 Caution: each case creates a real object in the workspace the key belongs to, and deletes
-it again. A failed delete logs `LEAKED` with the object's ID. Before the first run,
-record what the workspace already holds, so that a later cleanup can tell a leftover from
-an object that was always there. `guinsnotes/inventory.py` does this, and
-`guinsnotes/agent-surface-baseline.json` holds the result from 2026-11-06.
+it again. A failed delete logs `LEAKED` with the object's ID.
+
+Before the first run against a workspace, list what it already holds, and keep that list.
+A cleanup can then tell a leftover from an object that was always there, and delete only
+what the list does not name. The Default Workspace cannot be archived, so there is no
+other way back from a run that leaves objects behind.
 
 The run writes its verdicts into `provider/livebehavior.json`. Review that diff: it is
 the artifact, not the test output.
