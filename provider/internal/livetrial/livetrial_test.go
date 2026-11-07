@@ -217,6 +217,47 @@ const agentToken = "anthropic:agents:Agent"
 // recordPath is provider/livebehavior.json, relative to this package.
 const recordPath = "../../livebehavior.json"
 
+// readVerdicts returns the verdicts the record already holds for one resource, so that a
+// run can tell a defect it already knew about from one that is new.
+func readVerdicts(t *testing.T, token string) map[string]verdict {
+	t.Helper()
+	raw, err := os.ReadFile(recordPath)
+	require.NoError(t, err)
+	var doc struct {
+		Removal map[string]map[string]verdict `json:"removal"`
+	}
+	require.NoError(t, json.Unmarshal(raw, &doc))
+	return doc.Removal[token]
+}
+
+// report decides whether a verdict should fail the run.
+//
+// A defect the record already states is not news, and failing on it leaves no way to
+// tell a known defect from a fresh one. So a verdict that matches the record passes, and
+// only a change fails: a field that regressed, a field whose defect changed shape, or a
+// field nobody had a verdict for.
+func report(t *testing.T, field string, known map[string]verdict, got verdict) {
+	t.Helper()
+	was, recorded := known[field]
+	switch {
+	case got.Status == "cleared":
+		if recorded && was.Status != "cleared" {
+			t.Errorf("%s now clears, and the record says %q. Rerun make trial to update it",
+				field, was.Status)
+		}
+	case !recorded || was.Status == "pending":
+		t.Errorf("%s is %s and the record had no verdict: %s", field, got.Status, got.Observed)
+	case was.Status != got.Status:
+		t.Errorf("%s is now %s, and the record says %q: %s",
+			field, got.Status, was.Status, got.Observed)
+	case was.Observed != got.Observed:
+		t.Errorf("%s is still %s, and what the API reports has changed from %q to %q",
+			field, got.Status, was.Observed, got.Observed)
+	default:
+		t.Logf("%s is %s, as the record states: %s", field, got.Status, got.Observed)
+	}
+}
+
 // verdict is one entry in the record. It mirrors behaviorRecord in
 // provider/behavior_test.go, which guards the file's completeness.
 type verdict struct {
@@ -486,6 +527,7 @@ func runRemovalsWith(t *testing.T, s integration.Server, token string, cases []r
 	t.Helper()
 	u := urn(token)
 	verdicts := map[string]verdict{}
+	known := readVerdicts(t, token)
 	t.Cleanup(func() { writeVerdicts(t, token, verdicts) })
 
 	for _, c := range cases {
@@ -498,12 +540,13 @@ func runRemovalsWith(t *testing.T, s integration.Server, token string, cases []r
 			// surface, whatever the schema says. Record what the API said.
 			created, err := createForTrial(t, s, u, withField)
 			if err != nil {
-				verdicts[c.record] = verdict{Status: "unverifiable",
+				v21 := verdict{Status: "unverifiable",
 					Observed: apiMessage(err),
 					Note: "The API refuses a create that sets this field, so a removal " +
 						"cannot be observed. The schema offers a field the API lacks.",
 					Issue: 21}
-				t.Errorf("%s: the API refuses a create that sets it: %s", name, apiMessage(err))
+				verdicts[c.record] = v21
+				report(t, c.record, known, v21)
 				return
 			}
 
@@ -518,11 +561,12 @@ func runRemovalsWith(t *testing.T, s integration.Server, token string, cases []r
 			// An update the API refuses is also an answer: the field cannot be
 			// cleared, and the API says so rather than ignoring the null.
 			if err := update(t, s, u, created, withField, c.bare(objName)); err != nil {
-				verdicts[c.record] = verdict{Status: "kept", Observed: apiMessage(err),
+				v := verdict{Status: "kept", Observed: apiMessage(err),
 					Note: "The API refuses the null the provider sends, so removing this " +
 						"field from a program fails the deployment rather than clearing it.",
 					Issue: 11}
-				t.Errorf("%s: the API refuses the removal: %s", name, apiMessage(err))
+				verdicts[c.record] = v
+				report(t, c.record, known, v)
 				return
 			}
 
@@ -530,27 +574,28 @@ func runRemovalsWith(t *testing.T, s integration.Server, token string, cases []r
 			got, present := at(after, c.field...)
 			t.Logf("after removal: %s present=%v value=%v", name, present, got)
 
+			var v verdict
 			switch {
 			case !present:
-				verdicts[c.record] = verdict{Status: "cleared"}
+				v = verdict{Status: "cleared"}
 			case emptyAs(got) != "":
-				verdicts[c.record] = verdict{Status: "cleared", Observed: emptyAs(got)}
+				v = verdict{Status: "cleared", Observed: emptyAs(got)}
 			case c.defaulted != "" && fmt.Sprint(got) == fmt.Sprint(property.New(c.defaulted)):
-				verdicts[c.record] = verdict{Status: "cleared",
-					Observed: c.defaulted + ", the server default"}
+				v = verdict{Status: "cleared", Observed: c.defaulted + ", the server default"}
 			case fmt.Sprint(got) == fmt.Sprint(set):
-				verdicts[c.record] = verdict{Status: "kept", Observed: show(got),
+				// The record states that the declared value survived, not what that
+				// value was. A case names its object with a timestamp, so the literal
+				// value differs on every run and could never match the record.
+				v = verdict{Status: "kept", Observed: "the value the program declared",
 					Note: "The provider sends this field as null and the API keeps the old " +
 						"value, so a program cannot un-set it. Neither the update nor a later " +
 						"refresh reports the stale value.", Issue: 11}
-				t.Errorf("%s still holds the declared value %v after removal, so the API "+
-					"ignored the null the provider sent", name, got)
 			default:
-				verdicts[c.record] = verdict{Status: "kept", Observed: show(got),
+				v = verdict{Status: "kept", Observed: show(got),
 					Note: "The API left an unexpected value after the removal.", Issue: 11}
-				t.Errorf("%s holds %v after removal, which is neither absent, the default, "+
-					"nor the declared value", name, got)
 			}
+			verdicts[c.record] = v
+			report(t, c.record, known, v)
 		})
 	}
 }
