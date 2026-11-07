@@ -17,7 +17,7 @@
       "model.effort": {
         "issue": 11,
         "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
-        "observed": "low",
+        "observed": "the value the program declared",
         "status": "kept"
       },
       "model.inferenceGeo": {
@@ -151,13 +151,13 @@
       "accessType": {
         "issue": 11,
         "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
-        "observed": "passthrough",
+        "observed": "the value the program declared",
         "status": "kept"
       },
       "externalId": {
         "issue": 11,
         "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
-        "observed": "trial-external-id",
+        "observed": "the value the program declared",
         "status": "kept"
       },
       "externalUserOnboardedAt": {
@@ -172,7 +172,7 @@
       "name": {
         "issue": 11,
         "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
-        "observed": "pulumi trial profile",
+        "observed": "the value the program declared",
         "status": "kept"
       }
     },
@@ -227,7 +227,7 @@
       "displayName": {
         "issue": 11,
         "note": "The provider sends this field as null and the API keeps the old value, so a program cannot un-set it. Neither the update nor a later refresh reports the stale value.",
-        "observed": "pulumi-trial-displayName-1794013610571865000",
+        "observed": "the value the program declared",
         "status": "kept"
       },
       "metadata": {
