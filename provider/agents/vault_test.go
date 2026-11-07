@@ -120,6 +120,6 @@ func TestUserProfileLifecycle(t *testing.T) {
 	}.Run(t, server)
 
 	last := api.Last()
-	assert.NotEqual(t, http.MethodDelete, last.Method, "user profiles cannot be deleted, only forgotten")
+	assert.Equal(t, http.MethodDelete, last.Method, "a user profile is deleted, not abandoned")
 	assert.NotRegexp(t, `/archive$`, last.Path)
 }

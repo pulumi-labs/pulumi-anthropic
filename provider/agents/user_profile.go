@@ -29,7 +29,7 @@ type UserProfile struct {
 func NewUserProfile() *UserProfile {
 	return &UserProfile{rest.Resource[UserProfileArgs, UserProfileState, *UserProfileState]{
 		Collection: userProfileCollection,
-		EndOfLife:  rest.Forget,
+		EndOfLife:  rest.Delete,
 		Tombstones: map[string]any{"metadata": ""},
 	}}
 }
@@ -39,8 +39,8 @@ func (u *UserProfile) Annotate(a infer.Annotator) {
 		"such as an end user of your product or a company you resell Claude access to. Send "+
 		"its ID in the `anthropic-user-profile-id` header of Messages, Message Batches, and "+
 		"token counting requests to attribute them to the entity.\n\n"+
-		"The API cannot delete user profiles, so deleting this resource only removes it from "+
-		"the stack; the profile remains.")
+		"Deleting this resource deletes the profile. Anthropic keeps the trust and safety "+
+		"records attached to the profile's ID.")
 }
 
 type UserProfileArgs struct {
