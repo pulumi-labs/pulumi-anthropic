@@ -1911,7 +1911,7 @@
       ]
     },
     "anthropic:agents:UserProfile": {
-      "description": "A user profile: an entity your platform serves through the Anthropic API, such as an end user of your product or a company you resell Claude access to. Send its ID in the `anthropic-user-profile-id` header of Messages, Message Batches, and token counting requests to attribute them to the entity.\n\nThe API cannot delete user profiles, so deleting this resource only removes it from the stack; the profile remains.",
+      "description": "A user profile: an entity your platform serves through the Anthropic API, such as an end user of your product or a company you resell Claude access to. Send its ID in the `anthropic-user-profile-id` header of Messages, Message Batches, and token counting requests to attribute them to the entity.\n\nDeleting this resource deletes the profile. Anthropic keeps the trust and safety records attached to the profile's ID.",
       "properties": {
         "accessType": {
           "$ref": "#/types/anthropic:agents:AccessType",
