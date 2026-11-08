@@ -21,11 +21,16 @@ test: ## Run the unit and lifecycle tests against the fake API.
 schema: ## Regenerate the golden schema after an intentional change to the surface.
 	go test ./provider -run TestSchema -update
 
+# golangci-lint refuses to run when it was built against an older Go than go.mod
+# targets, which the version most package managers ship usually is. Prefer the version
+# mise.toml pins, and fall back to whatever is on PATH.
+GOLANGCI := $(shell command -v mise >/dev/null 2>&1 && echo "mise exec golangci-lint -- golangci-lint" || echo golangci-lint)
+
 .PHONY: lint
 lint: ## Lint the Go code.
 	gofmt -l provider examples | tee /dev/stderr | (! read)
 	go vet ./...
-	golangci-lint run --timeout 5m
+	$(GOLANGCI) run --timeout 5m
 
 .PHONY: sdks
 sdks: $(foreach lang,$(LANGUAGES),sdk_$(lang)) ## Generate every language SDK from the schema.
@@ -68,6 +73,21 @@ build_java: sdk_java ## Build the Java SDK. Gradle 9 needs JDK 17 or newer to ru
 
 .PHONY: build_sdks
 build_sdks: $(foreach lang,$(LANGUAGES),build_$(lang)) ## Generate and compile every language SDK.
+
+# Live trials against the real API, behind a build tag so that `make test` and CI never
+# reach them. They answer questions a refresh cannot: see provider/internal/livetrial.
+#
+# CAUTION: each trial creates real objects in the workspace the key belongs to, and
+# deletes them again. A failed delete logs "LEAKED" with the object's ID. List what the
+# workspace holds before the first run, and keep that list, so a cleanup can delete only
+# what the list does not name.
+TRIAL_KEY_FILE ?= $(HOME)/.config/anthropic/trial-key
+
+.PHONY: trial
+trial: ## Run the live trials. Needs TRIAL_KEY_FILE to hold an Anthropic API key.
+	@test -f $(TRIAL_KEY_FILE) || { echo "no key file at $(TRIAL_KEY_FILE)"; exit 1; }
+	ANTHROPIC_API_KEY=$$(cat $(TRIAL_KEY_FILE)) \
+		go test -tags livetrial -count=1 -v -timeout 20m ./provider/internal/livetrial/...
 
 # Substitute VERSION into the language-SDK manifests. In the normal flow
 # `make sdks VERSION=...` already bakes the right version in, because the

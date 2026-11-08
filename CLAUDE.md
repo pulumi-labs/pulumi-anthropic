@@ -97,9 +97,49 @@ Server behavior the fake doesn't model generically (defaults, versioning, custom
 endpoints) is set up in the test with `SetHooks` and `Handle`. The fake is a stand-in:
 anything only the real API can confirm is covered by the acceptance tests in `examples/`.
 
+## Live trials
+
+A unit test cannot tell whether the API honors a removal. The fake behaves the way each
+test's `SetHooks` says it does, and a refresh never compares a field the program dropped,
+because `rest.Project` keeps an unset field unset so that a server default does not read
+as drift. So a removal that silently fails looks exactly like one that worked.
+
+`provider/internal/livetrial` settles such questions against the real API. It reads each
+object back as an import, which is the only read that adopts the server's values
+wholesale. `provider/internal/livetrial/README.md` explains the mechanism.
+
+Three files, with distinct jobs:
+- `provider/internal/livetrial/livetrial_test.go` — the cases. One table entry per
+  field: inputs that set it, inputs that omit it, and where to look afterwards.
+- `provider/livebehavior.json` — the checklist and the answers. One verdict for each
+  optional field: `cleared`, `kept`, `pending`, or `unverifiable`.
+- `provider/behavior_test.go` — the guard. It calls no API. It derives the fields needing
+  a verdict from `provider/schema.json` and fails when one has no entry, so a new
+  resource arrives with its fields listed as pending rather than silently uncovered.
+
+The checklist is derived, never hand-written. Regenerate the pending entries by walking
+`schema.json`: take each resource's `inputProperties`, recurse through nested object
+types, keep a field that is optional within its own type, and drop a field that is
+secret or `replaceOnChanges`. A secret cannot be observed, and a `replaceOnChanges`
+field has no clear to verify.
+
+A `kept` verdict is a user-visible defect the provider cannot repair. Warn from the
+resource's `Update` and name the resource option that does work, as `Agent.Update` does
+for `model.effort`. Report the defect to Anthropic, which is the only route to a fix.
+The guard requires a `kept` entry to carry a note saying what a user sees.
+
+Caution: a trial creates real objects in the workspace its key belongs to, and deletes
+them again. A failed delete logs `LEAKED` with the object's ID. Record what the workspace
+holds before the first run, so that a later cleanup can tell a leftover from an object
+that was always there.
+
 ## Commands
 
 - `make build` — build the plugin into `bin/`.
-- `make test` — unit tests; `make schema` — regenerate the golden schema.
+- `make test` — unit tests, including the behavior guard; `make schema` — regenerate the
+  golden schema.
 - `make sdks` — generate all language SDKs from the schema.
 - `make test_acceptance` — run the examples against the live API (needs credentials).
+- `make trial` — run the live trials against the real API. Reads a key from
+  `TRIAL_KEY_FILE`, which defaults to `~/.config/anthropic/trial-key`. Writes its
+  verdicts into `provider/livebehavior.json`; review that diff, not the test output.
