@@ -13,6 +13,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
+from . import outputs
 from ._enums import *
 
 __all__ = ['ApiKeyArgs', 'ApiKey']
@@ -26,9 +27,9 @@ class ApiKeyArgs:
         """
         The set of arguments for constructing a ApiKey resource.
 
-        :param pulumi.Input[_builtins.str] api_key_id: The ID of the existing API key to manage.
-        :param pulumi.Input[_builtins.str] name: The key's name, 1 to 500 characters.
-        :param pulumi.Input['ApiKeyStatus'] status: The key's status. An archived key cannot be reactivated.
+        :param pulumi.Input[_builtins.str] api_key_id: The existing key's nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
+        :param pulumi.Input[_builtins.str] name: The key's name, 1 to 500 characters. Omission leaves the current name unchanged.
+        :param pulumi.Input['ApiKeyStatus'] status: The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
         """
         pulumi.set(__self__, "api_key_id", api_key_id)
         if name is not None:
@@ -40,7 +41,7 @@ class ApiKeyArgs:
     @pulumi.getter(name="apiKeyId")
     def api_key_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The ID of the existing API key to manage.
+        The existing key's nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
         """
         return pulumi.get(self, "api_key_id")
 
@@ -52,7 +53,7 @@ class ApiKeyArgs:
     @pulumi.getter
     def name(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The key's name, 1 to 500 characters.
+        The key's name, 1 to 500 characters. Omission leaves the current name unchanged.
         """
         return pulumi.get(self, "name")
 
@@ -64,7 +65,7 @@ class ApiKeyArgs:
     @pulumi.getter
     def status(self) -> pulumi.Input[Optional['ApiKeyStatus']]:
         """
-        The key's status. An archived key cannot be reactivated.
+        The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
         """
         return pulumi.get(self, "status")
 
@@ -84,17 +85,15 @@ class ApiKey(pulumi.CustomResource):
                  status: pulumi.Input[Optional['ApiKeyStatus']] = None,
                  __props__=None):
         """
-        An API key's name and status.
+        Manages an existing API key's name and status. Create the key in the Claude Console and supply its ID; secret key material is never returned. Omitted name or status leaves that value unchanged. Removing either from configuration stops managing it without clearing it.
 
-        API keys cannot be created through the API, only in the Claude Console, and their secret values are never returned. Creating this resource adopts an existing key by ID; fields left undeclared are left as they are.
-
-        Deleting this resource archives the key, which permanently revokes it. To stop managing a key without revoking it, set the `retainOnDelete` resource option.
+        Deleting this resource archives and permanently revokes the key. Use retainOnDelete to stop managing it without revocation. Changing apiKeyId adopts the new key before revoking the old one. Archived and expired keys remain readable.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] api_key_id: The ID of the existing API key to manage.
-        :param pulumi.Input[_builtins.str] name: The key's name, 1 to 500 characters.
-        :param pulumi.Input['ApiKeyStatus'] status: The key's status. An archived key cannot be reactivated.
+        :param pulumi.Input[_builtins.str] api_key_id: The existing key's nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
+        :param pulumi.Input[_builtins.str] name: The key's name, 1 to 500 characters. Omission leaves the current name unchanged.
+        :param pulumi.Input['ApiKeyStatus'] status: The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
         """
         ...
     @overload
@@ -103,11 +102,9 @@ class ApiKey(pulumi.CustomResource):
                  args: ApiKeyArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        An API key's name and status.
+        Manages an existing API key's name and status. Create the key in the Claude Console and supply its ID; secret key material is never returned. Omitted name or status leaves that value unchanged. Removing either from configuration stops managing it without clearing it.
 
-        API keys cannot be created through the API, only in the Claude Console, and their secret values are never returned. Creating this resource adopts an existing key by ID; fields left undeclared are left as they are.
-
-        Deleting this resource archives the key, which permanently revokes it. To stop managing a key without revoking it, set the `retainOnDelete` resource option.
+        Deleting this resource archives and permanently revokes the key. Use retainOnDelete to stop managing it without revocation. Changing apiKeyId adopts the new key before revoking the old one. Archived and expired keys remain readable.
 
         :param str resource_name: The name of the resource.
         :param ApiKeyArgs args: The arguments to use to populate this resource's properties.
@@ -142,8 +139,12 @@ class ApiKey(pulumi.CustomResource):
             __props__.__dict__["name"] = name
             __props__.__dict__["status"] = status
             __props__.__dict__["created_at"] = None
+            __props__.__dict__["created_by"] = None
             __props__.__dict__["expires_at"] = None
+            __props__.__dict__["observed_status"] = None
             __props__.__dict__["partial_key_hint"] = None
+            __props__.__dict__["principal"] = None
+            __props__.__dict__["scope"] = None
             __props__.__dict__["workspace_id"] = None
         replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["apiKeyId"])
         opts = pulumi.ResourceOptions.merge(opts, replace_on_changes)
@@ -171,9 +172,13 @@ class ApiKey(pulumi.CustomResource):
 
         __props__.__dict__["api_key_id"] = None
         __props__.__dict__["created_at"] = None
+        __props__.__dict__["created_by"] = None
         __props__.__dict__["expires_at"] = None
         __props__.__dict__["name"] = None
+        __props__.__dict__["observed_status"] = None
         __props__.__dict__["partial_key_hint"] = None
+        __props__.__dict__["principal"] = None
+        __props__.__dict__["scope"] = None
         __props__.__dict__["status"] = None
         __props__.__dict__["workspace_id"] = None
         return ApiKey(resource_name, opts=opts, __props__=__props__)
@@ -188,7 +193,7 @@ class ApiKey(pulumi.CustomResource):
     @pulumi.getter(name="apiKeyId")
     def api_key_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The ID of the existing API key to manage.
+        The existing key's nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
         """
         return pulumi.get(self, "api_key_id")
 
@@ -201,10 +206,18 @@ class ApiKey(pulumi.CustomResource):
         return pulumi.get(self, "created_at")
 
     @_builtins.property
+    @pulumi.getter(name="createdBy")
+    def created_by(self) -> pulumi.Output[Optional['outputs.ApiKeyActor']]:
+        """
+        The actor that created the key, if recorded.
+        """
+        return pulumi.get(self, "created_by")
+
+    @_builtins.property
     @pulumi.getter(name="expiresAt")
     def expires_at(self) -> pulumi.Output[_builtins.str]:
         """
-        When the key expires, in RFC 3339 format, if it does.
+        When the key expires, in RFC 3339 format, or an empty string if it never expires.
         """
         return pulumi.get(self, "expires_at")
 
@@ -212,23 +225,47 @@ class ApiKey(pulumi.CustomResource):
     @pulumi.getter
     def name(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        The key's name, 1 to 500 characters.
+        The key's name, 1 to 500 characters. Omission leaves the current name unchanged.
         """
         return pulumi.get(self, "name")
+
+    @_builtins.property
+    @pulumi.getter(name="observedStatus")
+    def observed_status(self) -> pulumi.Output[_builtins.str]:
+        """
+        The current status, including active, inactive, archived or expired. An expired key's status is not recovered as a writable input on import.
+        """
+        return pulumi.get(self, "observed_status")
 
     @_builtins.property
     @pulumi.getter(name="partialKeyHint")
     def partial_key_hint(self) -> pulumi.Output[_builtins.str]:
         """
-        A redacted hint of the key's value, for recognizing it.
+        A redacted hint for recognizing the key; empty if unavailable.
         """
         return pulumi.get(self, "partial_key_hint")
 
     @_builtins.property
     @pulumi.getter
+    def principal(self) -> pulumi.Output[Optional['outputs.ApiKeyActor']]:
+        """
+        The user or service account the key acts as, if bound to a principal.
+        """
+        return pulumi.get(self, "principal")
+
+    @_builtins.property
+    @pulumi.getter
+    def scope(self) -> pulumi.Output[Optional['outputs.ApiKeyScope']]:
+        """
+        Where the key belongs: an organization or a workspace.
+        """
+        return pulumi.get(self, "scope")
+
+    @_builtins.property
+    @pulumi.getter
     def status(self) -> pulumi.Output[Optional['ApiKeyStatus']]:
         """
-        The key's status. An archived key cannot be reactivated.
+        The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
         """
         return pulumi.get(self, "status")
 
@@ -236,7 +273,7 @@ class ApiKey(pulumi.CustomResource):
     @pulumi.getter(name="workspaceId")
     def workspace_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The ID of the workspace the key belongs to.
+        The key's actual workspace ID, or an empty string for organization scope. See scope for the ownership boundary.
         """
         return pulumi.get(self, "workspace_id")
 

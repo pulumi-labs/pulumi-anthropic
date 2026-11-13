@@ -25,6 +25,7 @@ class AgentArgs:
                  model: pulumi.Input['ModelArgs'],
                  name: pulumi.Input[_builtins.str],
                  description: pulumi.Input[Optional[_builtins.str]] = None,
+                 execution_identity: pulumi.Input[Optional['ExecutionIdentityArgs']] = None,
                  mcp_servers: pulumi.Input[Optional[Sequence[pulumi.Input['MCPServerArgs']]]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  multiagent: pulumi.Input[Optional['MultiagentArgs']] = None,
@@ -36,18 +37,21 @@ class AgentArgs:
 
         :param pulumi.Input['ModelArgs'] model: The model the agent runs on.
         :param pulumi.Input[_builtins.str] name: The agent's name, 1 to 256 characters.
-        :param pulumi.Input[_builtins.str] description: A description of the agent, up to 2,048 characters.
+        :param pulumi.Input[_builtins.str] description: A description of the agent, up to 2,048 characters. Removing a configured description clears it.
+        :param pulumi.Input['ExecutionIdentityArgs'] execution_identity: Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
         :param pulumi.Input[Sequence[pulumi.Input['MCPServerArgs']]] mcp_servers: The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs, up to 16.
-        :param pulumi.Input['MultiagentArgs'] multiagent: Makes the agent a coordinator that delegates to other agents.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
+        :param pulumi.Input['MultiagentArgs'] multiagent: Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
         :param pulumi.Input[Sequence[pulumi.Input['SkillRefArgs']]] skills: The skills available to the agent.
-        :param pulumi.Input[_builtins.str] system: The system prompt, up to 100,000 characters.
-        :param pulumi.Input[Sequence[pulumi.Input['ToolArgs']]] tools: The tools the agent can use, up to 128.
+        :param pulumi.Input[_builtins.str] system: The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
+        :param pulumi.Input[Sequence[pulumi.Input['ToolArgs']]] tools: The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
         """
         pulumi.set(__self__, "model", model)
         pulumi.set(__self__, "name", name)
         if description is not None:
             pulumi.set(__self__, "description", description)
+        if execution_identity is not None:
+            pulumi.set(__self__, "execution_identity", execution_identity)
         if mcp_servers is not None:
             pulumi.set(__self__, "mcp_servers", mcp_servers)
         if metadata is not None:
@@ -89,13 +93,25 @@ class AgentArgs:
     @pulumi.getter
     def description(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        A description of the agent, up to 2,048 characters.
+        A description of the agent, up to 2,048 characters. Removing a configured description clears it.
         """
         return pulumi.get(self, "description")
 
     @description.setter
     def description(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "description", value)
+
+    @_builtins.property
+    @pulumi.getter(name="executionIdentity")
+    def execution_identity(self) -> pulumi.Input[Optional['ExecutionIdentityArgs']]:
+        """
+        Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+        """
+        return pulumi.get(self, "execution_identity")
+
+    @execution_identity.setter
+    def execution_identity(self, value: pulumi.Input[Optional['ExecutionIdentityArgs']]):
+        pulumi.set(self, "execution_identity", value)
 
     @_builtins.property
     @pulumi.getter(name="mcpServers")
@@ -113,7 +129,7 @@ class AgentArgs:
     @pulumi.getter
     def metadata(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Arbitrary key-value pairs, up to 16.
+        Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
         """
         return pulumi.get(self, "metadata")
 
@@ -125,7 +141,7 @@ class AgentArgs:
     @pulumi.getter
     def multiagent(self) -> pulumi.Input[Optional['MultiagentArgs']]:
         """
-        Makes the agent a coordinator that delegates to other agents.
+        Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
         """
         return pulumi.get(self, "multiagent")
 
@@ -149,7 +165,7 @@ class AgentArgs:
     @pulumi.getter
     def system(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The system prompt, up to 100,000 characters.
+        The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
         """
         return pulumi.get(self, "system")
 
@@ -161,7 +177,7 @@ class AgentArgs:
     @pulumi.getter
     def tools(self) -> pulumi.Input[Optional[Sequence[pulumi.Input['ToolArgs']]]]:
         """
-        The tools the agent can use, up to 128.
+        The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
         """
         return pulumi.get(self, "tools")
 
@@ -177,6 +193,7 @@ class Agent(pulumi.CustomResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
+                 execution_identity: pulumi.Input[Optional[Union['ExecutionIdentityArgs', 'ExecutionIdentityArgsDict', 'outputs.ExecutionIdentity']]] = None,
                  mcp_servers: pulumi.Input[Optional[Sequence[pulumi.Input[Union['MCPServerArgs', 'MCPServerArgsDict', 'outputs.MCPServer']]]]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  model: pulumi.Input[Optional[Union['ModelArgs', 'ModelArgsDict', 'outputs.Model']]] = None,
@@ -191,19 +208,20 @@ class Agent(pulumi.CustomResource):
 
         Agents are versioned. Every update that changes the configuration creates a new version, reported by the `version` output; sessions and deployments can pin a version, which makes canary and staged rollouts a matter of which version each deployment references.
 
-        The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Running sessions continue; new sessions cannot use it.
+        The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Archiving retains historical agent records and versions; this resource does not manage running sessions.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] description: A description of the agent, up to 2,048 characters.
+        :param pulumi.Input[_builtins.str] description: A description of the agent, up to 2,048 characters. Removing a configured description clears it.
+        :param pulumi.Input[Union['ExecutionIdentityArgs', 'ExecutionIdentityArgsDict', 'outputs.ExecutionIdentity']] execution_identity: Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
         :param pulumi.Input[Sequence[pulumi.Input[Union['MCPServerArgs', 'MCPServerArgsDict', 'outputs.MCPServer']]]] mcp_servers: The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs, up to 16.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
         :param pulumi.Input[Union['ModelArgs', 'ModelArgsDict', 'outputs.Model']] model: The model the agent runs on.
-        :param pulumi.Input[Union['MultiagentArgs', 'MultiagentArgsDict', 'outputs.Multiagent']] multiagent: Makes the agent a coordinator that delegates to other agents.
+        :param pulumi.Input[Union['MultiagentArgs', 'MultiagentArgsDict', 'outputs.Multiagent']] multiagent: Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
         :param pulumi.Input[_builtins.str] name: The agent's name, 1 to 256 characters.
         :param pulumi.Input[Sequence[pulumi.Input[Union['SkillRefArgs', 'SkillRefArgsDict', 'outputs.SkillRef']]]] skills: The skills available to the agent.
-        :param pulumi.Input[_builtins.str] system: The system prompt, up to 100,000 characters.
-        :param pulumi.Input[Sequence[pulumi.Input[Union['ToolArgs', 'ToolArgsDict', 'outputs.Tool']]]] tools: The tools the agent can use, up to 128.
+        :param pulumi.Input[_builtins.str] system: The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
+        :param pulumi.Input[Sequence[pulumi.Input[Union['ToolArgs', 'ToolArgsDict', 'outputs.Tool']]]] tools: The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
         """
         ...
     @overload
@@ -216,7 +234,7 @@ class Agent(pulumi.CustomResource):
 
         Agents are versioned. Every update that changes the configuration creates a new version, reported by the `version` output; sessions and deployments can pin a version, which makes canary and staged rollouts a matter of which version each deployment references.
 
-        The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Running sessions continue; new sessions cannot use it.
+        The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Archiving retains historical agent records and versions; this resource does not manage running sessions.
 
         :param str resource_name: The name of the resource.
         :param AgentArgs args: The arguments to use to populate this resource's properties.
@@ -234,6 +252,7 @@ class Agent(pulumi.CustomResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
+                 execution_identity: pulumi.Input[Optional[Union['ExecutionIdentityArgs', 'ExecutionIdentityArgsDict', 'outputs.ExecutionIdentity']]] = None,
                  mcp_servers: pulumi.Input[Optional[Sequence[pulumi.Input[Union['MCPServerArgs', 'MCPServerArgsDict', 'outputs.MCPServer']]]]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  model: pulumi.Input[Optional[Union['ModelArgs', 'ModelArgsDict', 'outputs.Model']]] = None,
@@ -252,6 +271,7 @@ class Agent(pulumi.CustomResource):
             __props__ = AgentArgs.__new__(AgentArgs)
 
             __props__.__dict__["description"] = description
+            __props__.__dict__["execution_identity"] = execution_identity
             __props__.__dict__["mcp_servers"] = mcp_servers
             __props__.__dict__["metadata"] = metadata
             if model is None and not opts.urn:
@@ -291,6 +311,7 @@ class Agent(pulumi.CustomResource):
 
         __props__.__dict__["created_at"] = None
         __props__.__dict__["description"] = None
+        __props__.__dict__["execution_identity"] = None
         __props__.__dict__["mcp_servers"] = None
         __props__.__dict__["metadata"] = None
         __props__.__dict__["model"] = None
@@ -321,9 +342,17 @@ class Agent(pulumi.CustomResource):
     @pulumi.getter
     def description(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        A description of the agent, up to 2,048 characters.
+        A description of the agent, up to 2,048 characters. Removing a configured description clears it.
         """
         return pulumi.get(self, "description")
+
+    @_builtins.property
+    @pulumi.getter(name="executionIdentity")
+    def execution_identity(self) -> pulumi.Output[Optional['outputs.ExecutionIdentity']]:
+        """
+        Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+        """
+        return pulumi.get(self, "execution_identity")
 
     @_builtins.property
     @pulumi.getter(name="mcpServers")
@@ -337,7 +366,7 @@ class Agent(pulumi.CustomResource):
     @pulumi.getter
     def metadata(self) -> pulumi.Output[Optional[Mapping[str, _builtins.str]]]:
         """
-        Arbitrary key-value pairs, up to 16.
+        Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
         """
         return pulumi.get(self, "metadata")
 
@@ -353,7 +382,7 @@ class Agent(pulumi.CustomResource):
     @pulumi.getter
     def multiagent(self) -> pulumi.Output[Optional['outputs.Multiagent']]:
         """
-        Makes the agent a coordinator that delegates to other agents.
+        Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
         """
         return pulumi.get(self, "multiagent")
 
@@ -377,7 +406,7 @@ class Agent(pulumi.CustomResource):
     @pulumi.getter
     def system(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        The system prompt, up to 100,000 characters.
+        The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
         """
         return pulumi.get(self, "system")
 
@@ -385,7 +414,7 @@ class Agent(pulumi.CustomResource):
     @pulumi.getter
     def tools(self) -> pulumi.Output[Optional[Sequence['outputs.Tool']]]:
         """
-        The tools the agent can use, up to 128.
+        The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
         """
         return pulumi.get(self, "tools")
 

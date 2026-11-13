@@ -10,7 +10,7 @@ import * as utilities from "../utilities";
 /**
  * A Claude Managed Agents environment: where sessions run, either an Anthropic-managed cloud sandbox or a sandbox you host yourself.
  *
- * Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource deletes the environment. The API refuses to delete an environment that sessions still reference, in which case it is archived instead: it becomes read-only, running sessions continue, and new sessions cannot use it.
+ * Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource permanently deletes the environment; it does not archive it.
  */
 export class Environment extends pulumi.CustomResource {
     /**
@@ -50,7 +50,7 @@ export class Environment extends pulumi.CustomResource {
     }
 
     /**
-     * Where and how sessions run. Defaults to a cloud sandbox.
+     * Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
      */
     declare public readonly config: pulumi.Output<outputs.agents.EnvironmentConfig | undefined>;
     /**
@@ -58,11 +58,11 @@ export class Environment extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * A description of the environment, up to 1,024 characters.
+     * A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
      */
     declare public readonly description: pulumi.Output<string | undefined>;
     /**
-     * Arbitrary key-value pairs.
+     * Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
      */
     declare public readonly metadata: pulumi.Output<{[key: string]: string} | undefined>;
     /**
@@ -70,7 +70,7 @@ export class Environment extends pulumi.CustomResource {
      */
     declare public readonly name: pulumi.Output<string>;
     /**
-     * Who can use the environment. API organizations accept only `organization`.
+     * Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
      */
     declare public readonly scope: pulumi.Output<enums.agents.EnvironmentScope | undefined>;
     /**
@@ -120,15 +120,15 @@ export class Environment extends pulumi.CustomResource {
  */
 export interface EnvironmentArgs {
     /**
-     * Where and how sessions run. Defaults to a cloud sandbox.
+     * Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
      */
     config?: pulumi.Input<inputs.agents.EnvironmentConfigArgs | undefined>;
     /**
-     * A description of the environment, up to 1,024 characters.
+     * A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
      */
     description?: pulumi.Input<string | undefined>;
     /**
-     * Arbitrary key-value pairs.
+     * Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
      */
     metadata?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
@@ -136,7 +136,7 @@ export interface EnvironmentArgs {
      */
     name: pulumi.Input<string>;
     /**
-     * Who can use the environment. API organizations accept only `organization`.
+     * Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
      */
     scope?: pulumi.Input<enums.agents.EnvironmentScope | undefined>;
 }

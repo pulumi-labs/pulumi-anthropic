@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Inputs
 {
 
+    /// <summary>
+    /// An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
+    /// </summary>
     public sealed class ToolArgs : global::Pulumi.ResourceArgs
     {
         [Input("configs")]

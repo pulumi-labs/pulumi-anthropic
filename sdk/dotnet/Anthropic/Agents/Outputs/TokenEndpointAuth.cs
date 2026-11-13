@@ -19,7 +19,7 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
         /// </summary>
         public readonly string? ClientSecret;
         /// <summary>
-        /// The authentication method.
+        /// The authentication method. Changing it replaces the credential.
         /// </summary>
         public readonly Pulumi.Labs.Anthropic.Agents.TokenEndpointAuthType Type;
 

@@ -19,7 +19,7 @@ public final class TokenEndpointAuth {
      */
     private @Nullable String clientSecret;
     /**
-     * @return The authentication method.
+     * @return The authentication method. Changing it replaces the credential.
      * 
      */
     private TokenEndpointAuthType type;
@@ -33,7 +33,7 @@ public final class TokenEndpointAuth {
         return Optional.ofNullable(this.clientSecret);
     }
     /**
-     * @return The authentication method.
+     * @return The authentication method. Changing it replaces the credential.
      * 
      */
     public TokenEndpointAuthType type() {

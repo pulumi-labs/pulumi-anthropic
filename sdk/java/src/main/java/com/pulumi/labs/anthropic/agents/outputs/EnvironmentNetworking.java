@@ -16,17 +16,17 @@ import javax.annotation.Nullable;
 @CustomType
 public final class EnvironmentNetworking {
     /**
-     * @return Whether the agent&#39;s MCP servers are reachable. Applies to `limited`.
+     * @return Whether the agent&#39;s MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
      * 
      */
     private @Nullable Boolean allowMcpServers;
     /**
-     * @return Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+     * @return Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
      * 
      */
     private @Nullable Boolean allowPackageManagers;
     /**
-     * @return Hosts the sandbox can reach. Applies to `limited`.
+     * @return Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
      * 
      */
     private @Nullable List<String> allowedHosts;
@@ -38,21 +38,21 @@ public final class EnvironmentNetworking {
 
     private EnvironmentNetworking() {}
     /**
-     * @return Whether the agent&#39;s MCP servers are reachable. Applies to `limited`.
+     * @return Whether the agent&#39;s MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
      * 
      */
     public Optional<Boolean> allowMcpServers() {
         return Optional.ofNullable(this.allowMcpServers);
     }
     /**
-     * @return Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+     * @return Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
      * 
      */
     public Optional<Boolean> allowPackageManagers() {
         return Optional.ofNullable(this.allowPackageManagers);
     }
     /**
-     * @return Hosts the sandbox can reach. Applies to `limited`.
+     * @return Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
      * 
      */
     public List<String> allowedHosts() {

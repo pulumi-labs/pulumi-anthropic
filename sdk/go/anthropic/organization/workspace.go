@@ -22,16 +22,18 @@ type Workspace struct {
 	CompartmentId pulumi.StringOutput `pulumi:"compartmentId"`
 	// When the workspace was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// Where the workspace's data is stored and where inference may run.
+	// Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
 	DataResidency DataResidencyPtrOutput `pulumi:"dataResidency"`
-	// The color the Console shows the workspace in, as `#RRGGBB`.
+	// The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
 	DisplayColor pulumi.StringPtrOutput `pulumi:"displayColor"`
 	// The ID of a customer-managed encryption key (an `anthropic.security.ExternalKey`) that encrypts the workspace's data. It can be set on a workspace that has none, but once set it can never be changed or removed, so any change to it replaces the workspace.
 	ExternalKeyId pulumi.StringPtrOutput `pulumi:"externalKeyId"`
-	// The workspace's name, 1 to 40 characters.
+	// The workspace's nonempty name.
 	Name pulumi.StringOutput `pulumi:"name"`
-	// Tags for the workspace. Keys may not start with `anthropic`.
+	// Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
 	Tags pulumi.StringMapOutput `pulumi:"tags"`
+	// The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+	UserProfileId pulumi.StringPtrOutput `pulumi:"userProfileId"`
 }
 
 // NewWorkspace registers a new resource with the given unique name, arguments, and options.
@@ -87,30 +89,34 @@ func WorkspaceExists(ctx *pulumi.Context,
 }
 
 type workspaceArgs struct {
-	// Where the workspace's data is stored and where inference may run.
+	// Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
 	DataResidency *DataResidency `pulumi:"dataResidency"`
-	// The color the Console shows the workspace in, as `#RRGGBB`.
+	// The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
 	DisplayColor *string `pulumi:"displayColor"`
 	// The ID of a customer-managed encryption key (an `anthropic.security.ExternalKey`) that encrypts the workspace's data. It can be set on a workspace that has none, but once set it can never be changed or removed, so any change to it replaces the workspace.
 	ExternalKeyId *string `pulumi:"externalKeyId"`
-	// The workspace's name, 1 to 40 characters.
+	// The workspace's nonempty name.
 	Name string `pulumi:"name"`
-	// Tags for the workspace. Keys may not start with `anthropic`.
+	// Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
 	Tags map[string]string `pulumi:"tags"`
+	// The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+	UserProfileId *string `pulumi:"userProfileId"`
 }
 
 // The set of arguments for constructing a Workspace resource.
 type WorkspaceArgs struct {
-	// Where the workspace's data is stored and where inference may run.
+	// Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
 	DataResidency DataResidencyPtrInput
-	// The color the Console shows the workspace in, as `#RRGGBB`.
+	// The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
 	DisplayColor pulumi.StringPtrInput
 	// The ID of a customer-managed encryption key (an `anthropic.security.ExternalKey`) that encrypts the workspace's data. It can be set on a workspace that has none, but once set it can never be changed or removed, so any change to it replaces the workspace.
 	ExternalKeyId pulumi.StringPtrInput
-	// The workspace's name, 1 to 40 characters.
+	// The workspace's nonempty name.
 	Name pulumi.StringInput
-	// Tags for the workspace. Keys may not start with `anthropic`.
+	// Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
 	Tags pulumi.StringMapInput
+	// The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+	UserProfileId pulumi.StringPtrInput
 }
 
 func (WorkspaceArgs) ElementType() reflect.Type {
@@ -210,12 +216,12 @@ func (o WorkspaceOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *Workspace) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// Where the workspace's data is stored and where inference may run.
+// Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
 func (o WorkspaceOutput) DataResidency() DataResidencyPtrOutput {
 	return o.ApplyT(func(v *Workspace) DataResidencyPtrOutput { return v.DataResidency }).(DataResidencyPtrOutput)
 }
 
-// The color the Console shows the workspace in, as `#RRGGBB`.
+// The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
 func (o WorkspaceOutput) DisplayColor() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Workspace) pulumi.StringPtrOutput { return v.DisplayColor }).(pulumi.StringPtrOutput)
 }
@@ -225,14 +231,19 @@ func (o WorkspaceOutput) ExternalKeyId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Workspace) pulumi.StringPtrOutput { return v.ExternalKeyId }).(pulumi.StringPtrOutput)
 }
 
-// The workspace's name, 1 to 40 characters.
+// The workspace's nonempty name.
 func (o WorkspaceOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *Workspace) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-// Tags for the workspace. Keys may not start with `anthropic`.
+// Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
 func (o WorkspaceOutput) Tags() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *Workspace) pulumi.StringMapOutput { return v.Tags }).(pulumi.StringMapOutput)
+}
+
+// The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+func (o WorkspaceOutput) UserProfileId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Workspace) pulumi.StringPtrOutput { return v.UserProfileId }).(pulumi.StringPtrOutput)
 }
 
 type WorkspaceArrayOutput struct{ *pulumi.OutputState }

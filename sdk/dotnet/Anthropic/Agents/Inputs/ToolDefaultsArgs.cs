@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Inputs
 {
 
+    /// <summary>
+    /// Default settings for tools without an individual override.
+    /// </summary>
     public sealed class ToolDefaultsArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>

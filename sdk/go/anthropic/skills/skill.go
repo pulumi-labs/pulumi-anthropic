@@ -14,17 +14,19 @@ import (
 
 // A custom Agent Skill: a directory of instructions, scripts, and resources, with a `SKILL.md` at its root, that Claude loads when relevant. Skills can be attached to Managed Agents and used from the Messages API.
 //
-// Skills are versioned. When the content of `source` changes, a new immutable version is uploaded and becomes `latestVersionId`; earlier versions are kept, so agents that pin one keep working. Deleting the resource deletes the skill and all of its versions.
+// Content changes upload a new immutable version; earlier versions remain available to pinned agents. The skill name in SKILL.md is immutable; changing it requires replacing the resource. Deleting the resource deletes the skill and all of its versions. Imported skills require a local source archive before they can be updated; their files cannot be downloaded through this resource.
 type Skill struct {
 	pulumi.CustomResourceState
 
 	// When the skill was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+	// A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
 	DisplayName pulumi.StringPtrOutput `pulumi:"displayName"`
-	// The ID of the newest version (`skver_...`), which agents can pin in a skill reference's `version`.
+	// The version created by the most recent upload, which agents can pin in a skill reference's `version`. Refresh reports the skill's current newest version.
 	LatestVersionId pulumi.StringOutput `pulumi:"latestVersionId"`
-	// The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+	// The skill's immutable name, taken from the initial SKILL.md frontmatter or its enclosing directory. Changing this name in your source archive replaces the skill.
+	Name pulumi.StringOutput `pulumi:"name"`
+	// The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
 	Source pulumi.ArchiveOutput `pulumi:"source"`
 	// When the skill was last updated, in RFC 3339 format.
 	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
@@ -83,17 +85,17 @@ func SkillExists(ctx *pulumi.Context,
 }
 
 type skillArgs struct {
-	// A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+	// A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
 	DisplayName *string `pulumi:"displayName"`
-	// The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+	// The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
 	Source pulumi.Archive `pulumi:"source"`
 }
 
 // The set of arguments for constructing a Skill resource.
 type SkillArgs struct {
-	// A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+	// A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
 	DisplayName pulumi.StringPtrInput
-	// The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+	// The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
 	Source pulumi.ArchiveInput
 }
 
@@ -189,17 +191,22 @@ func (o SkillOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *Skill) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+// A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
 func (o SkillOutput) DisplayName() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Skill) pulumi.StringPtrOutput { return v.DisplayName }).(pulumi.StringPtrOutput)
 }
 
-// The ID of the newest version (`skver_...`), which agents can pin in a skill reference's `version`.
+// The version created by the most recent upload, which agents can pin in a skill reference's `version`. Refresh reports the skill's current newest version.
 func (o SkillOutput) LatestVersionId() pulumi.StringOutput {
 	return o.ApplyT(func(v *Skill) pulumi.StringOutput { return v.LatestVersionId }).(pulumi.StringOutput)
 }
 
-// The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+// The skill's immutable name, taken from the initial SKILL.md frontmatter or its enclosing directory. Changing this name in your source archive replaces the skill.
+func (o SkillOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v *Skill) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
+}
+
+// The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
 func (o SkillOutput) Source() pulumi.ArchiveOutput {
 	return o.ApplyT(func(v *Skill) pulumi.ArchiveOutput { return v.Source }).(pulumi.ArchiveOutput)
 }

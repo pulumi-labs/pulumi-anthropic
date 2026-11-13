@@ -12,19 +12,19 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Grants a service account a role in a workspace. The resource's ID is `<workspace-id>/<service-account-id>`.
+// Grants a service account a role in a workspace. The resource ID is `<workspace-id>/<service-account-id>` and supports import of explicit grants. Changing either ID replaces the grant. Manage each pair with only one resource: creating a grant for an existing pair replaces its role, and deleting either duplicate removes the shared explicit grant.
 //
-// Every service account is implicitly a `workspace_user` of the organization's default workspace; that membership cannot be removed, so do not manage it with this resource.
+// Every service account has implicit `workspace_user` access to the organization's default workspace. Creating this resource there makes an explicit grant; deleting it restores implicit access rather than revoking all access. Implicit memberships cannot be imported. If an explicit grant becomes implicit, refresh reports the explicit grant as absent. Deleting this resource does not delete the service account or workspace.
 //
-// Managing service accounts requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+// Requires an OAuth token with `org:admin` (`anthropic:authToken`).
 type ServiceAccountWorkspace struct {
 	pulumi.CustomResourceState
 
-	// The service account's ID.
+	// The service account's nonempty ID. Changing it replaces the grant.
 	ServiceAccountId pulumi.StringOutput `pulumi:"serviceAccountId"`
-	// The workspace's ID.
+	// The workspace's nonempty ID. Changing it replaces the grant.
 	WorkspaceId pulumi.StringOutput `pulumi:"workspaceId"`
-	// The service account's role in the workspace.
+	// The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
 	WorkspaceRole WorkspaceRoleOutput `pulumi:"workspaceRole"`
 }
 
@@ -88,21 +88,21 @@ func ServiceAccountWorkspaceExists(ctx *pulumi.Context,
 }
 
 type serviceAccountWorkspaceArgs struct {
-	// The service account's ID.
+	// The service account's nonempty ID. Changing it replaces the grant.
 	ServiceAccountId string `pulumi:"serviceAccountId"`
-	// The workspace's ID.
+	// The workspace's nonempty ID. Changing it replaces the grant.
 	WorkspaceId string `pulumi:"workspaceId"`
-	// The service account's role in the workspace.
+	// The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
 	WorkspaceRole WorkspaceRole `pulumi:"workspaceRole"`
 }
 
 // The set of arguments for constructing a ServiceAccountWorkspace resource.
 type ServiceAccountWorkspaceArgs struct {
-	// The service account's ID.
+	// The service account's nonempty ID. Changing it replaces the grant.
 	ServiceAccountId pulumi.StringInput
-	// The workspace's ID.
+	// The workspace's nonempty ID. Changing it replaces the grant.
 	WorkspaceId pulumi.StringInput
-	// The service account's role in the workspace.
+	// The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
 	WorkspaceRole WorkspaceRoleInput
 }
 
@@ -193,17 +193,17 @@ func (o ServiceAccountWorkspaceOutput) ToServiceAccountWorkspaceOutputWithContex
 	return o
 }
 
-// The service account's ID.
+// The service account's nonempty ID. Changing it replaces the grant.
 func (o ServiceAccountWorkspaceOutput) ServiceAccountId() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServiceAccountWorkspace) pulumi.StringOutput { return v.ServiceAccountId }).(pulumi.StringOutput)
 }
 
-// The workspace's ID.
+// The workspace's nonempty ID. Changing it replaces the grant.
 func (o ServiceAccountWorkspaceOutput) WorkspaceId() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServiceAccountWorkspace) pulumi.StringOutput { return v.WorkspaceId }).(pulumi.StringOutput)
 }
 
-// The service account's role in the workspace.
+// The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
 func (o ServiceAccountWorkspaceOutput) WorkspaceRole() WorkspaceRoleOutput {
 	return o.ApplyT(func(v *ServiceAccountWorkspace) WorkspaceRoleOutput { return v.WorkspaceRole }).(WorkspaceRoleOutput)
 }

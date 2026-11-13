@@ -26,9 +26,9 @@ class ServiceAccountWorkspaceArgs:
         """
         The set of arguments for constructing a ServiceAccountWorkspace resource.
 
-        :param pulumi.Input[_builtins.str] service_account_id: The service account's ID.
-        :param pulumi.Input[_builtins.str] workspace_id: The workspace's ID.
-        :param pulumi.Input['WorkspaceRole'] workspace_role: The service account's role in the workspace.
+        :param pulumi.Input[_builtins.str] service_account_id: The service account's nonempty ID. Changing it replaces the grant.
+        :param pulumi.Input[_builtins.str] workspace_id: The workspace's nonempty ID. Changing it replaces the grant.
+        :param pulumi.Input['WorkspaceRole'] workspace_role: The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
         """
         pulumi.set(__self__, "service_account_id", service_account_id)
         pulumi.set(__self__, "workspace_id", workspace_id)
@@ -38,7 +38,7 @@ class ServiceAccountWorkspaceArgs:
     @pulumi.getter(name="serviceAccountId")
     def service_account_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The service account's ID.
+        The service account's nonempty ID. Changing it replaces the grant.
         """
         return pulumi.get(self, "service_account_id")
 
@@ -50,7 +50,7 @@ class ServiceAccountWorkspaceArgs:
     @pulumi.getter(name="workspaceId")
     def workspace_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The workspace's ID.
+        The workspace's nonempty ID. Changing it replaces the grant.
         """
         return pulumi.get(self, "workspace_id")
 
@@ -62,7 +62,7 @@ class ServiceAccountWorkspaceArgs:
     @pulumi.getter(name="workspaceRole")
     def workspace_role(self) -> pulumi.Input['WorkspaceRole']:
         """
-        The service account's role in the workspace.
+        The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
         """
         return pulumi.get(self, "workspace_role")
 
@@ -82,17 +82,17 @@ class ServiceAccountWorkspace(pulumi.CustomResource):
                  workspace_role: pulumi.Input[Optional['WorkspaceRole']] = None,
                  __props__=None):
         """
-        Grants a service account a role in a workspace. The resource's ID is `<workspace-id>/<service-account-id>`.
+        Grants a service account a role in a workspace. The resource ID is `<workspace-id>/<service-account-id>` and supports import of explicit grants. Changing either ID replaces the grant. Manage each pair with only one resource: creating a grant for an existing pair replaces its role, and deleting either duplicate removes the shared explicit grant.
 
-        Every service account is implicitly a `workspace_user` of the organization's default workspace; that membership cannot be removed, so do not manage it with this resource.
+        Every service account has implicit `workspace_user` access to the organization's default workspace. Creating this resource there makes an explicit grant; deleting it restores implicit access rather than revoking all access. Implicit memberships cannot be imported. If an explicit grant becomes implicit, refresh reports the explicit grant as absent. Deleting this resource does not delete the service account or workspace.
 
-        Managing service accounts requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+        Requires an OAuth token with `org:admin` (`anthropic:authToken`).
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] service_account_id: The service account's ID.
-        :param pulumi.Input[_builtins.str] workspace_id: The workspace's ID.
-        :param pulumi.Input['WorkspaceRole'] workspace_role: The service account's role in the workspace.
+        :param pulumi.Input[_builtins.str] service_account_id: The service account's nonempty ID. Changing it replaces the grant.
+        :param pulumi.Input[_builtins.str] workspace_id: The workspace's nonempty ID. Changing it replaces the grant.
+        :param pulumi.Input['WorkspaceRole'] workspace_role: The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
         """
         ...
     @overload
@@ -101,11 +101,11 @@ class ServiceAccountWorkspace(pulumi.CustomResource):
                  args: ServiceAccountWorkspaceArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Grants a service account a role in a workspace. The resource's ID is `<workspace-id>/<service-account-id>`.
+        Grants a service account a role in a workspace. The resource ID is `<workspace-id>/<service-account-id>` and supports import of explicit grants. Changing either ID replaces the grant. Manage each pair with only one resource: creating a grant for an existing pair replaces its role, and deleting either duplicate removes the shared explicit grant.
 
-        Every service account is implicitly a `workspace_user` of the organization's default workspace; that membership cannot be removed, so do not manage it with this resource.
+        Every service account has implicit `workspace_user` access to the organization's default workspace. Creating this resource there makes an explicit grant; deleting it restores implicit access rather than revoking all access. Implicit memberships cannot be imported. If an explicit grant becomes implicit, refresh reports the explicit grant as absent. Deleting this resource does not delete the service account or workspace.
 
-        Managing service accounts requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+        Requires an OAuth token with `org:admin` (`anthropic:authToken`).
 
         :param str resource_name: The name of the resource.
         :param ServiceAccountWorkspaceArgs args: The arguments to use to populate this resource's properties.
@@ -182,7 +182,7 @@ class ServiceAccountWorkspace(pulumi.CustomResource):
     @pulumi.getter(name="serviceAccountId")
     def service_account_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The service account's ID.
+        The service account's nonempty ID. Changing it replaces the grant.
         """
         return pulumi.get(self, "service_account_id")
 
@@ -190,7 +190,7 @@ class ServiceAccountWorkspace(pulumi.CustomResource):
     @pulumi.getter(name="workspaceId")
     def workspace_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The workspace's ID.
+        The workspace's nonempty ID. Changing it replaces the grant.
         """
         return pulumi.get(self, "workspace_id")
 
@@ -198,7 +198,7 @@ class ServiceAccountWorkspace(pulumi.CustomResource):
     @pulumi.getter(name="workspaceRole")
     def workspace_role(self) -> pulumi.Output['WorkspaceRole']:
         """
-        The service account's role in the workspace.
+        The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
         """
         return pulumi.get(self, "workspace_role")
 

@@ -18,14 +18,14 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
     public static final UserProfileArgs Empty = new UserProfileArgs();
 
     /**
-     * How your platform uses the API on the entity&#39;s behalf. Defaults to `application`.
+     * How your platform uses the API on the entity&#39;s behalf. Defaults to `application`. Removing this setting resets it to `application`.
      * 
      */
     @Import(name="accessType")
     private @Nullable Output<AccessType> accessType;
 
     /**
-     * @return How your platform uses the API on the entity&#39;s behalf. Defaults to `application`.
+     * @return How your platform uses the API on the entity&#39;s behalf. Defaults to `application`. Removing this setting resets it to `application`.
      * 
      */
     public Optional<Output<AccessType>> accessType() {
@@ -33,14 +33,14 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Your platform&#39;s own identifier for the entity, up to 255 characters.
+     * Your platform&#39;s own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
      * 
      */
     @Import(name="externalId")
     private @Nullable Output<String> externalId;
 
     /**
-     * @return Your platform&#39;s own identifier for the entity, up to 255 characters.
+     * @return Your platform&#39;s own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
      * 
      */
     public Optional<Output<String>> externalId() {
@@ -48,14 +48,14 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+     * When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
      * 
      */
     @Import(name="externalUserOnboardedAt")
     private @Nullable Output<String> externalUserOnboardedAt;
 
     /**
-     * @return When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+     * @return When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
      * 
      */
     public Optional<Output<String>> externalUserOnboardedAt() {
@@ -63,14 +63,14 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Arbitrary key-value pairs, up to 16.
+     * Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
      * 
      */
     @Import(name="metadata")
     private @Nullable Output<Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs, up to 16.
+     * @return Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
      * 
      */
     public Optional<Output<Map<String,String>>> metadata() {
@@ -78,14 +78,14 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The entity&#39;s name, 1 to 255 characters.
+     * The entity&#39;s name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
      * 
      */
     @Import(name="name")
     private @Nullable Output<String> name;
 
     /**
-     * @return The entity&#39;s name, 1 to 255 characters.
+     * @return The entity&#39;s name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
      * 
      */
     public Optional<Output<String>> name() {
@@ -121,7 +121,7 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param accessType How your platform uses the API on the entity&#39;s behalf. Defaults to `application`.
+         * @param accessType How your platform uses the API on the entity&#39;s behalf. Defaults to `application`. Removing this setting resets it to `application`.
          * 
          * @return builder
          * 
@@ -132,7 +132,7 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param accessType How your platform uses the API on the entity&#39;s behalf. Defaults to `application`.
+         * @param accessType How your platform uses the API on the entity&#39;s behalf. Defaults to `application`. Removing this setting resets it to `application`.
          * 
          * @return builder
          * 
@@ -142,7 +142,7 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param externalId Your platform&#39;s own identifier for the entity, up to 255 characters.
+         * @param externalId Your platform&#39;s own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
          * 
          * @return builder
          * 
@@ -153,7 +153,7 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param externalId Your platform&#39;s own identifier for the entity, up to 255 characters.
+         * @param externalId Your platform&#39;s own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
          * 
          * @return builder
          * 
@@ -163,7 +163,7 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param externalUserOnboardedAt When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+         * @param externalUserOnboardedAt When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
          * 
          * @return builder
          * 
@@ -174,7 +174,7 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param externalUserOnboardedAt When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+         * @param externalUserOnboardedAt When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
          * 
          * @return builder
          * 
@@ -184,7 +184,7 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs, up to 16.
+         * @param metadata Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
          * 
          * @return builder
          * 
@@ -195,7 +195,7 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs, up to 16.
+         * @param metadata Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
          * 
          * @return builder
          * 
@@ -205,7 +205,7 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The entity&#39;s name, 1 to 255 characters.
+         * @param name The entity&#39;s name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
          * 
          * @return builder
          * 
@@ -216,7 +216,7 @@ public final class UserProfileArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The entity&#39;s name, 1 to 255 characters.
+         * @param name The entity&#39;s name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
          * 
          * @return builder
          * 

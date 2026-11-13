@@ -54,8 +54,8 @@ const deploymentArgs = {
         type: "user.message",
         content: [{ type: "text", text: "Triage the issues opened in the last hour." }],
     }],
-    schedule: { expression: "0 * * * *", timezone: "UTC" },
-    paused: config.getBoolean("paused") ?? false,
+    // Scheduling starts sessions automatically. Leave disabled for configuration-only trials.
+    schedule: config.getBoolean("enableSchedule") ? { expression: "0 * * * *", timezone: "UTC" } : undefined,
 };
 
 // The canary always runs the newest agent version.

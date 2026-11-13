@@ -11,39 +11,37 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents
 {
     /// <summary>
-    /// A Claude Managed Agents memory store: persistent memory that agents read and write across sessions, attached to sessions or deployments as a resource. The memories themselves are data that agents write at runtime, so they are not managed here.
-    /// 
-    /// Deleting this resource deletes the store along with all of its memories and their versions.
+    /// A workspace-scoped persistent memory store. Runtime memories and versions are not managed here. Deleting this resource permanently deletes the store and all its memories and versions. Externally archived stores are treated as absent.
     /// </summary>
     [AnthropicResourceType("anthropic:agents:MemoryStore")]
     public partial class MemoryStore : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// When the store was created, in RFC 3339 format.
+        /// When the memory store was created, in RFC 3339 format.
         /// </summary>
         [Output("createdAt")]
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// What the store holds, up to 1,024 characters. It is shown to the agent.
+        /// Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
         /// </summary>
         [Output("description")]
         public Output<string?> Description { get; private set; } = null!;
 
         /// <summary>
-        /// Arbitrary key-value pairs.
+        /// At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
         /// </summary>
         [Output("metadata")]
         public Output<ImmutableDictionary<string, string>?> Metadata { get; private set; } = null!;
 
         /// <summary>
-        /// The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+        /// A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
         /// </summary>
         [Output("name")]
         public Output<string> Name { get; private set; } = null!;
 
         /// <summary>
-        /// When the store was last updated, in RFC 3339 format.
+        /// When the memory store's configuration was last changed, in RFC 3339 format.
         /// </summary>
         [Output("updatedAt")]
         public Output<string> UpdatedAt { get; private set; } = null!;
@@ -95,7 +93,7 @@ namespace Pulumi.Labs.Anthropic.Agents
     public sealed class MemoryStoreArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// What the store holds, up to 1,024 characters. It is shown to the agent.
+        /// Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
         /// </summary>
         [Input("description")]
         public Input<string>? Description { get; set; }
@@ -104,7 +102,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         private InputMap<string>? _metadata;
 
         /// <summary>
-        /// Arbitrary key-value pairs.
+        /// At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
         /// </summary>
         public InputMap<string> Metadata
         {
@@ -113,7 +111,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         }
 
         /// <summary>
-        /// The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+        /// A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
         /// </summary>
         [Input("name", required: true)]
         public Input<string> Name { get; set; } = null!;

@@ -519,4 +519,38 @@ namespace Pulumi.Labs.Anthropic.Agents
 
         public override string ToString() => _value;
     }
+
+    [EnumType]
+    public readonly struct TunnelCertificateStatus : IEquatable<TunnelCertificateStatus>
+    {
+        private readonly string _value;
+
+        private TunnelCertificateStatus(string value)
+        {
+            _value = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        /// <summary>
+        /// The certificate is in the tunnel's trusted set.
+        /// </summary>
+        public static TunnelCertificateStatus Active { get; } = new TunnelCertificateStatus("active");
+        /// <summary>
+        /// The certificate has been archived and is no longer trusted.
+        /// </summary>
+        public static TunnelCertificateStatus Archived { get; } = new TunnelCertificateStatus("archived");
+
+        public static bool operator ==(TunnelCertificateStatus left, TunnelCertificateStatus right) => left.Equals(right);
+        public static bool operator !=(TunnelCertificateStatus left, TunnelCertificateStatus right) => !left.Equals(right);
+
+        public static explicit operator string(TunnelCertificateStatus value) => value._value;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object? obj) => obj is TunnelCertificateStatus other && Equals(other);
+        public bool Equals(TunnelCertificateStatus other) => string.Equals(_value, other._value, StringComparison.Ordinal);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override int GetHashCode() => _value?.GetHashCode() ?? 0;
+
+        public override string ToString() => _value;
+    }
 }

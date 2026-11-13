@@ -15,11 +15,11 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
     public sealed class Checkout
     {
         /// <summary>
-        /// The branch. Required for `branch`.
+        /// The branch. Required for branch.
         /// </summary>
         public readonly string? Name;
         /// <summary>
-        /// The commit SHA. Required for `commit`.
+        /// The commit SHA. Required for commit.
         /// </summary>
         public readonly string? Sha;
         /// <summary>

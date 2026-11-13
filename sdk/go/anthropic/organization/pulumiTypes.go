@@ -13,12 +13,166 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
+// A user or service account associated with a key.
+type ApiKeyActor struct {
+	// The user or service account ID.
+	Id string `pulumi:"id"`
+	// Either user or service_account.
+	Type string `pulumi:"type"`
+}
+
+// A user or service account associated with a key.
+type ApiKeyActorOutput struct{ *pulumi.OutputState }
+
+func (ApiKeyActorOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*ApiKeyActor)(nil)).Elem()
+}
+
+func (o ApiKeyActorOutput) ToApiKeyActorOutput() ApiKeyActorOutput {
+	return o
+}
+
+func (o ApiKeyActorOutput) ToApiKeyActorOutputWithContext(ctx context.Context) ApiKeyActorOutput {
+	return o
+}
+
+// The user or service account ID.
+func (o ApiKeyActorOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v ApiKeyActor) string { return v.Id }).(pulumi.StringOutput)
+}
+
+// Either user or service_account.
+func (o ApiKeyActorOutput) Type() pulumi.StringOutput {
+	return o.ApplyT(func(v ApiKeyActor) string { return v.Type }).(pulumi.StringOutput)
+}
+
+type ApiKeyActorPtrOutput struct{ *pulumi.OutputState }
+
+func (ApiKeyActorPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**ApiKeyActor)(nil)).Elem()
+}
+
+func (o ApiKeyActorPtrOutput) ToApiKeyActorPtrOutput() ApiKeyActorPtrOutput {
+	return o
+}
+
+func (o ApiKeyActorPtrOutput) ToApiKeyActorPtrOutputWithContext(ctx context.Context) ApiKeyActorPtrOutput {
+	return o
+}
+
+func (o ApiKeyActorPtrOutput) Elem() ApiKeyActorOutput {
+	return o.ApplyT(func(v *ApiKeyActor) ApiKeyActor {
+		if v != nil {
+			return *v
+		}
+		var ret ApiKeyActor
+		return ret
+	}).(ApiKeyActorOutput)
+}
+
+// The user or service account ID.
+func (o ApiKeyActorPtrOutput) Id() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ApiKeyActor) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Id
+	}).(pulumi.StringPtrOutput)
+}
+
+// Either user or service_account.
+func (o ApiKeyActorPtrOutput) Type() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ApiKeyActor) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Type
+	}).(pulumi.StringPtrOutput)
+}
+
+// The organization or workspace to which a key belongs.
+type ApiKeyScope struct {
+	// Either organization or workspace.
+	Type string `pulumi:"type"`
+	// The actual workspace ID, including for the default workspace; absent for organization-scoped keys.
+	WorkspaceId *string `pulumi:"workspaceId"`
+}
+
+// The organization or workspace to which a key belongs.
+type ApiKeyScopeOutput struct{ *pulumi.OutputState }
+
+func (ApiKeyScopeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*ApiKeyScope)(nil)).Elem()
+}
+
+func (o ApiKeyScopeOutput) ToApiKeyScopeOutput() ApiKeyScopeOutput {
+	return o
+}
+
+func (o ApiKeyScopeOutput) ToApiKeyScopeOutputWithContext(ctx context.Context) ApiKeyScopeOutput {
+	return o
+}
+
+// Either organization or workspace.
+func (o ApiKeyScopeOutput) Type() pulumi.StringOutput {
+	return o.ApplyT(func(v ApiKeyScope) string { return v.Type }).(pulumi.StringOutput)
+}
+
+// The actual workspace ID, including for the default workspace; absent for organization-scoped keys.
+func (o ApiKeyScopeOutput) WorkspaceId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v ApiKeyScope) *string { return v.WorkspaceId }).(pulumi.StringPtrOutput)
+}
+
+type ApiKeyScopePtrOutput struct{ *pulumi.OutputState }
+
+func (ApiKeyScopePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**ApiKeyScope)(nil)).Elem()
+}
+
+func (o ApiKeyScopePtrOutput) ToApiKeyScopePtrOutput() ApiKeyScopePtrOutput {
+	return o
+}
+
+func (o ApiKeyScopePtrOutput) ToApiKeyScopePtrOutputWithContext(ctx context.Context) ApiKeyScopePtrOutput {
+	return o
+}
+
+func (o ApiKeyScopePtrOutput) Elem() ApiKeyScopeOutput {
+	return o.ApplyT(func(v *ApiKeyScope) ApiKeyScope {
+		if v != nil {
+			return *v
+		}
+		var ret ApiKeyScope
+		return ret
+	}).(ApiKeyScopeOutput)
+}
+
+// Either organization or workspace.
+func (o ApiKeyScopePtrOutput) Type() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ApiKeyScope) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Type
+	}).(pulumi.StringPtrOutput)
+}
+
+// The actual workspace ID, including for the default workspace; absent for organization-scoped keys.
+func (o ApiKeyScopePtrOutput) WorkspaceId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ApiKeyScope) *string {
+		if v == nil {
+			return nil
+		}
+		return v.WorkspaceId
+	}).(pulumi.StringPtrOutput)
+}
+
 type DataResidency struct {
-	// The geographies inference may run in. Omit to allow any geography.
+	// The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
 	AllowedInferenceGeos []InferenceGeo `pulumi:"allowedInferenceGeos"`
-	// The geography inference runs in when a request doesn't choose one.
+	// The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
 	DefaultInferenceGeo *InferenceGeo `pulumi:"defaultInferenceGeo"`
-	// Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.
+	// Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
 	WorkspaceGeo *WorkspaceGeo `pulumi:"workspaceGeo"`
 }
 
@@ -34,11 +188,11 @@ type DataResidencyInput interface {
 }
 
 type DataResidencyArgs struct {
-	// The geographies inference may run in. Omit to allow any geography.
+	// The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
 	AllowedInferenceGeos InferenceGeoArrayInput `pulumi:"allowedInferenceGeos"`
-	// The geography inference runs in when a request doesn't choose one.
+	// The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
 	DefaultInferenceGeo InferenceGeoPtrInput `pulumi:"defaultInferenceGeo"`
-	// Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.
+	// Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
 	WorkspaceGeo WorkspaceGeoPtrInput `pulumi:"workspaceGeo"`
 }
 
@@ -119,17 +273,17 @@ func (o DataResidencyOutput) ToDataResidencyPtrOutputWithContext(ctx context.Con
 	}).(DataResidencyPtrOutput)
 }
 
-// The geographies inference may run in. Omit to allow any geography.
+// The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
 func (o DataResidencyOutput) AllowedInferenceGeos() InferenceGeoArrayOutput {
 	return o.ApplyT(func(v DataResidency) []InferenceGeo { return v.AllowedInferenceGeos }).(InferenceGeoArrayOutput)
 }
 
-// The geography inference runs in when a request doesn't choose one.
+// The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
 func (o DataResidencyOutput) DefaultInferenceGeo() InferenceGeoPtrOutput {
 	return o.ApplyT(func(v DataResidency) *InferenceGeo { return v.DefaultInferenceGeo }).(InferenceGeoPtrOutput)
 }
 
-// Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.
+// Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
 func (o DataResidencyOutput) WorkspaceGeo() WorkspaceGeoPtrOutput {
 	return o.ApplyT(func(v DataResidency) *WorkspaceGeo { return v.WorkspaceGeo }).(WorkspaceGeoPtrOutput)
 }
@@ -158,7 +312,7 @@ func (o DataResidencyPtrOutput) Elem() DataResidencyOutput {
 	}).(DataResidencyOutput)
 }
 
-// The geographies inference may run in. Omit to allow any geography.
+// The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
 func (o DataResidencyPtrOutput) AllowedInferenceGeos() InferenceGeoArrayOutput {
 	return o.ApplyT(func(v *DataResidency) []InferenceGeo {
 		if v == nil {
@@ -168,7 +322,7 @@ func (o DataResidencyPtrOutput) AllowedInferenceGeos() InferenceGeoArrayOutput {
 	}).(InferenceGeoArrayOutput)
 }
 
-// The geography inference runs in when a request doesn't choose one.
+// The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
 func (o DataResidencyPtrOutput) DefaultInferenceGeo() InferenceGeoPtrOutput {
 	return o.ApplyT(func(v *DataResidency) *InferenceGeo {
 		if v == nil {
@@ -178,7 +332,7 @@ func (o DataResidencyPtrOutput) DefaultInferenceGeo() InferenceGeoPtrOutput {
 	}).(InferenceGeoPtrOutput)
 }
 
-// Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.
+// Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
 func (o DataResidencyPtrOutput) WorkspaceGeo() WorkspaceGeoPtrOutput {
 	return o.ApplyT(func(v *DataResidency) *WorkspaceGeo {
 		if v == nil {
@@ -188,6 +342,7 @@ func (o DataResidencyPtrOutput) WorkspaceGeo() WorkspaceGeoPtrOutput {
 	}).(WorkspaceGeoPtrOutput)
 }
 
+// The user, workspace, or organization whose spending is capped. Specify only the ID matching the scope type.
 type SpendLimitScope struct {
 	// The kind of scope.
 	Type SpendLimitScopeType `pulumi:"type"`
@@ -208,6 +363,7 @@ type SpendLimitScopeInput interface {
 	ToSpendLimitScopeOutputWithContext(context.Context) SpendLimitScopeOutput
 }
 
+// The user, workspace, or organization whose spending is capped. Specify only the ID matching the scope type.
 type SpendLimitScopeArgs struct {
 	// The kind of scope.
 	Type SpendLimitScopeTypeInput `pulumi:"type"`
@@ -229,6 +385,7 @@ func (i SpendLimitScopeArgs) ToSpendLimitScopeOutputWithContext(ctx context.Cont
 	return pulumi.ToOutputWithContext(ctx, i).(SpendLimitScopeOutput)
 }
 
+// The user, workspace, or organization whose spending is capped. Specify only the ID matching the scope type.
 type SpendLimitScopeOutput struct{ *pulumi.OutputState }
 
 func (SpendLimitScopeOutput) ElementType() reflect.Type {
@@ -262,6 +419,10 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*DataResidencyInput)(nil)).Elem(), DataResidencyArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DataResidencyPtrInput)(nil)).Elem(), DataResidencyArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*SpendLimitScopeInput)(nil)).Elem(), SpendLimitScopeArgs{})
+	pulumi.RegisterOutputType(ApiKeyActorOutput{})
+	pulumi.RegisterOutputType(ApiKeyActorPtrOutput{})
+	pulumi.RegisterOutputType(ApiKeyScopeOutput{})
+	pulumi.RegisterOutputType(ApiKeyScopePtrOutput{})
 	pulumi.RegisterOutputType(DataResidencyOutput{})
 	pulumi.RegisterOutputType(DataResidencyPtrOutput{})
 	pulumi.RegisterOutputType(SpendLimitScopeOutput{})

@@ -20,14 +20,14 @@ public final class EnvironmentNetworkingArgs extends com.pulumi.resources.Resour
     public static final EnvironmentNetworkingArgs Empty = new EnvironmentNetworkingArgs();
 
     /**
-     * Whether the agent&#39;s MCP servers are reachable. Applies to `limited`.
+     * Whether the agent&#39;s MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
      * 
      */
     @Import(name="allowMcpServers")
     private @Nullable Output<Boolean> allowMcpServers;
 
     /**
-     * @return Whether the agent&#39;s MCP servers are reachable. Applies to `limited`.
+     * @return Whether the agent&#39;s MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
      * 
      */
     public Optional<Output<Boolean>> allowMcpServers() {
@@ -35,14 +35,14 @@ public final class EnvironmentNetworkingArgs extends com.pulumi.resources.Resour
     }
 
     /**
-     * Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+     * Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
      * 
      */
     @Import(name="allowPackageManagers")
     private @Nullable Output<Boolean> allowPackageManagers;
 
     /**
-     * @return Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+     * @return Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
      * 
      */
     public Optional<Output<Boolean>> allowPackageManagers() {
@@ -50,14 +50,14 @@ public final class EnvironmentNetworkingArgs extends com.pulumi.resources.Resour
     }
 
     /**
-     * Hosts the sandbox can reach. Applies to `limited`.
+     * Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
      * 
      */
     @Import(name="allowedHosts")
     private @Nullable Output<List<String>> allowedHosts;
 
     /**
-     * @return Hosts the sandbox can reach. Applies to `limited`.
+     * @return Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
      * 
      */
     public Optional<Output<List<String>>> allowedHosts() {
@@ -107,7 +107,7 @@ public final class EnvironmentNetworkingArgs extends com.pulumi.resources.Resour
         }
 
         /**
-         * @param allowMcpServers Whether the agent&#39;s MCP servers are reachable. Applies to `limited`.
+         * @param allowMcpServers Whether the agent&#39;s MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
          * 
          * @return builder
          * 
@@ -118,7 +118,7 @@ public final class EnvironmentNetworkingArgs extends com.pulumi.resources.Resour
         }
 
         /**
-         * @param allowMcpServers Whether the agent&#39;s MCP servers are reachable. Applies to `limited`.
+         * @param allowMcpServers Whether the agent&#39;s MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
          * 
          * @return builder
          * 
@@ -128,7 +128,7 @@ public final class EnvironmentNetworkingArgs extends com.pulumi.resources.Resour
         }
 
         /**
-         * @param allowPackageManagers Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+         * @param allowPackageManagers Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
          * 
          * @return builder
          * 
@@ -139,7 +139,7 @@ public final class EnvironmentNetworkingArgs extends com.pulumi.resources.Resour
         }
 
         /**
-         * @param allowPackageManagers Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+         * @param allowPackageManagers Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
          * 
          * @return builder
          * 
@@ -149,7 +149,7 @@ public final class EnvironmentNetworkingArgs extends com.pulumi.resources.Resour
         }
 
         /**
-         * @param allowedHosts Hosts the sandbox can reach. Applies to `limited`.
+         * @param allowedHosts Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
          * 
          * @return builder
          * 
@@ -160,7 +160,7 @@ public final class EnvironmentNetworkingArgs extends com.pulumi.resources.Resour
         }
 
         /**
-         * @param allowedHosts Hosts the sandbox can reach. Applies to `limited`.
+         * @param allowedHosts Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
          * 
          * @return builder
          * 
@@ -170,7 +170,7 @@ public final class EnvironmentNetworkingArgs extends com.pulumi.resources.Resour
         }
 
         /**
-         * @param allowedHosts Hosts the sandbox can reach. Applies to `limited`.
+         * @param allowedHosts Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
          * 
          * @return builder
          * 

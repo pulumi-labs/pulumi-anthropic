@@ -29,7 +29,7 @@ class SpendLimitArgs:
         The set of arguments for constructing a SpendLimit resource.
 
         :param pulumi.Input['SpendLimitScopeArgs'] scope: What the limit applies to.
-        :param pulumi.Input[_builtins.str] amount: The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
+        :param pulumi.Input[_builtins.str] amount: The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
         :param pulumi.Input['SpendLimitPeriod'] period: The period the limit applies over. If omitted, the API's default applies.
         """
         pulumi.set(__self__, "scope", scope)
@@ -54,7 +54,7 @@ class SpendLimitArgs:
     @pulumi.getter
     def amount(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
+        The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
         """
         return pulumi.get(self, "amount")
 
@@ -90,11 +90,11 @@ class SpendLimit(pulumi.CustomResource):
 
         There is at most one limit per scope and period, and the API sets a limit by overwriting whatever limit that scope and period already has, so creating this resource takes over an existing limit rather than failing. Changing the scope or period replaces the limit.
 
-        User limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount.
+        User limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount. Deleting a user limit restores any inherited cap for that period; deleting a limit may increase permitted spending. Import accepts a writable limit's spl_ ID.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] amount: The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
+        :param pulumi.Input[_builtins.str] amount: The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
         :param pulumi.Input['SpendLimitPeriod'] period: The period the limit applies over. If omitted, the API's default applies.
         :param pulumi.Input[Union['SpendLimitScopeArgs', 'SpendLimitScopeArgsDict', 'outputs.SpendLimitScope']] scope: What the limit applies to.
         """
@@ -109,7 +109,7 @@ class SpendLimit(pulumi.CustomResource):
 
         There is at most one limit per scope and period, and the API sets a limit by overwriting whatever limit that scope and period already has, so creating this resource takes over an existing limit rather than failing. Changing the scope or period replaces the limit.
 
-        User limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount.
+        User limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount. Deleting a user limit restores any inherited cap for that period; deleting a limit may increase permitted spending. Import accepts a writable limit's spl_ ID.
 
         :param str resource_name: The name of the resource.
         :param SpendLimitArgs args: The arguments to use to populate this resource's properties.
@@ -145,6 +145,7 @@ class SpendLimit(pulumi.CustomResource):
             __props__.__dict__["scope"] = scope
             __props__.__dict__["created_at"] = None
             __props__.__dict__["currency"] = None
+            __props__.__dict__["is_enabled"] = None
             __props__.__dict__["updated_at"] = None
         replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["period", "scope"])
         opts = pulumi.ResourceOptions.merge(opts, replace_on_changes)
@@ -173,6 +174,7 @@ class SpendLimit(pulumi.CustomResource):
         __props__.__dict__["amount"] = None
         __props__.__dict__["created_at"] = None
         __props__.__dict__["currency"] = None
+        __props__.__dict__["is_enabled"] = None
         __props__.__dict__["period"] = None
         __props__.__dict__["scope"] = None
         __props__.__dict__["updated_at"] = None
@@ -188,7 +190,7 @@ class SpendLimit(pulumi.CustomResource):
     @pulumi.getter
     def amount(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
+        The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
         """
         return pulumi.get(self, "amount")
 
@@ -207,6 +209,14 @@ class SpendLimit(pulumi.CustomResource):
         The ISO 4217 code of the organization's billing currency, which `amount` is denominated in.
         """
         return pulumi.get(self, "currency")
+
+    @_builtins.property
+    @pulumi.getter(name="isEnabled")
+    def is_enabled(self) -> pulumi.Output[_builtins.bool]:
+        """
+        Whether the configured limit is enabled. Organization limits are disabled while extra usage is off; the amount is retained for when extra usage is enabled again. Other periods and inherited limits may still apply.
+        """
+        return pulumi.get(self, "is_enabled")
 
     @_builtins.property
     @pulumi.getter

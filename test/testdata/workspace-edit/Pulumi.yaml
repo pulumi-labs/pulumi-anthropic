@@ -1,0 +1,50 @@
+name: workspace-lifecycle
+runtime: yaml
+config:
+  runName:
+    type: string
+    default: synthetic-workspace
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  apiKey:
+    type: string
+    secret: true
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  anthropic:
+    type: pulumi:providers:anthropic
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+    options:
+      version: TEST_PROVIDER_VERSION
+  workspace:
+    type: anthropic:organization:Workspace
+    properties:
+      name: ${runName}-edited
+      tags:
+        keep: yes-value
+    options:
+      provider: ${anthropic}
+  lookup:
+    type: anthropic:organization:Workspace
+    get:
+      id: ${workspace.id}
+    options:
+      provider: ${anthropic}
+outputs:
+  workspaceId: ${workspace.id}
+  workspaceName: ${workspace.name}
+  color: ${workspace.displayColor}
+  residency: ${workspace.dataResidency}

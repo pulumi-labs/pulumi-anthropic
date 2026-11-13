@@ -14,20 +14,24 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 
+/**
+ * Model selection and inference settings for an agent.
+ *
+ */
 public final class ModelArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final ModelArgs Empty = new ModelArgs();
 
     /**
-     * How much effort the model spends reasoning. Defaults to the model&#39;s own default, and is kept across changes that leave `id` unchanged.
-     * 
+     * How much effort the model spends reasoning. Defaults to the model&#39;s own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
+     *
      */
     @Import(name="effort")
     private @Nullable Output<Effort> effort;
 
     /**
-     * @return How much effort the model spends reasoning. Defaults to the model&#39;s own default, and is kept across changes that leave `id` unchanged.
-     * 
+     * @return How much effort the model spends reasoning. Defaults to the model&#39;s own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
+     *
      */
     public Optional<Output<Effort>> effort() {
         return Optional.ofNullable(this.effort);
@@ -35,44 +39,44 @@ public final class ModelArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The model ID, such as `claude-opus-5-5`.
-     * 
+     *
      */
     @Import(name="id", required=true)
     private Output<String> id;
 
     /**
      * @return The model ID, such as `claude-opus-5-5`.
-     * 
+     *
      */
     public Output<String> id() {
         return this.id;
     }
 
     /**
-     * Where inference runs, such as `us` or `global`.
-     * 
+     * Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
+     *
      */
     @Import(name="inferenceGeo")
     private @Nullable Output<String> inferenceGeo;
 
     /**
-     * @return Where inference runs, such as `us` or `global`.
-     * 
+     * @return Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
+     *
      */
     public Optional<Output<String>> inferenceGeo() {
         return Optional.ofNullable(this.inferenceGeo);
     }
 
     /**
-     * The inference speed tier.
-     * 
+     * The inference speed tier. Removing a configured tier restores standard.
+     *
      */
     @Import(name="speed")
     private @Nullable Output<Speed> speed;
 
     /**
-     * @return The inference speed tier.
-     * 
+     * @return The inference speed tier. Removing a configured tier restores standard.
+     *
      */
     public Optional<Output<Speed>> speed() {
         return Optional.ofNullable(this.speed);
@@ -106,10 +110,10 @@ public final class ModelArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param effort How much effort the model spends reasoning. Defaults to the model&#39;s own default, and is kept across changes that leave `id` unchanged.
-         * 
+         * @param effort How much effort the model spends reasoning. Defaults to the model&#39;s own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder effort(@Nullable Output<Effort> effort) {
             $.effort = effort;
@@ -117,10 +121,10 @@ public final class ModelArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param effort How much effort the model spends reasoning. Defaults to the model&#39;s own default, and is kept across changes that leave `id` unchanged.
-         * 
+         * @param effort How much effort the model spends reasoning. Defaults to the model&#39;s own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder effort(Effort effort) {
             return effort(Output.of(effort));
@@ -128,9 +132,9 @@ public final class ModelArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param id The model ID, such as `claude-opus-5-5`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder id(Output<String> id) {
             $.id = id;
@@ -139,19 +143,19 @@ public final class ModelArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param id The model ID, such as `claude-opus-5-5`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder id(String id) {
             return id(Output.of(id));
         }
 
         /**
-         * @param inferenceGeo Where inference runs, such as `us` or `global`.
-         * 
+         * @param inferenceGeo Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder inferenceGeo(@Nullable Output<String> inferenceGeo) {
             $.inferenceGeo = inferenceGeo;
@@ -159,20 +163,20 @@ public final class ModelArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param inferenceGeo Where inference runs, such as `us` or `global`.
-         * 
+         * @param inferenceGeo Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder inferenceGeo(String inferenceGeo) {
             return inferenceGeo(Output.of(inferenceGeo));
         }
 
         /**
-         * @param speed The inference speed tier.
-         * 
+         * @param speed The inference speed tier. Removing a configured tier restores standard.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder speed(@Nullable Output<Speed> speed) {
             $.speed = speed;
@@ -180,10 +184,10 @@ public final class ModelArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param speed The inference speed tier.
-         * 
+         * @param speed The inference speed tier. Removing a configured tier restores standard.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder speed(Speed speed) {
             return speed(Output.of(speed));

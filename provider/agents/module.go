@@ -17,41 +17,19 @@ package agents
 
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
-
-	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // Resources returns the module's resources.
 func Resources() []infer.InferredResource {
 	return []infer.InferredResource{
-		infer.Resource(NewAgent()),
-		infer.Resource(NewDeployment()),
-		infer.Resource(NewEnvironment()),
-		infer.Resource(NewMemoryStore()),
-		infer.Resource(NewTunnel()),
-		infer.Resource(NewTunnelCertificate()),
-		infer.Resource(NewUserProfile()),
-		infer.Resource(NewVault()),
-		infer.Resource(NewVaultCredential()),
+		NewAgent(),
+		NewDeployment(),
+		NewEnvironment(),
+		NewMemoryStore(),
+		NewTunnel(),
+		NewTunnelCertificate(),
+		NewUserProfile(),
+		NewVault(),
+		NewVaultCredential(),
 	}
 }
-
-// The anthropic-beta headers the module's APIs require.
-const (
-	managedAgentsBeta = "managed-agents-2026-04-01"
-	agentMemoryBeta   = "agent-memory-2026-07-22"
-	mcpTunnelsBeta    = "mcp-tunnels-2026-06-22"
-	userProfilesBeta  = "user-profiles-2026-08-18"
-)
-
-// The module's collections, all of which accept a workspace's API key.
-var (
-	agentCollection       = rest.Collection{Plane: config.Workspace, Path: "v1/agents", Beta: managedAgentsBeta}
-	deploymentCollection  = rest.Collection{Plane: config.Workspace, Path: "v1/deployments", Beta: managedAgentsBeta}
-	environmentCollection = rest.Collection{Plane: config.Workspace, Path: "v1/environments", Beta: managedAgentsBeta}
-	memoryStoreCollection = rest.Collection{Plane: config.Workspace, Path: "v1/memory_stores", Beta: agentMemoryBeta}
-	tunnelCollection      = rest.Collection{Plane: config.Workspace, Path: "v1/tunnels", Beta: mcpTunnelsBeta}
-	userProfileCollection = rest.Collection{Plane: config.Workspace, Path: "v1/user_profiles", Beta: userProfilesBeta}
-	vaultCollection       = rest.Collection{Plane: config.Workspace, Path: "v1/vaults", Beta: managedAgentsBeta}
-)

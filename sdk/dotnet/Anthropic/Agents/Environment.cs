@@ -13,13 +13,13 @@ namespace Pulumi.Labs.Anthropic.Agents
     /// <summary>
     /// A Claude Managed Agents environment: where sessions run, either an Anthropic-managed cloud sandbox or a sandbox you host yourself.
     /// 
-    /// Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource deletes the environment. The API refuses to delete an environment that sessions still reference, in which case it is archived instead: it becomes read-only, running sessions continue, and new sessions cannot use it.
+    /// Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource permanently deletes the environment; it does not archive it.
     /// </summary>
     [AnthropicResourceType("anthropic:agents:Environment")]
     public partial class Environment : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// Where and how sessions run. Defaults to a cloud sandbox.
+        /// Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
         /// </summary>
         [Output("config")]
         public Output<Outputs.EnvironmentConfig?> Config { get; private set; } = null!;
@@ -31,13 +31,13 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// A description of the environment, up to 1,024 characters.
+        /// A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
         /// </summary>
         [Output("description")]
         public Output<string?> Description { get; private set; } = null!;
 
         /// <summary>
-        /// Arbitrary key-value pairs.
+        /// Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
         /// </summary>
         [Output("metadata")]
         public Output<ImmutableDictionary<string, string>?> Metadata { get; private set; } = null!;
@@ -49,7 +49,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> Name { get; private set; } = null!;
 
         /// <summary>
-        /// Who can use the environment. API organizations accept only `organization`.
+        /// Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
         /// </summary>
         [Output("scope")]
         public Output<Pulumi.Labs.Anthropic.Agents.EnvironmentScope?> Scope { get; private set; } = null!;
@@ -111,13 +111,13 @@ namespace Pulumi.Labs.Anthropic.Agents
     public sealed class EnvironmentArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Where and how sessions run. Defaults to a cloud sandbox.
+        /// Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
         /// </summary>
         [Input("config")]
         public Input<Inputs.EnvironmentConfigArgs>? Config { get; set; }
 
         /// <summary>
-        /// A description of the environment, up to 1,024 characters.
+        /// A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
         /// </summary>
         [Input("description")]
         public Input<string>? Description { get; set; }
@@ -126,7 +126,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         private InputMap<string>? _metadata;
 
         /// <summary>
-        /// Arbitrary key-value pairs.
+        /// Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
         /// </summary>
         public InputMap<string> Metadata
         {
@@ -141,7 +141,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Input<string> Name { get; set; } = null!;
 
         /// <summary>
-        /// Who can use the environment. API organizations accept only `organization`.
+        /// Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
         /// </summary>
         [Input("scope")]
         public Input<Pulumi.Labs.Anthropic.Agents.EnvironmentScope>? Scope { get; set; }

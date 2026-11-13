@@ -10,7 +10,6 @@ import com.pulumi.labs.anthropic.agents.inputs.AgentReferenceArgs;
 import com.pulumi.labs.anthropic.agents.inputs.BudgetArgs;
 import com.pulumi.labs.anthropic.agents.inputs.DeploymentResourceArgs;
 import com.pulumi.labs.anthropic.agents.inputs.ScheduleArgs;
-import java.lang.Boolean;
 import java.lang.Object;
 import java.lang.String;
 import java.util.List;
@@ -40,14 +39,14 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * A spending limit for the deployment.
+     * A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
      * 
      */
     @Import(name="budget")
     private @Nullable Output<BudgetArgs> budget;
 
     /**
-     * @return A spending limit for the deployment.
+     * @return A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
      * 
      */
     public Optional<Output<BudgetArgs>> budget() {
@@ -55,14 +54,14 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * A description of the deployment.
+     * A description of the deployment. Removing a configured description clears it.
      * 
      */
     @Import(name="description")
     private @Nullable Output<String> description;
 
     /**
-     * @return A description of the deployment.
+     * @return A description of the deployment. Removing a configured description clears it.
      * 
      */
     public Optional<Output<String>> description() {
@@ -85,14 +84,14 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The events that start each session, 1 to 50, in the API&#39;s event format. For example: `{type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}`.
+     * The events that start each session, 1 to 50, in the API&#39;s event format. For example: {type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}.
      * 
      */
     @Import(name="initialEvents", required=true)
     private Output<List<Map<String,Object>>> initialEvents;
 
     /**
-     * @return The events that start each session, 1 to 50, in the API&#39;s event format. For example: `{type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}`.
+     * @return The events that start each session, 1 to 50, in the API&#39;s event format. For example: {type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}.
      * 
      */
     public Output<List<Map<String,Object>>> initialEvents() {
@@ -100,14 +99,14 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Arbitrary key-value pairs.
+     * Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
      * 
      */
     @Import(name="metadata")
     private @Nullable Output<Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs.
+     * @return Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
      * 
      */
     public Optional<Output<Map<String,String>>> metadata() {
@@ -130,29 +129,14 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Whether the deployment is paused. Omit to leave pausing to other tools.
-     * 
-     */
-    @Import(name="paused")
-    private @Nullable Output<Boolean> paused;
-
-    /**
-     * @return Whether the deployment is paused. Omit to leave pausing to other tools.
-     * 
-     */
-    public Optional<Output<Boolean>> paused() {
-        return Optional.ofNullable(this.paused);
-    }
-
-    /**
-     * Repositories, files, and memory stores mounted into each session, up to 500.
+     * Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
      * 
      */
     @Import(name="resources")
     private @Nullable Output<List<DeploymentResourceArgs>> resources;
 
     /**
-     * @return Repositories, files, and memory stores mounted into each session, up to 500.
+     * @return Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
      * 
      */
     public Optional<Output<List<DeploymentResourceArgs>>> resources() {
@@ -160,14 +144,14 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * When to run. Omit to run only on demand.
+     * When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
      * 
      */
     @Import(name="schedule")
     private @Nullable Output<ScheduleArgs> schedule;
 
     /**
-     * @return When to run. Omit to run only on demand.
+     * @return When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
      * 
      */
     public Optional<Output<ScheduleArgs>> schedule() {
@@ -175,14 +159,14 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Vaults whose credentials sessions can use, up to 50.
+     * Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
      * 
      */
     @Import(name="vaultIds")
     private @Nullable Output<List<String>> vaultIds;
 
     /**
-     * @return Vaults whose credentials sessions can use, up to 50.
+     * @return Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
      * 
      */
     public Optional<Output<List<String>>> vaultIds() {
@@ -199,7 +183,6 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         this.initialEvents = $.initialEvents;
         this.metadata = $.metadata;
         this.name = $.name;
-        this.paused = $.paused;
         this.resources = $.resources;
         this.schedule = $.schedule;
         this.vaultIds = $.vaultIds;
@@ -245,7 +228,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param budget A spending limit for the deployment.
+         * @param budget A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
          * 
          * @return builder
          * 
@@ -256,7 +239,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param budget A spending limit for the deployment.
+         * @param budget A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
          * 
          * @return builder
          * 
@@ -266,7 +249,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param description A description of the deployment.
+         * @param description A description of the deployment. Removing a configured description clears it.
          * 
          * @return builder
          * 
@@ -277,7 +260,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param description A description of the deployment.
+         * @param description A description of the deployment. Removing a configured description clears it.
          * 
          * @return builder
          * 
@@ -308,7 +291,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param initialEvents The events that start each session, 1 to 50, in the API&#39;s event format. For example: `{type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}`.
+         * @param initialEvents The events that start each session, 1 to 50, in the API&#39;s event format. For example: {type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}.
          * 
          * @return builder
          * 
@@ -319,7 +302,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param initialEvents The events that start each session, 1 to 50, in the API&#39;s event format. For example: `{type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}`.
+         * @param initialEvents The events that start each session, 1 to 50, in the API&#39;s event format. For example: {type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}.
          * 
          * @return builder
          * 
@@ -329,7 +312,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param initialEvents The events that start each session, 1 to 50, in the API&#39;s event format. For example: `{type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}`.
+         * @param initialEvents The events that start each session, 1 to 50, in the API&#39;s event format. For example: {type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}.
          * 
          * @return builder
          * 
@@ -339,7 +322,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs.
+         * @param metadata Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
          * 
          * @return builder
          * 
@@ -350,7 +333,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs.
+         * @param metadata Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
          * 
          * @return builder
          * 
@@ -381,28 +364,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param paused Whether the deployment is paused. Omit to leave pausing to other tools.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder paused(@Nullable Output<Boolean> paused) {
-            $.paused = paused;
-            return this;
-        }
-
-        /**
-         * @param paused Whether the deployment is paused. Omit to leave pausing to other tools.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder paused(Boolean paused) {
-            return paused(Output.of(paused));
-        }
-
-        /**
-         * @param resources Repositories, files, and memory stores mounted into each session, up to 500.
+         * @param resources Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
          * 
          * @return builder
          * 
@@ -413,7 +375,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param resources Repositories, files, and memory stores mounted into each session, up to 500.
+         * @param resources Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
          * 
          * @return builder
          * 
@@ -423,7 +385,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param resources Repositories, files, and memory stores mounted into each session, up to 500.
+         * @param resources Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
          * 
          * @return builder
          * 
@@ -433,7 +395,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param schedule When to run. Omit to run only on demand.
+         * @param schedule When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
          * 
          * @return builder
          * 
@@ -444,7 +406,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param schedule When to run. Omit to run only on demand.
+         * @param schedule When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
          * 
          * @return builder
          * 
@@ -454,7 +416,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param vaultIds Vaults whose credentials sessions can use, up to 50.
+         * @param vaultIds Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
          * 
          * @return builder
          * 
@@ -465,7 +427,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param vaultIds Vaults whose credentials sessions can use, up to 50.
+         * @param vaultIds Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
          * 
          * @return builder
          * 
@@ -475,7 +437,7 @@ public final class DeploymentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param vaultIds Vaults whose credentials sessions can use, up to 50.
+         * @param vaultIds Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
          * 
          * @return builder
          * 

@@ -22,11 +22,11 @@ type ServiceAccount struct {
 
 	// When the service account was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// A description of the service account, up to 2,000 characters.
+	// A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
 	Description pulumi.StringPtrOutput `pulumi:"description"`
-	// A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+	// A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
 	Name pulumi.StringOutput `pulumi:"name"`
-	// The service account's organization role. Defaults to `developer`.
+	// The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
 	OrganizationRole ServiceAccountRolePtrOutput `pulumi:"organizationRole"`
 	// When the service account was last updated, in RFC 3339 format.
 	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
@@ -85,21 +85,21 @@ func ServiceAccountExists(ctx *pulumi.Context,
 }
 
 type serviceAccountArgs struct {
-	// A description of the service account, up to 2,000 characters.
+	// A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
 	Description *string `pulumi:"description"`
-	// A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+	// A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
 	Name string `pulumi:"name"`
-	// The service account's organization role. Defaults to `developer`.
+	// The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
 	OrganizationRole *ServiceAccountRole `pulumi:"organizationRole"`
 }
 
 // The set of arguments for constructing a ServiceAccount resource.
 type ServiceAccountArgs struct {
-	// A description of the service account, up to 2,000 characters.
+	// A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
 	Description pulumi.StringPtrInput
-	// A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+	// A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
 	Name pulumi.StringInput
-	// The service account's organization role. Defaults to `developer`.
+	// The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
 	OrganizationRole ServiceAccountRolePtrInput
 }
 
@@ -195,17 +195,17 @@ func (o ServiceAccountOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServiceAccount) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// A description of the service account, up to 2,000 characters.
+// A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
 func (o ServiceAccountOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *ServiceAccount) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-// A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+// A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
 func (o ServiceAccountOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServiceAccount) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-// The service account's organization role. Defaults to `developer`.
+// The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
 func (o ServiceAccountOutput) OrganizationRole() ServiceAccountRolePtrOutput {
 	return o.ApplyT(func(v *ServiceAccount) ServiceAccountRolePtrOutput { return v.OrganizationRole }).(ServiceAccountRolePtrOutput)
 }

@@ -15,9 +15,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * A Claude Managed Agents vault: a container for the credentials sessions use to reach MCP servers and other services. Add credentials with `VaultCredential`, and attach vaults to sessions or deployments by ID.
- * 
- * Deleting this resource deletes the vault and every credential in it.
+ * A workspace-scoped Claude Managed Agents credential container. Add credentials with VaultCredential and reference the vault by ID. Deleting this resource permanently deletes the vault; it does not archive it. Archived vaults are treated as deleted.
  * 
  */
 @ResourceType(type="anthropic:agents:Vault")
@@ -37,28 +35,28 @@ public class Vault extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * The vault&#39;s display name, 1 to 255 characters.
+     * The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
      * 
      */
     @Export(name="displayName", refs={String.class}, tree="[0]")
     private Output<String> displayName;
 
     /**
-     * @return The vault&#39;s display name, 1 to 255 characters.
+     * @return The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
      * 
      */
     public Output<String> displayName() {
         return this.displayName;
     }
     /**
-     * Arbitrary key-value pairs.
+     * At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
      * 
      */
     @Export(name="metadata", refs={Map.class,String.class}, tree="[0,1,1]")
     private Output</* @Nullable */ Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs.
+     * @return At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
      * 
      */
     public Output<Optional<Map<String,String>>> metadata() {

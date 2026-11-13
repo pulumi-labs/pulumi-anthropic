@@ -20,20 +20,20 @@ import javax.annotation.Nullable;
 /**
  * A Claude Managed Agents environment: where sessions run, either an Anthropic-managed cloud sandbox or a sandbox you host yourself.
  * 
- * Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource deletes the environment. The API refuses to delete an environment that sessions still reference, in which case it is archived instead: it becomes read-only, running sessions continue, and new sessions cannot use it.
+ * Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource permanently deletes the environment; it does not archive it.
  * 
  */
 @ResourceType(type="anthropic:agents:Environment")
 public class Environment extends com.pulumi.resources.CustomResource {
     /**
-     * Where and how sessions run. Defaults to a cloud sandbox.
+     * Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
      * 
      */
     @Export(name="config", refs={EnvironmentConfig.class}, tree="[0]")
     private Output</* @Nullable */ EnvironmentConfig> config;
 
     /**
-     * @return Where and how sessions run. Defaults to a cloud sandbox.
+     * @return Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
      * 
      */
     public Output<Optional<EnvironmentConfig>> config() {
@@ -54,28 +54,28 @@ public class Environment extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * A description of the environment, up to 1,024 characters.
+     * A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
      * 
      */
     @Export(name="description", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> description;
 
     /**
-     * @return A description of the environment, up to 1,024 characters.
+     * @return A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
      * 
      */
     public Output<Optional<String>> description() {
         return Codegen.optional(this.description);
     }
     /**
-     * Arbitrary key-value pairs.
+     * Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
      * 
      */
     @Export(name="metadata", refs={Map.class,String.class}, tree="[0,1,1]")
     private Output</* @Nullable */ Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs.
+     * @return Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
      * 
      */
     public Output<Optional<Map<String,String>>> metadata() {
@@ -96,14 +96,14 @@ public class Environment extends com.pulumi.resources.CustomResource {
         return this.name;
     }
     /**
-     * Who can use the environment. API organizations accept only `organization`.
+     * Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
      * 
      */
     @Export(name="scope", refs={EnvironmentScope.class}, tree="[0]")
     private Output</* @Nullable */ EnvironmentScope> scope;
 
     /**
-     * @return Who can use the environment. API organizations accept only `organization`.
+     * @return Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
      * 
      */
     public Output<Optional<EnvironmentScope>> scope() {

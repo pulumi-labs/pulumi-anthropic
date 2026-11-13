@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Outputs
 {
 
+    /// <summary>
+    /// An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
+    /// </summary>
     [OutputType]
     public sealed class Tool
     {

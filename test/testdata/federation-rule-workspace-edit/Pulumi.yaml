@@ -1,0 +1,49 @@
+name: federation-rule-workspace-lifecycle
+runtime: yaml
+config:
+  seedRuleId:
+    type: string
+  firstWorkspaceId:
+    type: string
+  secondWorkspaceId:
+    type: string
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  apiKey:
+    type: string
+    secret: true
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  anthropic:
+    type: pulumi:providers:anthropic
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+    options:
+      version: TEST_PROVIDER_VERSION
+  binding:
+    type: anthropic:identity:FederationRuleWorkspace
+    properties:
+      federationRuleId: ${seedRuleId}
+      workspaceId: ${secondWorkspaceId}
+    options:
+      provider: ${anthropic}
+  recovered:
+    type: anthropic:identity:FederationRuleWorkspace
+    get:
+      id: ${binding.id}
+    options:
+      provider: ${anthropic}
+outputs:
+  bindingId: ${binding.id}

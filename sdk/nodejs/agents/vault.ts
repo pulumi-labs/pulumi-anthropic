@@ -5,9 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "../utilities";
 
 /**
- * A Claude Managed Agents vault: a container for the credentials sessions use to reach MCP servers and other services. Add credentials with `VaultCredential`, and attach vaults to sessions or deployments by ID.
- *
- * Deleting this resource deletes the vault and every credential in it.
+ * A workspace-scoped Claude Managed Agents credential container. Add credentials with VaultCredential and reference the vault by ID. Deleting this resource permanently deletes the vault; it does not archive it. Archived vaults are treated as deleted.
  */
 export class Vault extends pulumi.CustomResource {
     /**
@@ -51,11 +49,11 @@ export class Vault extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * The vault's display name, 1 to 255 characters.
+     * The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
      */
     declare public readonly displayName: pulumi.Output<string>;
     /**
-     * Arbitrary key-value pairs.
+     * At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
      */
     declare public readonly metadata: pulumi.Output<{[key: string]: string} | undefined>;
     /**
@@ -97,11 +95,11 @@ export class Vault extends pulumi.CustomResource {
  */
 export interface VaultArgs {
     /**
-     * The vault's display name, 1 to 255 characters.
+     * The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
      */
     displayName: pulumi.Input<string>;
     /**
-     * Arbitrary key-value pairs.
+     * At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
      */
     metadata?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
 }

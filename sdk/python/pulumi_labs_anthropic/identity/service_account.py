@@ -26,9 +26,9 @@ class ServiceAccountArgs:
         """
         The set of arguments for constructing a ServiceAccount resource.
 
-        :param pulumi.Input[_builtins.str] name: A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
-        :param pulumi.Input[_builtins.str] description: A description of the service account, up to 2,000 characters.
-        :param pulumi.Input['ServiceAccountRole'] organization_role: The service account's organization role. Defaults to `developer`.
+        :param pulumi.Input[_builtins.str] name: A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
+        :param pulumi.Input[_builtins.str] description: A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
+        :param pulumi.Input['ServiceAccountRole'] organization_role: The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
         """
         pulumi.set(__self__, "name", name)
         if description is not None:
@@ -40,7 +40,7 @@ class ServiceAccountArgs:
     @pulumi.getter
     def name(self) -> pulumi.Input[_builtins.str]:
         """
-        A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+        A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
         """
         return pulumi.get(self, "name")
 
@@ -52,7 +52,7 @@ class ServiceAccountArgs:
     @pulumi.getter
     def description(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        A description of the service account, up to 2,000 characters.
+        A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
         """
         return pulumi.get(self, "description")
 
@@ -64,7 +64,7 @@ class ServiceAccountArgs:
     @pulumi.getter(name="organizationRole")
     def organization_role(self) -> pulumi.Input[Optional['ServiceAccountRole']]:
         """
-        The service account's organization role. Defaults to `developer`.
+        The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
         """
         return pulumi.get(self, "organization_role")
 
@@ -92,9 +92,9 @@ class ServiceAccount(pulumi.CustomResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] description: A description of the service account, up to 2,000 characters.
-        :param pulumi.Input[_builtins.str] name: A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
-        :param pulumi.Input['ServiceAccountRole'] organization_role: The service account's organization role. Defaults to `developer`.
+        :param pulumi.Input[_builtins.str] description: A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
+        :param pulumi.Input[_builtins.str] name: A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
+        :param pulumi.Input['ServiceAccountRole'] organization_role: The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
         """
         ...
     @overload
@@ -192,7 +192,7 @@ class ServiceAccount(pulumi.CustomResource):
     @pulumi.getter
     def description(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        A description of the service account, up to 2,000 characters.
+        A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
         """
         return pulumi.get(self, "description")
 
@@ -200,7 +200,7 @@ class ServiceAccount(pulumi.CustomResource):
     @pulumi.getter
     def name(self) -> pulumi.Output[_builtins.str]:
         """
-        A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+        A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
         """
         return pulumi.get(self, "name")
 
@@ -208,7 +208,7 @@ class ServiceAccount(pulumi.CustomResource):
     @pulumi.getter(name="organizationRole")
     def organization_role(self) -> pulumi.Output[Optional['ServiceAccountRole']]:
         """
-        The service account's organization role. Defaults to `developer`.
+        The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
         """
         return pulumi.get(self, "organization_role")
 

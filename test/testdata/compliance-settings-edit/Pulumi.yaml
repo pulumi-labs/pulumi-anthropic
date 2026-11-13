@@ -1,0 +1,44 @@
+name: compliance-settings-lifecycle
+runtime: yaml
+config:
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  apiKey:
+    type: string
+    secret: true
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  anthropic:
+    type: pulumi:providers:anthropic
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+    options:
+      version: TEST_PROVIDER_VERSION
+  settings:
+    type: anthropic:organization:ComplianceSettings
+    properties:
+      enabled: false
+    options:
+      provider: ${anthropic}
+  observed:
+    type: anthropic:organization:ComplianceSettings
+    get:
+      id: compliance-settings
+    options:
+      provider: ${anthropic}
+      dependsOn:
+        - ${settings}
+outputs:
+  enabled: ${settings.enabled}

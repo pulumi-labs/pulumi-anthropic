@@ -16,29 +16,31 @@ import (
 //
 // Agents are versioned. Every update that changes the configuration creates a new version, reported by the `version` output; sessions and deployments can pin a version, which makes canary and staged rollouts a matter of which version each deployment references.
 //
-// The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Running sessions continue; new sessions cannot use it.
+// The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Archiving retains historical agent records and versions; this resource does not manage running sessions.
 type Agent struct {
 	pulumi.CustomResourceState
 
 	// When the agent was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// A description of the agent, up to 2,048 characters.
+	// A description of the agent, up to 2,048 characters. Removing a configured description clears it.
 	Description pulumi.StringPtrOutput `pulumi:"description"`
+	// Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+	ExecutionIdentity ExecutionIdentityPtrOutput `pulumi:"executionIdentity"`
 	// The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
 	McpServers MCPServerArrayOutput `pulumi:"mcpServers"`
-	// Arbitrary key-value pairs, up to 16.
+	// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
 	Metadata pulumi.StringMapOutput `pulumi:"metadata"`
 	// The model the agent runs on.
 	Model ModelOutput `pulumi:"model"`
-	// Makes the agent a coordinator that delegates to other agents.
+	// Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
 	Multiagent MultiagentPtrOutput `pulumi:"multiagent"`
 	// The agent's name, 1 to 256 characters.
 	Name pulumi.StringOutput `pulumi:"name"`
 	// The skills available to the agent.
 	Skills SkillRefArrayOutput `pulumi:"skills"`
-	// The system prompt, up to 100,000 characters.
+	// The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
 	System pulumi.StringPtrOutput `pulumi:"system"`
-	// The tools the agent can use, up to 128.
+	// The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
 	Tools ToolArrayOutput `pulumi:"tools"`
 	// When the agent was last updated, in RFC 3339 format.
 	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
@@ -98,45 +100,49 @@ func AgentExists(ctx *pulumi.Context,
 }
 
 type agentArgs struct {
-	// A description of the agent, up to 2,048 characters.
+	// A description of the agent, up to 2,048 characters. Removing a configured description clears it.
 	Description *string `pulumi:"description"`
+	// Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+	ExecutionIdentity *ExecutionIdentity `pulumi:"executionIdentity"`
 	// The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
 	McpServers []MCPServer `pulumi:"mcpServers"`
-	// Arbitrary key-value pairs, up to 16.
+	// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
 	Metadata map[string]string `pulumi:"metadata"`
 	// The model the agent runs on.
 	Model Model `pulumi:"model"`
-	// Makes the agent a coordinator that delegates to other agents.
+	// Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
 	Multiagent *Multiagent `pulumi:"multiagent"`
 	// The agent's name, 1 to 256 characters.
 	Name string `pulumi:"name"`
 	// The skills available to the agent.
 	Skills []SkillRef `pulumi:"skills"`
-	// The system prompt, up to 100,000 characters.
+	// The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
 	System *string `pulumi:"system"`
-	// The tools the agent can use, up to 128.
+	// The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
 	Tools []Tool `pulumi:"tools"`
 }
 
 // The set of arguments for constructing a Agent resource.
 type AgentArgs struct {
-	// A description of the agent, up to 2,048 characters.
+	// A description of the agent, up to 2,048 characters. Removing a configured description clears it.
 	Description pulumi.StringPtrInput
+	// Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+	ExecutionIdentity ExecutionIdentityPtrInput
 	// The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
 	McpServers MCPServerArrayInput
-	// Arbitrary key-value pairs, up to 16.
+	// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
 	Metadata pulumi.StringMapInput
 	// The model the agent runs on.
 	Model ModelInput
-	// Makes the agent a coordinator that delegates to other agents.
+	// Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
 	Multiagent MultiagentPtrInput
 	// The agent's name, 1 to 256 characters.
 	Name pulumi.StringInput
 	// The skills available to the agent.
 	Skills SkillRefArrayInput
-	// The system prompt, up to 100,000 characters.
+	// The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
 	System pulumi.StringPtrInput
-	// The tools the agent can use, up to 128.
+	// The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
 	Tools ToolArrayInput
 }
 
@@ -232,9 +238,14 @@ func (o AgentOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *Agent) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// A description of the agent, up to 2,048 characters.
+// A description of the agent, up to 2,048 characters. Removing a configured description clears it.
 func (o AgentOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Agent) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
+}
+
+// Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+func (o AgentOutput) ExecutionIdentity() ExecutionIdentityPtrOutput {
+	return o.ApplyT(func(v *Agent) ExecutionIdentityPtrOutput { return v.ExecutionIdentity }).(ExecutionIdentityPtrOutput)
 }
 
 // The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
@@ -242,7 +253,7 @@ func (o AgentOutput) McpServers() MCPServerArrayOutput {
 	return o.ApplyT(func(v *Agent) MCPServerArrayOutput { return v.McpServers }).(MCPServerArrayOutput)
 }
 
-// Arbitrary key-value pairs, up to 16.
+// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
 func (o AgentOutput) Metadata() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *Agent) pulumi.StringMapOutput { return v.Metadata }).(pulumi.StringMapOutput)
 }
@@ -252,7 +263,7 @@ func (o AgentOutput) Model() ModelOutput {
 	return o.ApplyT(func(v *Agent) ModelOutput { return v.Model }).(ModelOutput)
 }
 
-// Makes the agent a coordinator that delegates to other agents.
+// Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
 func (o AgentOutput) Multiagent() MultiagentPtrOutput {
 	return o.ApplyT(func(v *Agent) MultiagentPtrOutput { return v.Multiagent }).(MultiagentPtrOutput)
 }
@@ -267,12 +278,12 @@ func (o AgentOutput) Skills() SkillRefArrayOutput {
 	return o.ApplyT(func(v *Agent) SkillRefArrayOutput { return v.Skills }).(SkillRefArrayOutput)
 }
 
-// The system prompt, up to 100,000 characters.
+// The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
 func (o AgentOutput) System() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Agent) pulumi.StringPtrOutput { return v.System }).(pulumi.StringPtrOutput)
 }
 
-// The tools the agent can use, up to 128.
+// The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
 func (o AgentOutput) Tools() ToolArrayOutput {
 	return o.ApplyT(func(v *Agent) ToolArrayOutput { return v.Tools }).(ToolArrayOutput)
 }

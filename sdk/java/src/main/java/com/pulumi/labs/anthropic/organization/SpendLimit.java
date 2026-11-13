@@ -11,6 +11,7 @@ import com.pulumi.labs.anthropic.Utilities;
 import com.pulumi.labs.anthropic.organization.SpendLimitArgs;
 import com.pulumi.labs.anthropic.organization.enums.SpendLimitPeriod;
 import com.pulumi.labs.anthropic.organization.outputs.SpendLimitScope;
+import java.lang.Boolean;
 import java.lang.String;
 import java.util.List;
 import java.util.Optional;
@@ -18,94 +19,108 @@ import javax.annotation.Nullable;
 
 /**
  * A spend limit: the most a user, a workspace, or the whole organization may spend in a period.
- * 
+ *
  * There is at most one limit per scope and period, and the API sets a limit by overwriting whatever limit that scope and period already has, so creating this resource takes over an existing limit rather than failing. Changing the scope or period replaces the limit.
- * 
- * User limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount.
- * 
+ *
+ * User limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount. Deleting a user limit restores any inherited cap for that period; deleting a limit may increase permitted spending. Import accepts a writable limit&#39;s spl_ ID.
+ *
  */
 @ResourceType(type="anthropic:organization:SpendLimit")
 public class SpendLimit extends com.pulumi.resources.CustomResource {
     /**
-     * The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. Omit for an explicit &#34;no limit&#34; override of this scope and period.
-     * 
+     * The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
+     *
      */
     @Export(name="amount", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> amount;
 
     /**
-     * @return The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. Omit for an explicit &#34;no limit&#34; override of this scope and period.
-     * 
+     * @return The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
+     *
      */
     public Output<Optional<String>> amount() {
         return Codegen.optional(this.amount);
     }
     /**
      * When the limit was created, in RFC 3339 format.
-     * 
+     *
      */
     @Export(name="createdAt", refs={String.class}, tree="[0]")
     private Output<String> createdAt;
 
     /**
      * @return When the limit was created, in RFC 3339 format.
-     * 
+     *
      */
     public Output<String> createdAt() {
         return this.createdAt;
     }
     /**
      * The ISO 4217 code of the organization&#39;s billing currency, which `amount` is denominated in.
-     * 
+     *
      */
     @Export(name="currency", refs={String.class}, tree="[0]")
     private Output<String> currency;
 
     /**
      * @return The ISO 4217 code of the organization&#39;s billing currency, which `amount` is denominated in.
-     * 
+     *
      */
     public Output<String> currency() {
         return this.currency;
     }
     /**
+     * Whether the configured limit is enabled. Organization limits are disabled while extra usage is off; the amount is retained for when extra usage is enabled again. Other periods and inherited limits may still apply.
+     *
+     */
+    @Export(name="isEnabled", refs={Boolean.class}, tree="[0]")
+    private Output<Boolean> isEnabled;
+
+    /**
+     * @return Whether the configured limit is enabled. Organization limits are disabled while extra usage is off; the amount is retained for when extra usage is enabled again. Other periods and inherited limits may still apply.
+     *
+     */
+    public Output<Boolean> isEnabled() {
+        return this.isEnabled;
+    }
+    /**
      * The period the limit applies over. If omitted, the API&#39;s default applies.
-     * 
+     *
      */
     @Export(name="period", refs={SpendLimitPeriod.class}, tree="[0]")
     private Output</* @Nullable */ SpendLimitPeriod> period;
 
     /**
      * @return The period the limit applies over. If omitted, the API&#39;s default applies.
-     * 
+     *
      */
     public Output<Optional<SpendLimitPeriod>> period() {
         return Codegen.optional(this.period);
     }
     /**
      * What the limit applies to.
-     * 
+     *
      */
     @Export(name="scope", refs={SpendLimitScope.class}, tree="[0]")
     private Output<SpendLimitScope> scope;
 
     /**
      * @return What the limit applies to.
-     * 
+     *
      */
     public Output<SpendLimitScope> scope() {
         return this.scope;
     }
     /**
      * When the limit was last updated, in RFC 3339 format.
-     * 
+     *
      */
     @Export(name="updatedAt", refs={String.class}, tree="[0]")
     private Output<String> updatedAt;
 
     /**
      * @return When the limit was last updated, in RFC 3339 format.
-     * 
+     *
      */
     public Output<String> updatedAt() {
         return this.updatedAt;

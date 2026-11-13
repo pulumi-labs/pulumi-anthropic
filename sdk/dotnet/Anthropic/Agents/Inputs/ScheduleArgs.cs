@@ -14,13 +14,13 @@ namespace Pulumi.Labs.Anthropic.Agents.Inputs
     public sealed class ScheduleArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// A cron expression, such as `0 9 * * 1-5`.
+        /// A cron expression, such as 0 9 * * 1-5.
         /// </summary>
         [Input("expression", required: true)]
         public Input<string> Expression { get; set; } = null!;
 
         /// <summary>
-        /// The IANA time zone the expression is evaluated in, such as `America/New_York`.
+        /// The IANA time zone the expression is evaluated in, such as America/New_York.
         /// </summary>
         [Input("timezone", required: true)]
         public Input<string> Timezone { get; set; } = null!;

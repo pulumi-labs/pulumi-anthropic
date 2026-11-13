@@ -23,22 +23,22 @@ import javax.annotation.Nullable;
  * 
  * A rule applies either to all workspaces (`appliesToAllWorkspaces`) or to the workspace it is created in (`workspaceId`); bind it to further workspaces with `FederationRuleWorkspace`.
  * 
- * Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+ * Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. OAuth callers can configure only `workspace:developer` or `workspace:inference` scopes; higher-privilege rules require the Console. Creating a rule does not verify token exchange.
  * 
- * The API cannot delete rules, so deleting this resource archives the rule.
+ * Deleting this resource archives the rule, preventing new exchanges but not revoking tokens already issued. Changing the issuer or creation workspace replaces the rule by archiving it before creating its replacement; this interrupts new exchanges. Optional settings omitted from the start remain unconfigured, preserving later external changes. Import by rule ID recovers current settings but cannot recover the original creation workspace; configure workspace bindings separately with FederationRuleWorkspace.
  * 
  */
 @ResourceType(type="anthropic:identity:FederationRule")
 public class FederationRule extends com.pulumi.resources.CustomResource {
     /**
-     * Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+     * Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
      * 
      */
     @Export(name="appliesToAllWorkspaces", refs={Boolean.class}, tree="[0]")
     private Output</* @Nullable */ Boolean> appliesToAllWorkspaces;
 
     /**
-     * @return Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+     * @return Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
      * 
      */
     public Output<Optional<Boolean>> appliesToAllWorkspaces() {
@@ -59,14 +59,14 @@ public class FederationRule extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * A description of the rule, up to 2,000 characters.
+     * A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
      * 
      */
     @Export(name="description", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> description;
 
     /**
-     * @return A description of the rule, up to 2,000 characters.
+     * @return A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
      * 
      */
     public Output<Optional<String>> description() {
@@ -115,14 +115,14 @@ public class FederationRule extends com.pulumi.resources.CustomResource {
         return this.match;
     }
     /**
-     * A lowercase slug that uniquely names the rule in the organization.
+     * A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
      * 
      */
     @Export(name="name", refs={String.class}, tree="[0]")
     private Output<String> name;
 
     /**
-     * @return A lowercase slug that uniquely names the rule in the organization.
+     * @return A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
      * 
      */
     public Output<String> name() {
@@ -157,14 +157,14 @@ public class FederationRule extends com.pulumi.resources.CustomResource {
         return this.target;
     }
     /**
-     * The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+     * The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
      * 
      */
     @Export(name="tokenLifetimeSeconds", refs={Integer.class}, tree="[0]")
     private Output</* @Nullable */ Integer> tokenLifetimeSeconds;
 
     /**
-     * @return The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+     * @return The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
      * 
      */
     public Output<Optional<Integer>> tokenLifetimeSeconds() {

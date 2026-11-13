@@ -25,9 +25,9 @@ class MemoryStoreArgs:
         """
         The set of arguments for constructing a MemoryStore resource.
 
-        :param pulumi.Input[_builtins.str] name: The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
-        :param pulumi.Input[_builtins.str] description: What the store holds, up to 1,024 characters. It is shown to the agent.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
+        :param pulumi.Input[_builtins.str] name: A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
+        :param pulumi.Input[_builtins.str] description: Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
         """
         pulumi.set(__self__, "name", name)
         if description is not None:
@@ -39,7 +39,7 @@ class MemoryStoreArgs:
     @pulumi.getter
     def name(self) -> pulumi.Input[_builtins.str]:
         """
-        The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+        A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
         """
         return pulumi.get(self, "name")
 
@@ -51,7 +51,7 @@ class MemoryStoreArgs:
     @pulumi.getter
     def description(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        What the store holds, up to 1,024 characters. It is shown to the agent.
+        Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
         """
         return pulumi.get(self, "description")
 
@@ -63,7 +63,7 @@ class MemoryStoreArgs:
     @pulumi.getter
     def metadata(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Arbitrary key-value pairs.
+        At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
         """
         return pulumi.get(self, "metadata")
 
@@ -83,15 +83,13 @@ class MemoryStore(pulumi.CustomResource):
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
-        A Claude Managed Agents memory store: persistent memory that agents read and write across sessions, attached to sessions or deployments as a resource. The memories themselves are data that agents write at runtime, so they are not managed here.
-
-        Deleting this resource deletes the store along with all of its memories and their versions.
+        A workspace-scoped persistent memory store. Runtime memories and versions are not managed here. Deleting this resource permanently deletes the store and all its memories and versions. Externally archived stores are treated as absent.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] description: What the store holds, up to 1,024 characters. It is shown to the agent.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
-        :param pulumi.Input[_builtins.str] name: The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+        :param pulumi.Input[_builtins.str] description: Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
+        :param pulumi.Input[_builtins.str] name: A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
         """
         ...
     @overload
@@ -100,9 +98,7 @@ class MemoryStore(pulumi.CustomResource):
                  args: MemoryStoreArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        A Claude Managed Agents memory store: persistent memory that agents read and write across sessions, attached to sessions or deployments as a resource. The memories themselves are data that agents write at runtime, so they are not managed here.
-
-        Deleting this resource deletes the store along with all of its memories and their versions.
+        A workspace-scoped persistent memory store. Runtime memories and versions are not managed here. Deleting this resource permanently deletes the store and all its memories and versions. Externally archived stores are treated as absent.
 
         :param str resource_name: The name of the resource.
         :param MemoryStoreArgs args: The arguments to use to populate this resource's properties.
@@ -177,7 +173,7 @@ class MemoryStore(pulumi.CustomResource):
     @pulumi.getter(name="createdAt")
     def created_at(self) -> pulumi.Output[_builtins.str]:
         """
-        When the store was created, in RFC 3339 format.
+        When the memory store was created, in RFC 3339 format.
         """
         return pulumi.get(self, "created_at")
 
@@ -185,7 +181,7 @@ class MemoryStore(pulumi.CustomResource):
     @pulumi.getter
     def description(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        What the store holds, up to 1,024 characters. It is shown to the agent.
+        Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
         """
         return pulumi.get(self, "description")
 
@@ -193,7 +189,7 @@ class MemoryStore(pulumi.CustomResource):
     @pulumi.getter
     def metadata(self) -> pulumi.Output[Optional[Mapping[str, _builtins.str]]]:
         """
-        Arbitrary key-value pairs.
+        At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
         """
         return pulumi.get(self, "metadata")
 
@@ -201,7 +197,7 @@ class MemoryStore(pulumi.CustomResource):
     @pulumi.getter
     def name(self) -> pulumi.Output[_builtins.str]:
         """
-        The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+        A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
         """
         return pulumi.get(self, "name")
 
@@ -209,7 +205,7 @@ class MemoryStore(pulumi.CustomResource):
     @pulumi.getter(name="updatedAt")
     def updated_at(self) -> pulumi.Output[_builtins.str]:
         """
-        When the store was last updated, in RFC 3339 format.
+        When the memory store's configuration was last changed, in RFC 3339 format.
         """
         return pulumi.get(self, "updated_at")
 

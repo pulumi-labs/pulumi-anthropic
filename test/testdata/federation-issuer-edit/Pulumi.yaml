@@ -1,0 +1,52 @@
+name: federation-issuer-lifecycle
+runtime: yaml
+config:
+  issuerUrl:
+    type: string
+  editedIssuerKeyX:
+    type: string
+  runName:
+    type: string
+  apiKey:
+    type: string
+    secret: true
+    default: ""
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  provider:
+    type: pulumi:providers:anthropic
+    defaultProvider: true
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+    options:
+      version: TEST_PROVIDER_VERSION
+  issuer:
+    type: anthropic:identity:FederationIssuer
+    properties:
+      name: ${runName}-renamed
+      issuerUrl: ${issuerUrl}
+      jwks:
+        type: inline
+        keys:
+          - kty: OKP
+            crv: Ed25519
+            kid: ${runName}-edited-key
+            x: ${editedIssuerKeyX}
+outputs:
+  issuerId: ${issuer.id}
+  name: ${issuer.name}
+  issuerUrl: ${issuer.issuerUrl}

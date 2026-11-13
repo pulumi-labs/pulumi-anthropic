@@ -1,0 +1,42 @@
+name: spend-limit-workspace-lifecycle
+runtime: yaml
+config:
+  seedWorkspaceId:
+    type: string
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  apiKey:
+    type: string
+    secret: true
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  anthropic:
+    type: pulumi:providers:anthropic
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+    options:
+      version: TEST_PROVIDER_VERSION
+  limit:
+    type: anthropic:organization:SpendLimit
+    properties:
+      scope:
+        type: workspace
+        workspaceId: ${seedWorkspaceId}
+      period: monthly
+    options:
+      provider: ${anthropic}
+outputs:
+  limitId: ${limit.id}
+  isEnabled: ${limit.isEnabled}

@@ -19,7 +19,7 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
         /// </summary>
         public readonly string Id;
         /// <summary>
-        /// The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+        /// The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
         /// </summary>
         public readonly int? Version;
 

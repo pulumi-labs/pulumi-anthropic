@@ -22,6 +22,7 @@ __all__ = [
     'Speed',
     'TokenEndpointAuthType',
     'ToolType',
+    'TunnelCertificateStatus',
 ]
 
 
@@ -205,4 +206,16 @@ class ToolType(_builtins.str, Enum):
     CUSTOM = "custom"
     """
     A tool the client executes, declared by name and input schema.
+    """
+
+
+@pulumi.type_token("anthropic:agents:TunnelCertificateStatus")
+class TunnelCertificateStatus(_builtins.str, Enum):
+    ACTIVE = "active"
+    """
+    The certificate is in the tunnel's trusted set.
+    """
+    ARCHIVED = "archived"
+    """
+    The certificate has been archived and is no longer trusted.
     """

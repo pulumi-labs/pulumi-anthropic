@@ -13,10 +13,347 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
+// Controls whether the primary thread can consult an advisor model.
+type AgentAdvisor struct {
+	// Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+	Model *string `pulumi:"model"`
+	// enabled or disabled.
+	Type string `pulumi:"type"`
+}
+
+// AgentAdvisorInput is an input type that accepts AgentAdvisorArgs and AgentAdvisorOutput values.
+// You can construct a concrete instance of `AgentAdvisorInput` via:
+//
+//	AgentAdvisorArgs{...}
+type AgentAdvisorInput interface {
+	pulumi.Input
+
+	ToAgentAdvisorOutput() AgentAdvisorOutput
+	ToAgentAdvisorOutputWithContext(context.Context) AgentAdvisorOutput
+}
+
+// Controls whether the primary thread can consult an advisor model.
+type AgentAdvisorArgs struct {
+	// Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+	Model pulumi.StringPtrInput `pulumi:"model"`
+	// enabled or disabled.
+	Type pulumi.StringInput `pulumi:"type"`
+}
+
+func (AgentAdvisorArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*AgentAdvisor)(nil)).Elem()
+}
+
+func (i AgentAdvisorArgs) ToAgentAdvisorOutput() AgentAdvisorOutput {
+	return i.ToAgentAdvisorOutputWithContext(context.Background())
+}
+
+func (i AgentAdvisorArgs) ToAgentAdvisorOutputWithContext(ctx context.Context) AgentAdvisorOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(AgentAdvisorOutput)
+}
+
+func (i AgentAdvisorArgs) ToAgentAdvisorPtrOutput() AgentAdvisorPtrOutput {
+	return i.ToAgentAdvisorPtrOutputWithContext(context.Background())
+}
+
+func (i AgentAdvisorArgs) ToAgentAdvisorPtrOutputWithContext(ctx context.Context) AgentAdvisorPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(AgentAdvisorOutput).ToAgentAdvisorPtrOutputWithContext(ctx)
+}
+
+// AgentAdvisorPtrInput is an input type that accepts AgentAdvisorArgs, AgentAdvisorPtr and AgentAdvisorPtrOutput values.
+// You can construct a concrete instance of `AgentAdvisorPtrInput` via:
+//
+//	        AgentAdvisorArgs{...}
+//
+//	or:
+//
+//	        nil
+type AgentAdvisorPtrInput interface {
+	pulumi.Input
+
+	ToAgentAdvisorPtrOutput() AgentAdvisorPtrOutput
+	ToAgentAdvisorPtrOutputWithContext(context.Context) AgentAdvisorPtrOutput
+}
+
+type agentAdvisorPtrType AgentAdvisorArgs
+
+func AgentAdvisorPtr(v *AgentAdvisorArgs) AgentAdvisorPtrInput {
+	return (*agentAdvisorPtrType)(v)
+}
+
+func (*agentAdvisorPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**AgentAdvisor)(nil)).Elem()
+}
+
+func (i *agentAdvisorPtrType) ToAgentAdvisorPtrOutput() AgentAdvisorPtrOutput {
+	return i.ToAgentAdvisorPtrOutputWithContext(context.Background())
+}
+
+func (i *agentAdvisorPtrType) ToAgentAdvisorPtrOutputWithContext(ctx context.Context) AgentAdvisorPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(AgentAdvisorPtrOutput)
+}
+
+// Controls whether the primary thread can consult an advisor model.
+type AgentAdvisorOutput struct{ *pulumi.OutputState }
+
+func (AgentAdvisorOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*AgentAdvisor)(nil)).Elem()
+}
+
+func (o AgentAdvisorOutput) ToAgentAdvisorOutput() AgentAdvisorOutput {
+	return o
+}
+
+func (o AgentAdvisorOutput) ToAgentAdvisorOutputWithContext(ctx context.Context) AgentAdvisorOutput {
+	return o
+}
+
+func (o AgentAdvisorOutput) ToAgentAdvisorPtrOutput() AgentAdvisorPtrOutput {
+	return o.ToAgentAdvisorPtrOutputWithContext(context.Background())
+}
+
+func (o AgentAdvisorOutput) ToAgentAdvisorPtrOutputWithContext(ctx context.Context) AgentAdvisorPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v AgentAdvisor) *AgentAdvisor {
+		return &v
+	}).(AgentAdvisorPtrOutput)
+}
+
+// Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+func (o AgentAdvisorOutput) Model() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v AgentAdvisor) *string { return v.Model }).(pulumi.StringPtrOutput)
+}
+
+// enabled or disabled.
+func (o AgentAdvisorOutput) Type() pulumi.StringOutput {
+	return o.ApplyT(func(v AgentAdvisor) string { return v.Type }).(pulumi.StringOutput)
+}
+
+type AgentAdvisorPtrOutput struct{ *pulumi.OutputState }
+
+func (AgentAdvisorPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**AgentAdvisor)(nil)).Elem()
+}
+
+func (o AgentAdvisorPtrOutput) ToAgentAdvisorPtrOutput() AgentAdvisorPtrOutput {
+	return o
+}
+
+func (o AgentAdvisorPtrOutput) ToAgentAdvisorPtrOutputWithContext(ctx context.Context) AgentAdvisorPtrOutput {
+	return o
+}
+
+func (o AgentAdvisorPtrOutput) Elem() AgentAdvisorOutput {
+	return o.ApplyT(func(v *AgentAdvisor) AgentAdvisor {
+		if v != nil {
+			return *v
+		}
+		var ret AgentAdvisor
+		return ret
+	}).(AgentAdvisorOutput)
+}
+
+// Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+func (o AgentAdvisorPtrOutput) Model() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *AgentAdvisor) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Model
+	}).(pulumi.StringPtrOutput)
+}
+
+// enabled or disabled.
+func (o AgentAdvisorPtrOutput) Type() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *AgentAdvisor) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Type
+	}).(pulumi.StringPtrOutput)
+}
+
+// Controls subagent or workflow delegation independently.
+type AgentDelegation struct {
+	// enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+	InlineAgents *string `pulumi:"inlineAgents"`
+	// At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+	PredefinedAgents []RosterEntry `pulumi:"predefinedAgents"`
+	// enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+	Type string `pulumi:"type"`
+}
+
+// AgentDelegationInput is an input type that accepts AgentDelegationArgs and AgentDelegationOutput values.
+// You can construct a concrete instance of `AgentDelegationInput` via:
+//
+//	AgentDelegationArgs{...}
+type AgentDelegationInput interface {
+	pulumi.Input
+
+	ToAgentDelegationOutput() AgentDelegationOutput
+	ToAgentDelegationOutputWithContext(context.Context) AgentDelegationOutput
+}
+
+// Controls subagent or workflow delegation independently.
+type AgentDelegationArgs struct {
+	// enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+	InlineAgents pulumi.StringPtrInput `pulumi:"inlineAgents"`
+	// At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+	PredefinedAgents RosterEntryArrayInput `pulumi:"predefinedAgents"`
+	// enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+	Type pulumi.StringInput `pulumi:"type"`
+}
+
+func (AgentDelegationArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*AgentDelegation)(nil)).Elem()
+}
+
+func (i AgentDelegationArgs) ToAgentDelegationOutput() AgentDelegationOutput {
+	return i.ToAgentDelegationOutputWithContext(context.Background())
+}
+
+func (i AgentDelegationArgs) ToAgentDelegationOutputWithContext(ctx context.Context) AgentDelegationOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(AgentDelegationOutput)
+}
+
+func (i AgentDelegationArgs) ToAgentDelegationPtrOutput() AgentDelegationPtrOutput {
+	return i.ToAgentDelegationPtrOutputWithContext(context.Background())
+}
+
+func (i AgentDelegationArgs) ToAgentDelegationPtrOutputWithContext(ctx context.Context) AgentDelegationPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(AgentDelegationOutput).ToAgentDelegationPtrOutputWithContext(ctx)
+}
+
+// AgentDelegationPtrInput is an input type that accepts AgentDelegationArgs, AgentDelegationPtr and AgentDelegationPtrOutput values.
+// You can construct a concrete instance of `AgentDelegationPtrInput` via:
+//
+//	        AgentDelegationArgs{...}
+//
+//	or:
+//
+//	        nil
+type AgentDelegationPtrInput interface {
+	pulumi.Input
+
+	ToAgentDelegationPtrOutput() AgentDelegationPtrOutput
+	ToAgentDelegationPtrOutputWithContext(context.Context) AgentDelegationPtrOutput
+}
+
+type agentDelegationPtrType AgentDelegationArgs
+
+func AgentDelegationPtr(v *AgentDelegationArgs) AgentDelegationPtrInput {
+	return (*agentDelegationPtrType)(v)
+}
+
+func (*agentDelegationPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**AgentDelegation)(nil)).Elem()
+}
+
+func (i *agentDelegationPtrType) ToAgentDelegationPtrOutput() AgentDelegationPtrOutput {
+	return i.ToAgentDelegationPtrOutputWithContext(context.Background())
+}
+
+func (i *agentDelegationPtrType) ToAgentDelegationPtrOutputWithContext(ctx context.Context) AgentDelegationPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(AgentDelegationPtrOutput)
+}
+
+// Controls subagent or workflow delegation independently.
+type AgentDelegationOutput struct{ *pulumi.OutputState }
+
+func (AgentDelegationOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*AgentDelegation)(nil)).Elem()
+}
+
+func (o AgentDelegationOutput) ToAgentDelegationOutput() AgentDelegationOutput {
+	return o
+}
+
+func (o AgentDelegationOutput) ToAgentDelegationOutputWithContext(ctx context.Context) AgentDelegationOutput {
+	return o
+}
+
+func (o AgentDelegationOutput) ToAgentDelegationPtrOutput() AgentDelegationPtrOutput {
+	return o.ToAgentDelegationPtrOutputWithContext(context.Background())
+}
+
+func (o AgentDelegationOutput) ToAgentDelegationPtrOutputWithContext(ctx context.Context) AgentDelegationPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v AgentDelegation) *AgentDelegation {
+		return &v
+	}).(AgentDelegationPtrOutput)
+}
+
+// enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+func (o AgentDelegationOutput) InlineAgents() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v AgentDelegation) *string { return v.InlineAgents }).(pulumi.StringPtrOutput)
+}
+
+// At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+func (o AgentDelegationOutput) PredefinedAgents() RosterEntryArrayOutput {
+	return o.ApplyT(func(v AgentDelegation) []RosterEntry { return v.PredefinedAgents }).(RosterEntryArrayOutput)
+}
+
+// enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+func (o AgentDelegationOutput) Type() pulumi.StringOutput {
+	return o.ApplyT(func(v AgentDelegation) string { return v.Type }).(pulumi.StringOutput)
+}
+
+type AgentDelegationPtrOutput struct{ *pulumi.OutputState }
+
+func (AgentDelegationPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**AgentDelegation)(nil)).Elem()
+}
+
+func (o AgentDelegationPtrOutput) ToAgentDelegationPtrOutput() AgentDelegationPtrOutput {
+	return o
+}
+
+func (o AgentDelegationPtrOutput) ToAgentDelegationPtrOutputWithContext(ctx context.Context) AgentDelegationPtrOutput {
+	return o
+}
+
+func (o AgentDelegationPtrOutput) Elem() AgentDelegationOutput {
+	return o.ApplyT(func(v *AgentDelegation) AgentDelegation {
+		if v != nil {
+			return *v
+		}
+		var ret AgentDelegation
+		return ret
+	}).(AgentDelegationOutput)
+}
+
+// enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+func (o AgentDelegationPtrOutput) InlineAgents() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *AgentDelegation) *string {
+		if v == nil {
+			return nil
+		}
+		return v.InlineAgents
+	}).(pulumi.StringPtrOutput)
+}
+
+// At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+func (o AgentDelegationPtrOutput) PredefinedAgents() RosterEntryArrayOutput {
+	return o.ApplyT(func(v *AgentDelegation) []RosterEntry {
+		if v == nil {
+			return nil
+		}
+		return v.PredefinedAgents
+	}).(RosterEntryArrayOutput)
+}
+
+// enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+func (o AgentDelegationPtrOutput) Type() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *AgentDelegation) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Type
+	}).(pulumi.StringPtrOutput)
+}
+
 type AgentReference struct {
 	// The agent's ID.
 	Id string `pulumi:"id"`
-	// The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+	// The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
 	Version *int `pulumi:"version"`
 }
 
@@ -34,7 +371,7 @@ type AgentReferenceInput interface {
 type AgentReferenceArgs struct {
 	// The agent's ID.
 	Id pulumi.StringInput `pulumi:"id"`
-	// The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+	// The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
 	Version pulumi.IntPtrInput `pulumi:"version"`
 }
 
@@ -69,13 +406,13 @@ func (o AgentReferenceOutput) Id() pulumi.StringOutput {
 	return o.ApplyT(func(v AgentReference) string { return v.Id }).(pulumi.StringOutput)
 }
 
-// The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+// The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
 func (o AgentReferenceOutput) Version() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v AgentReference) *int { return v.Version }).(pulumi.IntPtrOutput)
 }
 
 type Budget struct {
-	// The most the deployment may spend, at list price.
+	// The most each future session may spend at public list prices, rather than negotiated prices.
 	MaxListCost MonetaryAmount `pulumi:"maxListCost"`
 }
 
@@ -91,7 +428,7 @@ type BudgetInput interface {
 }
 
 type BudgetArgs struct {
-	// The most the deployment may spend, at list price.
+	// The most each future session may spend at public list prices, rather than negotiated prices.
 	MaxListCost MonetaryAmountInput `pulumi:"maxListCost"`
 }
 
@@ -172,7 +509,7 @@ func (o BudgetOutput) ToBudgetPtrOutputWithContext(ctx context.Context) BudgetPt
 	}).(BudgetPtrOutput)
 }
 
-// The most the deployment may spend, at list price.
+// The most each future session may spend at public list prices, rather than negotiated prices.
 func (o BudgetOutput) MaxListCost() MonetaryAmountOutput {
 	return o.ApplyT(func(v Budget) MonetaryAmount { return v.MaxListCost }).(MonetaryAmountOutput)
 }
@@ -201,7 +538,7 @@ func (o BudgetPtrOutput) Elem() BudgetOutput {
 	}).(BudgetOutput)
 }
 
-// The most the deployment may spend, at list price.
+// The most each future session may spend at public list prices, rather than negotiated prices.
 func (o BudgetPtrOutput) MaxListCost() MonetaryAmountPtrOutput {
 	return o.ApplyT(func(v *Budget) *MonetaryAmount {
 		if v == nil {
@@ -212,9 +549,9 @@ func (o BudgetPtrOutput) MaxListCost() MonetaryAmountPtrOutput {
 }
 
 type Checkout struct {
-	// The branch. Required for `branch`.
+	// The branch. Required for branch.
 	Name *string `pulumi:"name"`
-	// The commit SHA. Required for `commit`.
+	// The commit SHA. Required for commit.
 	Sha *string `pulumi:"sha"`
 	// Whether to check out a branch or a commit.
 	Type CheckoutType `pulumi:"type"`
@@ -232,9 +569,9 @@ type CheckoutInput interface {
 }
 
 type CheckoutArgs struct {
-	// The branch. Required for `branch`.
+	// The branch. Required for branch.
 	Name pulumi.StringPtrInput `pulumi:"name"`
-	// The commit SHA. Required for `commit`.
+	// The commit SHA. Required for commit.
 	Sha pulumi.StringPtrInput `pulumi:"sha"`
 	// Whether to check out a branch or a commit.
 	Type CheckoutTypeInput `pulumi:"type"`
@@ -317,12 +654,12 @@ func (o CheckoutOutput) ToCheckoutPtrOutputWithContext(ctx context.Context) Chec
 	}).(CheckoutPtrOutput)
 }
 
-// The branch. Required for `branch`.
+// The branch. Required for branch.
 func (o CheckoutOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Checkout) *string { return v.Name }).(pulumi.StringPtrOutput)
 }
 
-// The commit SHA. Required for `commit`.
+// The commit SHA. Required for commit.
 func (o CheckoutOutput) Sha() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Checkout) *string { return v.Sha }).(pulumi.StringPtrOutput)
 }
@@ -356,7 +693,7 @@ func (o CheckoutPtrOutput) Elem() CheckoutOutput {
 	}).(CheckoutOutput)
 }
 
-// The branch. Required for `branch`.
+// The branch. Required for branch.
 func (o CheckoutPtrOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Checkout) *string {
 		if v == nil {
@@ -366,7 +703,7 @@ func (o CheckoutPtrOutput) Name() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// The commit SHA. Required for `commit`.
+// The commit SHA. Required for commit.
 func (o CheckoutPtrOutput) Sha() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Checkout) *string {
 		if v == nil {
@@ -389,7 +726,7 @@ func (o CheckoutPtrOutput) Type() CheckoutTypePtrOutput {
 type CredentialAuth struct {
 	// The OAuth access token. Required for `mcp_oauth`.
 	AccessToken *string `pulumi:"accessToken"`
-	// When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+	// When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
 	ExpiresAt *string `pulumi:"expiresAt"`
 	// Where in outbound requests the secret is injected. For `environment_variable`; both locations are enabled when omitted.
 	InjectionLocation *InjectionLocation `pulumi:"injectionLocation"`
@@ -423,7 +760,7 @@ type CredentialAuthInput interface {
 type CredentialAuthArgs struct {
 	// The OAuth access token. Required for `mcp_oauth`.
 	AccessToken pulumi.StringPtrInput `pulumi:"accessToken"`
-	// When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+	// When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
 	ExpiresAt pulumi.StringPtrInput `pulumi:"expiresAt"`
 	// Where in outbound requests the secret is injected. For `environment_variable`; both locations are enabled when omitted.
 	InjectionLocation InjectionLocationPtrInput `pulumi:"injectionLocation"`
@@ -474,7 +811,7 @@ func (o CredentialAuthOutput) AccessToken() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v CredentialAuth) *string { return v.AccessToken }).(pulumi.StringPtrOutput)
 }
 
-// When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+// When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
 func (o CredentialAuthOutput) ExpiresAt() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v CredentialAuth) *string { return v.ExpiresAt }).(pulumi.StringPtrOutput)
 }
@@ -676,23 +1013,23 @@ func (o CredentialNetworkingPtrOutput) Type() NetworkingTypePtrOutput {
 }
 
 type DeploymentResource struct {
-	// Whether the agent can write to the memory store. For `memory_store`.
+	// Whether the agent can write to the memory store. For memory_store; defaults to read_write.
 	Access *MemoryAccess `pulumi:"access"`
-	// A token that can read the repository. For `github_repository`.
+	// A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
 	AuthorizationToken *string `pulumi:"authorizationToken"`
-	// The branch or commit to check out. For `github_repository`; defaults to the default branch.
+	// The branch or commit to check out. For github_repository; defaults to the default branch.
 	Checkout *Checkout `pulumi:"checkout"`
-	// The file's ID. Required for `file`.
+	// The file's ID. Required for file.
 	FileId *string `pulumi:"fileId"`
-	// How the agent should use the memory store. For `memory_store`.
+	// How the agent should use the memory store. For memory_store; at most 4096 characters.
 	Instructions *string `pulumi:"instructions"`
-	// The memory store's ID. Required for `memory_store`.
+	// The memory store's ID. Required for memory_store.
 	MemoryStoreId *string `pulumi:"memoryStoreId"`
-	// Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+	// Where the resource is mounted in the sandbox. For github_repository and file.
 	MountPath *string `pulumi:"mountPath"`
 	// The kind of resource.
 	Type DeploymentResourceType `pulumi:"type"`
-	// The repository's URL. Required for `github_repository`.
+	// The repository's URL. Required for github_repository.
 	Url *string `pulumi:"url"`
 }
 
@@ -708,23 +1045,23 @@ type DeploymentResourceInput interface {
 }
 
 type DeploymentResourceArgs struct {
-	// Whether the agent can write to the memory store. For `memory_store`.
+	// Whether the agent can write to the memory store. For memory_store; defaults to read_write.
 	Access MemoryAccessPtrInput `pulumi:"access"`
-	// A token that can read the repository. For `github_repository`.
+	// A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
 	AuthorizationToken pulumi.StringPtrInput `pulumi:"authorizationToken"`
-	// The branch or commit to check out. For `github_repository`; defaults to the default branch.
+	// The branch or commit to check out. For github_repository; defaults to the default branch.
 	Checkout CheckoutPtrInput `pulumi:"checkout"`
-	// The file's ID. Required for `file`.
+	// The file's ID. Required for file.
 	FileId pulumi.StringPtrInput `pulumi:"fileId"`
-	// How the agent should use the memory store. For `memory_store`.
+	// How the agent should use the memory store. For memory_store; at most 4096 characters.
 	Instructions pulumi.StringPtrInput `pulumi:"instructions"`
-	// The memory store's ID. Required for `memory_store`.
+	// The memory store's ID. Required for memory_store.
 	MemoryStoreId pulumi.StringPtrInput `pulumi:"memoryStoreId"`
-	// Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+	// Where the resource is mounted in the sandbox. For github_repository and file.
 	MountPath pulumi.StringPtrInput `pulumi:"mountPath"`
 	// The kind of resource.
 	Type DeploymentResourceTypeInput `pulumi:"type"`
-	// The repository's URL. Required for `github_repository`.
+	// The repository's URL. Required for github_repository.
 	Url pulumi.StringPtrInput `pulumi:"url"`
 }
 
@@ -779,37 +1116,37 @@ func (o DeploymentResourceOutput) ToDeploymentResourceOutputWithContext(ctx cont
 	return o
 }
 
-// Whether the agent can write to the memory store. For `memory_store`.
+// Whether the agent can write to the memory store. For memory_store; defaults to read_write.
 func (o DeploymentResourceOutput) Access() MemoryAccessPtrOutput {
 	return o.ApplyT(func(v DeploymentResource) *MemoryAccess { return v.Access }).(MemoryAccessPtrOutput)
 }
 
-// A token that can read the repository. For `github_repository`.
+// A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
 func (o DeploymentResourceOutput) AuthorizationToken() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DeploymentResource) *string { return v.AuthorizationToken }).(pulumi.StringPtrOutput)
 }
 
-// The branch or commit to check out. For `github_repository`; defaults to the default branch.
+// The branch or commit to check out. For github_repository; defaults to the default branch.
 func (o DeploymentResourceOutput) Checkout() CheckoutPtrOutput {
 	return o.ApplyT(func(v DeploymentResource) *Checkout { return v.Checkout }).(CheckoutPtrOutput)
 }
 
-// The file's ID. Required for `file`.
+// The file's ID. Required for file.
 func (o DeploymentResourceOutput) FileId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DeploymentResource) *string { return v.FileId }).(pulumi.StringPtrOutput)
 }
 
-// How the agent should use the memory store. For `memory_store`.
+// How the agent should use the memory store. For memory_store; at most 4096 characters.
 func (o DeploymentResourceOutput) Instructions() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DeploymentResource) *string { return v.Instructions }).(pulumi.StringPtrOutput)
 }
 
-// The memory store's ID. Required for `memory_store`.
+// The memory store's ID. Required for memory_store.
 func (o DeploymentResourceOutput) MemoryStoreId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DeploymentResource) *string { return v.MemoryStoreId }).(pulumi.StringPtrOutput)
 }
 
-// Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+// Where the resource is mounted in the sandbox. For github_repository and file.
 func (o DeploymentResourceOutput) MountPath() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DeploymentResource) *string { return v.MountPath }).(pulumi.StringPtrOutput)
 }
@@ -819,7 +1156,7 @@ func (o DeploymentResourceOutput) Type() DeploymentResourceTypeOutput {
 	return o.ApplyT(func(v DeploymentResource) DeploymentResourceType { return v.Type }).(DeploymentResourceTypeOutput)
 }
 
-// The repository's URL. Required for `github_repository`.
+// The repository's URL. Required for github_repository.
 func (o DeploymentResourceOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DeploymentResource) *string { return v.Url }).(pulumi.StringPtrOutput)
 }
@@ -845,9 +1182,9 @@ func (o DeploymentResourceArrayOutput) Index(i pulumi.IntInput) DeploymentResour
 }
 
 type EnvironmentConfig struct {
-	// The sandbox's network access. Applies to `cloud`.
+	// The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
 	Networking *EnvironmentNetworking `pulumi:"networking"`
-	// Packages installed in the sandbox. Applies to `cloud`.
+	// Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
 	Packages *Packages `pulumi:"packages"`
 	// Whether sessions run in an Anthropic-managed cloud sandbox or on your own infrastructure. Changing it replaces the environment.
 	Type EnvironmentType `pulumi:"type"`
@@ -865,9 +1202,9 @@ type EnvironmentConfigInput interface {
 }
 
 type EnvironmentConfigArgs struct {
-	// The sandbox's network access. Applies to `cloud`.
+	// The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
 	Networking EnvironmentNetworkingPtrInput `pulumi:"networking"`
-	// Packages installed in the sandbox. Applies to `cloud`.
+	// Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
 	Packages PackagesPtrInput `pulumi:"packages"`
 	// Whether sessions run in an Anthropic-managed cloud sandbox or on your own infrastructure. Changing it replaces the environment.
 	Type EnvironmentTypeInput `pulumi:"type"`
@@ -950,12 +1287,12 @@ func (o EnvironmentConfigOutput) ToEnvironmentConfigPtrOutputWithContext(ctx con
 	}).(EnvironmentConfigPtrOutput)
 }
 
-// The sandbox's network access. Applies to `cloud`.
+// The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
 func (o EnvironmentConfigOutput) Networking() EnvironmentNetworkingPtrOutput {
 	return o.ApplyT(func(v EnvironmentConfig) *EnvironmentNetworking { return v.Networking }).(EnvironmentNetworkingPtrOutput)
 }
 
-// Packages installed in the sandbox. Applies to `cloud`.
+// Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
 func (o EnvironmentConfigOutput) Packages() PackagesPtrOutput {
 	return o.ApplyT(func(v EnvironmentConfig) *Packages { return v.Packages }).(PackagesPtrOutput)
 }
@@ -989,7 +1326,7 @@ func (o EnvironmentConfigPtrOutput) Elem() EnvironmentConfigOutput {
 	}).(EnvironmentConfigOutput)
 }
 
-// The sandbox's network access. Applies to `cloud`.
+// The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
 func (o EnvironmentConfigPtrOutput) Networking() EnvironmentNetworkingPtrOutput {
 	return o.ApplyT(func(v *EnvironmentConfig) *EnvironmentNetworking {
 		if v == nil {
@@ -999,7 +1336,7 @@ func (o EnvironmentConfigPtrOutput) Networking() EnvironmentNetworkingPtrOutput 
 	}).(EnvironmentNetworkingPtrOutput)
 }
 
-// Packages installed in the sandbox. Applies to `cloud`.
+// Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
 func (o EnvironmentConfigPtrOutput) Packages() PackagesPtrOutput {
 	return o.ApplyT(func(v *EnvironmentConfig) *Packages {
 		if v == nil {
@@ -1020,11 +1357,11 @@ func (o EnvironmentConfigPtrOutput) Type() EnvironmentTypePtrOutput {
 }
 
 type EnvironmentNetworking struct {
-	// Whether the agent's MCP servers are reachable. Applies to `limited`.
+	// Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
 	AllowMcpServers *bool `pulumi:"allowMcpServers"`
-	// Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+	// Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
 	AllowPackageManagers *bool `pulumi:"allowPackageManagers"`
-	// Hosts the sandbox can reach. Applies to `limited`.
+	// Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
 	AllowedHosts []string `pulumi:"allowedHosts"`
 	// Whether network access is unrestricted or limited.
 	Type NetworkingType `pulumi:"type"`
@@ -1042,11 +1379,11 @@ type EnvironmentNetworkingInput interface {
 }
 
 type EnvironmentNetworkingArgs struct {
-	// Whether the agent's MCP servers are reachable. Applies to `limited`.
+	// Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
 	AllowMcpServers pulumi.BoolPtrInput `pulumi:"allowMcpServers"`
-	// Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+	// Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
 	AllowPackageManagers pulumi.BoolPtrInput `pulumi:"allowPackageManagers"`
-	// Hosts the sandbox can reach. Applies to `limited`.
+	// Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
 	AllowedHosts pulumi.StringArrayInput `pulumi:"allowedHosts"`
 	// Whether network access is unrestricted or limited.
 	Type NetworkingTypeInput `pulumi:"type"`
@@ -1129,17 +1466,17 @@ func (o EnvironmentNetworkingOutput) ToEnvironmentNetworkingPtrOutputWithContext
 	}).(EnvironmentNetworkingPtrOutput)
 }
 
-// Whether the agent's MCP servers are reachable. Applies to `limited`.
+// Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
 func (o EnvironmentNetworkingOutput) AllowMcpServers() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v EnvironmentNetworking) *bool { return v.AllowMcpServers }).(pulumi.BoolPtrOutput)
 }
 
-// Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+// Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
 func (o EnvironmentNetworkingOutput) AllowPackageManagers() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v EnvironmentNetworking) *bool { return v.AllowPackageManagers }).(pulumi.BoolPtrOutput)
 }
 
-// Hosts the sandbox can reach. Applies to `limited`.
+// Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
 func (o EnvironmentNetworkingOutput) AllowedHosts() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v EnvironmentNetworking) []string { return v.AllowedHosts }).(pulumi.StringArrayOutput)
 }
@@ -1173,7 +1510,7 @@ func (o EnvironmentNetworkingPtrOutput) Elem() EnvironmentNetworkingOutput {
 	}).(EnvironmentNetworkingOutput)
 }
 
-// Whether the agent's MCP servers are reachable. Applies to `limited`.
+// Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
 func (o EnvironmentNetworkingPtrOutput) AllowMcpServers() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v *EnvironmentNetworking) *bool {
 		if v == nil {
@@ -1183,7 +1520,7 @@ func (o EnvironmentNetworkingPtrOutput) AllowMcpServers() pulumi.BoolPtrOutput {
 	}).(pulumi.BoolPtrOutput)
 }
 
-// Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+// Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
 func (o EnvironmentNetworkingPtrOutput) AllowPackageManagers() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v *EnvironmentNetworking) *bool {
 		if v == nil {
@@ -1193,7 +1530,7 @@ func (o EnvironmentNetworkingPtrOutput) AllowPackageManagers() pulumi.BoolPtrOut
 	}).(pulumi.BoolPtrOutput)
 }
 
-// Hosts the sandbox can reach. Applies to `limited`.
+// Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
 func (o EnvironmentNetworkingPtrOutput) AllowedHosts() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *EnvironmentNetworking) []string {
 		if v == nil {
@@ -1211,6 +1548,502 @@ func (o EnvironmentNetworkingPtrOutput) Type() NetworkingTypePtrOutput {
 		}
 		return &v.Type
 	}).(NetworkingTypePtrOutput)
+}
+
+// Execution principal for agent runs. Configuring a principal does not grant its permissions.
+type ExecutionIdentity struct {
+	// AWS IAM role ARN. Required only for aws_role.
+	RoleArn *string `pulumi:"roleArn"`
+	// aws_role or service_account. service_account restores the default principal.
+	Type string `pulumi:"type"`
+}
+
+// ExecutionIdentityInput is an input type that accepts ExecutionIdentityArgs and ExecutionIdentityOutput values.
+// You can construct a concrete instance of `ExecutionIdentityInput` via:
+//
+//	ExecutionIdentityArgs{...}
+type ExecutionIdentityInput interface {
+	pulumi.Input
+
+	ToExecutionIdentityOutput() ExecutionIdentityOutput
+	ToExecutionIdentityOutputWithContext(context.Context) ExecutionIdentityOutput
+}
+
+// Execution principal for agent runs. Configuring a principal does not grant its permissions.
+type ExecutionIdentityArgs struct {
+	// AWS IAM role ARN. Required only for aws_role.
+	RoleArn pulumi.StringPtrInput `pulumi:"roleArn"`
+	// aws_role or service_account. service_account restores the default principal.
+	Type pulumi.StringInput `pulumi:"type"`
+}
+
+func (ExecutionIdentityArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*ExecutionIdentity)(nil)).Elem()
+}
+
+func (i ExecutionIdentityArgs) ToExecutionIdentityOutput() ExecutionIdentityOutput {
+	return i.ToExecutionIdentityOutputWithContext(context.Background())
+}
+
+func (i ExecutionIdentityArgs) ToExecutionIdentityOutputWithContext(ctx context.Context) ExecutionIdentityOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ExecutionIdentityOutput)
+}
+
+func (i ExecutionIdentityArgs) ToExecutionIdentityPtrOutput() ExecutionIdentityPtrOutput {
+	return i.ToExecutionIdentityPtrOutputWithContext(context.Background())
+}
+
+func (i ExecutionIdentityArgs) ToExecutionIdentityPtrOutputWithContext(ctx context.Context) ExecutionIdentityPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ExecutionIdentityOutput).ToExecutionIdentityPtrOutputWithContext(ctx)
+}
+
+// ExecutionIdentityPtrInput is an input type that accepts ExecutionIdentityArgs, ExecutionIdentityPtr and ExecutionIdentityPtrOutput values.
+// You can construct a concrete instance of `ExecutionIdentityPtrInput` via:
+//
+//	        ExecutionIdentityArgs{...}
+//
+//	or:
+//
+//	        nil
+type ExecutionIdentityPtrInput interface {
+	pulumi.Input
+
+	ToExecutionIdentityPtrOutput() ExecutionIdentityPtrOutput
+	ToExecutionIdentityPtrOutputWithContext(context.Context) ExecutionIdentityPtrOutput
+}
+
+type executionIdentityPtrType ExecutionIdentityArgs
+
+func ExecutionIdentityPtr(v *ExecutionIdentityArgs) ExecutionIdentityPtrInput {
+	return (*executionIdentityPtrType)(v)
+}
+
+func (*executionIdentityPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**ExecutionIdentity)(nil)).Elem()
+}
+
+func (i *executionIdentityPtrType) ToExecutionIdentityPtrOutput() ExecutionIdentityPtrOutput {
+	return i.ToExecutionIdentityPtrOutputWithContext(context.Background())
+}
+
+func (i *executionIdentityPtrType) ToExecutionIdentityPtrOutputWithContext(ctx context.Context) ExecutionIdentityPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ExecutionIdentityPtrOutput)
+}
+
+// Execution principal for agent runs. Configuring a principal does not grant its permissions.
+type ExecutionIdentityOutput struct{ *pulumi.OutputState }
+
+func (ExecutionIdentityOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*ExecutionIdentity)(nil)).Elem()
+}
+
+func (o ExecutionIdentityOutput) ToExecutionIdentityOutput() ExecutionIdentityOutput {
+	return o
+}
+
+func (o ExecutionIdentityOutput) ToExecutionIdentityOutputWithContext(ctx context.Context) ExecutionIdentityOutput {
+	return o
+}
+
+func (o ExecutionIdentityOutput) ToExecutionIdentityPtrOutput() ExecutionIdentityPtrOutput {
+	return o.ToExecutionIdentityPtrOutputWithContext(context.Background())
+}
+
+func (o ExecutionIdentityOutput) ToExecutionIdentityPtrOutputWithContext(ctx context.Context) ExecutionIdentityPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v ExecutionIdentity) *ExecutionIdentity {
+		return &v
+	}).(ExecutionIdentityPtrOutput)
+}
+
+// AWS IAM role ARN. Required only for aws_role.
+func (o ExecutionIdentityOutput) RoleArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v ExecutionIdentity) *string { return v.RoleArn }).(pulumi.StringPtrOutput)
+}
+
+// aws_role or service_account. service_account restores the default principal.
+func (o ExecutionIdentityOutput) Type() pulumi.StringOutput {
+	return o.ApplyT(func(v ExecutionIdentity) string { return v.Type }).(pulumi.StringOutput)
+}
+
+type ExecutionIdentityPtrOutput struct{ *pulumi.OutputState }
+
+func (ExecutionIdentityPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**ExecutionIdentity)(nil)).Elem()
+}
+
+func (o ExecutionIdentityPtrOutput) ToExecutionIdentityPtrOutput() ExecutionIdentityPtrOutput {
+	return o
+}
+
+func (o ExecutionIdentityPtrOutput) ToExecutionIdentityPtrOutputWithContext(ctx context.Context) ExecutionIdentityPtrOutput {
+	return o
+}
+
+func (o ExecutionIdentityPtrOutput) Elem() ExecutionIdentityOutput {
+	return o.ApplyT(func(v *ExecutionIdentity) ExecutionIdentity {
+		if v != nil {
+			return *v
+		}
+		var ret ExecutionIdentity
+		return ret
+	}).(ExecutionIdentityOutput)
+}
+
+// AWS IAM role ARN. Required only for aws_role.
+func (o ExecutionIdentityPtrOutput) RoleArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ExecutionIdentity) *string {
+		if v == nil {
+			return nil
+		}
+		return v.RoleArn
+	}).(pulumi.StringPtrOutput)
+}
+
+// aws_role or service_account. service_account restores the default principal.
+func (o ExecutionIdentityPtrOutput) Type() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ExecutionIdentity) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Type
+	}).(pulumi.StringPtrOutput)
+}
+
+// Selects tool results whose URLs may be fetched.
+type FetchToolFilter struct {
+	// Exact case-sensitive tool names for only or except.
+	Tools []string `pulumi:"tools"`
+	// all, none, only or except. only and except require a tools list.
+	Type string `pulumi:"type"`
+}
+
+// FetchToolFilterInput is an input type that accepts FetchToolFilterArgs and FetchToolFilterOutput values.
+// You can construct a concrete instance of `FetchToolFilterInput` via:
+//
+//	FetchToolFilterArgs{...}
+type FetchToolFilterInput interface {
+	pulumi.Input
+
+	ToFetchToolFilterOutput() FetchToolFilterOutput
+	ToFetchToolFilterOutputWithContext(context.Context) FetchToolFilterOutput
+}
+
+// Selects tool results whose URLs may be fetched.
+type FetchToolFilterArgs struct {
+	// Exact case-sensitive tool names for only or except.
+	Tools pulumi.StringArrayInput `pulumi:"tools"`
+	// all, none, only or except. only and except require a tools list.
+	Type pulumi.StringInput `pulumi:"type"`
+}
+
+func (FetchToolFilterArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*FetchToolFilter)(nil)).Elem()
+}
+
+func (i FetchToolFilterArgs) ToFetchToolFilterOutput() FetchToolFilterOutput {
+	return i.ToFetchToolFilterOutputWithContext(context.Background())
+}
+
+func (i FetchToolFilterArgs) ToFetchToolFilterOutputWithContext(ctx context.Context) FetchToolFilterOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(FetchToolFilterOutput)
+}
+
+func (i FetchToolFilterArgs) ToFetchToolFilterPtrOutput() FetchToolFilterPtrOutput {
+	return i.ToFetchToolFilterPtrOutputWithContext(context.Background())
+}
+
+func (i FetchToolFilterArgs) ToFetchToolFilterPtrOutputWithContext(ctx context.Context) FetchToolFilterPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(FetchToolFilterOutput).ToFetchToolFilterPtrOutputWithContext(ctx)
+}
+
+// FetchToolFilterPtrInput is an input type that accepts FetchToolFilterArgs, FetchToolFilterPtr and FetchToolFilterPtrOutput values.
+// You can construct a concrete instance of `FetchToolFilterPtrInput` via:
+//
+//	        FetchToolFilterArgs{...}
+//
+//	or:
+//
+//	        nil
+type FetchToolFilterPtrInput interface {
+	pulumi.Input
+
+	ToFetchToolFilterPtrOutput() FetchToolFilterPtrOutput
+	ToFetchToolFilterPtrOutputWithContext(context.Context) FetchToolFilterPtrOutput
+}
+
+type fetchToolFilterPtrType FetchToolFilterArgs
+
+func FetchToolFilterPtr(v *FetchToolFilterArgs) FetchToolFilterPtrInput {
+	return (*fetchToolFilterPtrType)(v)
+}
+
+func (*fetchToolFilterPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**FetchToolFilter)(nil)).Elem()
+}
+
+func (i *fetchToolFilterPtrType) ToFetchToolFilterPtrOutput() FetchToolFilterPtrOutput {
+	return i.ToFetchToolFilterPtrOutputWithContext(context.Background())
+}
+
+func (i *fetchToolFilterPtrType) ToFetchToolFilterPtrOutputWithContext(ctx context.Context) FetchToolFilterPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(FetchToolFilterPtrOutput)
+}
+
+// Selects tool results whose URLs may be fetched.
+type FetchToolFilterOutput struct{ *pulumi.OutputState }
+
+func (FetchToolFilterOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*FetchToolFilter)(nil)).Elem()
+}
+
+func (o FetchToolFilterOutput) ToFetchToolFilterOutput() FetchToolFilterOutput {
+	return o
+}
+
+func (o FetchToolFilterOutput) ToFetchToolFilterOutputWithContext(ctx context.Context) FetchToolFilterOutput {
+	return o
+}
+
+func (o FetchToolFilterOutput) ToFetchToolFilterPtrOutput() FetchToolFilterPtrOutput {
+	return o.ToFetchToolFilterPtrOutputWithContext(context.Background())
+}
+
+func (o FetchToolFilterOutput) ToFetchToolFilterPtrOutputWithContext(ctx context.Context) FetchToolFilterPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v FetchToolFilter) *FetchToolFilter {
+		return &v
+	}).(FetchToolFilterPtrOutput)
+}
+
+// Exact case-sensitive tool names for only or except.
+func (o FetchToolFilterOutput) Tools() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v FetchToolFilter) []string { return v.Tools }).(pulumi.StringArrayOutput)
+}
+
+// all, none, only or except. only and except require a tools list.
+func (o FetchToolFilterOutput) Type() pulumi.StringOutput {
+	return o.ApplyT(func(v FetchToolFilter) string { return v.Type }).(pulumi.StringOutput)
+}
+
+type FetchToolFilterPtrOutput struct{ *pulumi.OutputState }
+
+func (FetchToolFilterPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**FetchToolFilter)(nil)).Elem()
+}
+
+func (o FetchToolFilterPtrOutput) ToFetchToolFilterPtrOutput() FetchToolFilterPtrOutput {
+	return o
+}
+
+func (o FetchToolFilterPtrOutput) ToFetchToolFilterPtrOutputWithContext(ctx context.Context) FetchToolFilterPtrOutput {
+	return o
+}
+
+func (o FetchToolFilterPtrOutput) Elem() FetchToolFilterOutput {
+	return o.ApplyT(func(v *FetchToolFilter) FetchToolFilter {
+		if v != nil {
+			return *v
+		}
+		var ret FetchToolFilter
+		return ret
+	}).(FetchToolFilterOutput)
+}
+
+// Exact case-sensitive tool names for only or except.
+func (o FetchToolFilterPtrOutput) Tools() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *FetchToolFilter) []string {
+		if v == nil {
+			return nil
+		}
+		return v.Tools
+	}).(pulumi.StringArrayOutput)
+}
+
+// all, none, only or except. only and except require a tools list.
+func (o FetchToolFilterPtrOutput) Type() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *FetchToolFilter) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Type
+	}).(pulumi.StringPtrOutput)
+}
+
+// Conversation sources allowed to contribute fetchable URLs.
+type FetchURLSources struct {
+	// Filter for custom tool results. Tool names must refer to custom tools in this agent.
+	ClientToolResults *FetchToolFilter `pulumi:"clientToolResults"`
+	// Filter for built-in tool results. Listed names must be web_search or web_fetch.
+	ServerToolResults *FetchToolFilter `pulumi:"serverToolResults"`
+	// all or none, controlling URLs in user messages. Defaults to all.
+	UserInput *string `pulumi:"userInput"`
+}
+
+// FetchURLSourcesInput is an input type that accepts FetchURLSourcesArgs and FetchURLSourcesOutput values.
+// You can construct a concrete instance of `FetchURLSourcesInput` via:
+//
+//	FetchURLSourcesArgs{...}
+type FetchURLSourcesInput interface {
+	pulumi.Input
+
+	ToFetchURLSourcesOutput() FetchURLSourcesOutput
+	ToFetchURLSourcesOutputWithContext(context.Context) FetchURLSourcesOutput
+}
+
+// Conversation sources allowed to contribute fetchable URLs.
+type FetchURLSourcesArgs struct {
+	// Filter for custom tool results. Tool names must refer to custom tools in this agent.
+	ClientToolResults FetchToolFilterPtrInput `pulumi:"clientToolResults"`
+	// Filter for built-in tool results. Listed names must be web_search or web_fetch.
+	ServerToolResults FetchToolFilterPtrInput `pulumi:"serverToolResults"`
+	// all or none, controlling URLs in user messages. Defaults to all.
+	UserInput pulumi.StringPtrInput `pulumi:"userInput"`
+}
+
+func (FetchURLSourcesArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*FetchURLSources)(nil)).Elem()
+}
+
+func (i FetchURLSourcesArgs) ToFetchURLSourcesOutput() FetchURLSourcesOutput {
+	return i.ToFetchURLSourcesOutputWithContext(context.Background())
+}
+
+func (i FetchURLSourcesArgs) ToFetchURLSourcesOutputWithContext(ctx context.Context) FetchURLSourcesOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(FetchURLSourcesOutput)
+}
+
+func (i FetchURLSourcesArgs) ToFetchURLSourcesPtrOutput() FetchURLSourcesPtrOutput {
+	return i.ToFetchURLSourcesPtrOutputWithContext(context.Background())
+}
+
+func (i FetchURLSourcesArgs) ToFetchURLSourcesPtrOutputWithContext(ctx context.Context) FetchURLSourcesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(FetchURLSourcesOutput).ToFetchURLSourcesPtrOutputWithContext(ctx)
+}
+
+// FetchURLSourcesPtrInput is an input type that accepts FetchURLSourcesArgs, FetchURLSourcesPtr and FetchURLSourcesPtrOutput values.
+// You can construct a concrete instance of `FetchURLSourcesPtrInput` via:
+//
+//	        FetchURLSourcesArgs{...}
+//
+//	or:
+//
+//	        nil
+type FetchURLSourcesPtrInput interface {
+	pulumi.Input
+
+	ToFetchURLSourcesPtrOutput() FetchURLSourcesPtrOutput
+	ToFetchURLSourcesPtrOutputWithContext(context.Context) FetchURLSourcesPtrOutput
+}
+
+type fetchURLSourcesPtrType FetchURLSourcesArgs
+
+func FetchURLSourcesPtr(v *FetchURLSourcesArgs) FetchURLSourcesPtrInput {
+	return (*fetchURLSourcesPtrType)(v)
+}
+
+func (*fetchURLSourcesPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**FetchURLSources)(nil)).Elem()
+}
+
+func (i *fetchURLSourcesPtrType) ToFetchURLSourcesPtrOutput() FetchURLSourcesPtrOutput {
+	return i.ToFetchURLSourcesPtrOutputWithContext(context.Background())
+}
+
+func (i *fetchURLSourcesPtrType) ToFetchURLSourcesPtrOutputWithContext(ctx context.Context) FetchURLSourcesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(FetchURLSourcesPtrOutput)
+}
+
+// Conversation sources allowed to contribute fetchable URLs.
+type FetchURLSourcesOutput struct{ *pulumi.OutputState }
+
+func (FetchURLSourcesOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*FetchURLSources)(nil)).Elem()
+}
+
+func (o FetchURLSourcesOutput) ToFetchURLSourcesOutput() FetchURLSourcesOutput {
+	return o
+}
+
+func (o FetchURLSourcesOutput) ToFetchURLSourcesOutputWithContext(ctx context.Context) FetchURLSourcesOutput {
+	return o
+}
+
+func (o FetchURLSourcesOutput) ToFetchURLSourcesPtrOutput() FetchURLSourcesPtrOutput {
+	return o.ToFetchURLSourcesPtrOutputWithContext(context.Background())
+}
+
+func (o FetchURLSourcesOutput) ToFetchURLSourcesPtrOutputWithContext(ctx context.Context) FetchURLSourcesPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v FetchURLSources) *FetchURLSources {
+		return &v
+	}).(FetchURLSourcesPtrOutput)
+}
+
+// Filter for custom tool results. Tool names must refer to custom tools in this agent.
+func (o FetchURLSourcesOutput) ClientToolResults() FetchToolFilterPtrOutput {
+	return o.ApplyT(func(v FetchURLSources) *FetchToolFilter { return v.ClientToolResults }).(FetchToolFilterPtrOutput)
+}
+
+// Filter for built-in tool results. Listed names must be web_search or web_fetch.
+func (o FetchURLSourcesOutput) ServerToolResults() FetchToolFilterPtrOutput {
+	return o.ApplyT(func(v FetchURLSources) *FetchToolFilter { return v.ServerToolResults }).(FetchToolFilterPtrOutput)
+}
+
+// all or none, controlling URLs in user messages. Defaults to all.
+func (o FetchURLSourcesOutput) UserInput() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v FetchURLSources) *string { return v.UserInput }).(pulumi.StringPtrOutput)
+}
+
+type FetchURLSourcesPtrOutput struct{ *pulumi.OutputState }
+
+func (FetchURLSourcesPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**FetchURLSources)(nil)).Elem()
+}
+
+func (o FetchURLSourcesPtrOutput) ToFetchURLSourcesPtrOutput() FetchURLSourcesPtrOutput {
+	return o
+}
+
+func (o FetchURLSourcesPtrOutput) ToFetchURLSourcesPtrOutputWithContext(ctx context.Context) FetchURLSourcesPtrOutput {
+	return o
+}
+
+func (o FetchURLSourcesPtrOutput) Elem() FetchURLSourcesOutput {
+	return o.ApplyT(func(v *FetchURLSources) FetchURLSources {
+		if v != nil {
+			return *v
+		}
+		var ret FetchURLSources
+		return ret
+	}).(FetchURLSourcesOutput)
+}
+
+// Filter for custom tool results. Tool names must refer to custom tools in this agent.
+func (o FetchURLSourcesPtrOutput) ClientToolResults() FetchToolFilterPtrOutput {
+	return o.ApplyT(func(v *FetchURLSources) *FetchToolFilter {
+		if v == nil {
+			return nil
+		}
+		return v.ClientToolResults
+	}).(FetchToolFilterPtrOutput)
+}
+
+// Filter for built-in tool results. Listed names must be web_search or web_fetch.
+func (o FetchURLSourcesPtrOutput) ServerToolResults() FetchToolFilterPtrOutput {
+	return o.ApplyT(func(v *FetchURLSources) *FetchToolFilter {
+		if v == nil {
+			return nil
+		}
+		return v.ServerToolResults
+	}).(FetchToolFilterPtrOutput)
+}
+
+// all or none, controlling URLs in user messages. Defaults to all.
+func (o FetchURLSourcesPtrOutput) UserInput() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *FetchURLSources) *string {
+		if v == nil {
+			return nil
+		}
+		return v.UserInput
+	}).(pulumi.StringPtrOutput)
 }
 
 type InjectionLocation struct {
@@ -1369,6 +2202,7 @@ func (o InjectionLocationPtrOutput) Header() pulumi.BoolPtrOutput {
 	}).(pulumi.BoolPtrOutput)
 }
 
+// A named remote MCP endpoint available to the agent.
 type MCPServer struct {
 	// The server's name, which an `mcp_toolset` tool refers to.
 	Name string `pulumi:"name"`
@@ -1387,6 +2221,7 @@ type MCPServerInput interface {
 	ToMCPServerOutputWithContext(context.Context) MCPServerOutput
 }
 
+// A named remote MCP endpoint available to the agent.
 type MCPServerArgs struct {
 	// The server's name, which an `mcp_toolset` tool refers to.
 	Name pulumi.StringInput `pulumi:"name"`
@@ -1431,6 +2266,7 @@ func (i MCPServerArray) ToMCPServerArrayOutputWithContext(ctx context.Context) M
 	return pulumi.ToOutputWithContext(ctx, i).(MCPServerArrayOutput)
 }
 
+// A named remote MCP endpoint available to the agent.
 type MCPServerOutput struct{ *pulumi.OutputState }
 
 func (MCPServerOutput) ElementType() reflect.Type {
@@ -1475,14 +2311,15 @@ func (o MCPServerArrayOutput) Index(i pulumi.IntInput) MCPServerOutput {
 	}).(MCPServerOutput)
 }
 
+// Model selection and inference settings for an agent.
 type Model struct {
-	// How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
+	// How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
 	Effort *Effort `pulumi:"effort"`
 	// The model ID, such as `claude-opus-5-5`.
 	Id string `pulumi:"id"`
-	// Where inference runs, such as `us` or `global`.
+	// Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
 	InferenceGeo *string `pulumi:"inferenceGeo"`
-	// The inference speed tier.
+	// The inference speed tier. Removing a configured tier restores standard.
 	Speed *Speed `pulumi:"speed"`
 }
 
@@ -1497,14 +2334,15 @@ type ModelInput interface {
 	ToModelOutputWithContext(context.Context) ModelOutput
 }
 
+// Model selection and inference settings for an agent.
 type ModelArgs struct {
-	// How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
+	// How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
 	Effort EffortPtrInput `pulumi:"effort"`
 	// The model ID, such as `claude-opus-5-5`.
 	Id pulumi.StringInput `pulumi:"id"`
-	// Where inference runs, such as `us` or `global`.
+	// Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
 	InferenceGeo pulumi.StringPtrInput `pulumi:"inferenceGeo"`
-	// The inference speed tier.
+	// The inference speed tier. Removing a configured tier restores standard.
 	Speed SpeedPtrInput `pulumi:"speed"`
 }
 
@@ -1520,6 +2358,7 @@ func (i ModelArgs) ToModelOutputWithContext(ctx context.Context) ModelOutput {
 	return pulumi.ToOutputWithContext(ctx, i).(ModelOutput)
 }
 
+// Model selection and inference settings for an agent.
 type ModelOutput struct{ *pulumi.OutputState }
 
 func (ModelOutput) ElementType() reflect.Type {
@@ -1534,7 +2373,7 @@ func (o ModelOutput) ToModelOutputWithContext(ctx context.Context) ModelOutput {
 	return o
 }
 
-// How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
+// How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
 func (o ModelOutput) Effort() EffortPtrOutput {
 	return o.ApplyT(func(v Model) *Effort { return v.Effort }).(EffortPtrOutput)
 }
@@ -1544,20 +2383,20 @@ func (o ModelOutput) Id() pulumi.StringOutput {
 	return o.ApplyT(func(v Model) string { return v.Id }).(pulumi.StringOutput)
 }
 
-// Where inference runs, such as `us` or `global`.
+// Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
 func (o ModelOutput) InferenceGeo() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Model) *string { return v.InferenceGeo }).(pulumi.StringPtrOutput)
 }
 
-// The inference speed tier.
+// The inference speed tier. Removing a configured tier restores standard.
 func (o ModelOutput) Speed() SpeedPtrOutput {
 	return o.ApplyT(func(v Model) *Speed { return v.Speed }).(SpeedPtrOutput)
 }
 
 type MonetaryAmount struct {
-	// The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+	// The amount in the currency's minor units, as an integer string: 2500 is $25.00.
 	Amount string `pulumi:"amount"`
-	// The ISO 4217 currency code. Only `USD` is supported.
+	// The ISO 4217 currency code. Only USD is supported.
 	Currency string `pulumi:"currency"`
 }
 
@@ -1573,9 +2412,9 @@ type MonetaryAmountInput interface {
 }
 
 type MonetaryAmountArgs struct {
-	// The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+	// The amount in the currency's minor units, as an integer string: 2500 is $25.00.
 	Amount pulumi.StringInput `pulumi:"amount"`
-	// The ISO 4217 currency code. Only `USD` is supported.
+	// The ISO 4217 currency code. Only USD is supported.
 	Currency pulumi.StringInput `pulumi:"currency"`
 }
 
@@ -1656,12 +2495,12 @@ func (o MonetaryAmountOutput) ToMonetaryAmountPtrOutputWithContext(ctx context.C
 	}).(MonetaryAmountPtrOutput)
 }
 
-// The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+// The amount in the currency's minor units, as an integer string: 2500 is $25.00.
 func (o MonetaryAmountOutput) Amount() pulumi.StringOutput {
 	return o.ApplyT(func(v MonetaryAmount) string { return v.Amount }).(pulumi.StringOutput)
 }
 
-// The ISO 4217 currency code. Only `USD` is supported.
+// The ISO 4217 currency code. Only USD is supported.
 func (o MonetaryAmountOutput) Currency() pulumi.StringOutput {
 	return o.ApplyT(func(v MonetaryAmount) string { return v.Currency }).(pulumi.StringOutput)
 }
@@ -1690,7 +2529,7 @@ func (o MonetaryAmountPtrOutput) Elem() MonetaryAmountOutput {
 	}).(MonetaryAmountOutput)
 }
 
-// The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+// The amount in the currency's minor units, as an integer string: 2500 is $25.00.
 func (o MonetaryAmountPtrOutput) Amount() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *MonetaryAmount) *string {
 		if v == nil {
@@ -1700,7 +2539,7 @@ func (o MonetaryAmountPtrOutput) Amount() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// The ISO 4217 currency code. Only `USD` is supported.
+// The ISO 4217 currency code. Only USD is supported.
 func (o MonetaryAmountPtrOutput) Currency() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *MonetaryAmount) *string {
 		if v == nil {
@@ -1710,9 +2549,18 @@ func (o MonetaryAmountPtrOutput) Currency() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+// Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
 type Multiagent struct {
-	// The agents the coordinator can delegate to, between 1 and 20.
+	// Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+	Advisor *AgentAdvisor `pulumi:"advisor"`
+	// The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
 	Agents []RosterEntry `pulumi:"agents"`
+	// Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+	Subagents *AgentDelegation `pulumi:"subagents"`
+	// Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+	Type *string `pulumi:"type"`
+	// Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+	Workflows *AgentDelegation `pulumi:"workflows"`
 }
 
 // MultiagentInput is an input type that accepts MultiagentArgs and MultiagentOutput values.
@@ -1726,9 +2574,18 @@ type MultiagentInput interface {
 	ToMultiagentOutputWithContext(context.Context) MultiagentOutput
 }
 
+// Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
 type MultiagentArgs struct {
-	// The agents the coordinator can delegate to, between 1 and 20.
+	// Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+	Advisor AgentAdvisorPtrInput `pulumi:"advisor"`
+	// The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
 	Agents RosterEntryArrayInput `pulumi:"agents"`
+	// Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+	Subagents AgentDelegationPtrInput `pulumi:"subagents"`
+	// Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+	Type pulumi.StringPtrInput `pulumi:"type"`
+	// Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+	Workflows AgentDelegationPtrInput `pulumi:"workflows"`
 }
 
 func (MultiagentArgs) ElementType() reflect.Type {
@@ -1784,6 +2641,7 @@ func (i *multiagentPtrType) ToMultiagentPtrOutputWithContext(ctx context.Context
 	return pulumi.ToOutputWithContext(ctx, i).(MultiagentPtrOutput)
 }
 
+// Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
 type MultiagentOutput struct{ *pulumi.OutputState }
 
 func (MultiagentOutput) ElementType() reflect.Type {
@@ -1808,9 +2666,29 @@ func (o MultiagentOutput) ToMultiagentPtrOutputWithContext(ctx context.Context) 
 	}).(MultiagentPtrOutput)
 }
 
-// The agents the coordinator can delegate to, between 1 and 20.
+// Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+func (o MultiagentOutput) Advisor() AgentAdvisorPtrOutput {
+	return o.ApplyT(func(v Multiagent) *AgentAdvisor { return v.Advisor }).(AgentAdvisorPtrOutput)
+}
+
+// The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
 func (o MultiagentOutput) Agents() RosterEntryArrayOutput {
 	return o.ApplyT(func(v Multiagent) []RosterEntry { return v.Agents }).(RosterEntryArrayOutput)
+}
+
+// Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+func (o MultiagentOutput) Subagents() AgentDelegationPtrOutput {
+	return o.ApplyT(func(v Multiagent) *AgentDelegation { return v.Subagents }).(AgentDelegationPtrOutput)
+}
+
+// Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+func (o MultiagentOutput) Type() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v Multiagent) *string { return v.Type }).(pulumi.StringPtrOutput)
+}
+
+// Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+func (o MultiagentOutput) Workflows() AgentDelegationPtrOutput {
+	return o.ApplyT(func(v Multiagent) *AgentDelegation { return v.Workflows }).(AgentDelegationPtrOutput)
 }
 
 type MultiagentPtrOutput struct{ *pulumi.OutputState }
@@ -1837,7 +2715,17 @@ func (o MultiagentPtrOutput) Elem() MultiagentOutput {
 	}).(MultiagentOutput)
 }
 
-// The agents the coordinator can delegate to, between 1 and 20.
+// Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+func (o MultiagentPtrOutput) Advisor() AgentAdvisorPtrOutput {
+	return o.ApplyT(func(v *Multiagent) *AgentAdvisor {
+		if v == nil {
+			return nil
+		}
+		return v.Advisor
+	}).(AgentAdvisorPtrOutput)
+}
+
+// The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
 func (o MultiagentPtrOutput) Agents() RosterEntryArrayOutput {
 	return o.ApplyT(func(v *Multiagent) []RosterEntry {
 		if v == nil {
@@ -1847,14 +2735,44 @@ func (o MultiagentPtrOutput) Agents() RosterEntryArrayOutput {
 	}).(RosterEntryArrayOutput)
 }
 
+// Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+func (o MultiagentPtrOutput) Subagents() AgentDelegationPtrOutput {
+	return o.ApplyT(func(v *Multiagent) *AgentDelegation {
+		if v == nil {
+			return nil
+		}
+		return v.Subagents
+	}).(AgentDelegationPtrOutput)
+}
+
+// Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+func (o MultiagentPtrOutput) Type() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Multiagent) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Type
+	}).(pulumi.StringPtrOutput)
+}
+
+// Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+func (o MultiagentPtrOutput) Workflows() AgentDelegationPtrOutput {
+	return o.ApplyT(func(v *Multiagent) *AgentDelegation {
+		if v == nil {
+			return nil
+		}
+		return v.Workflows
+	}).(AgentDelegationPtrOutput)
+}
+
 type OAuthRefresh struct {
 	// The OAuth client ID. Changing it replaces the credential.
 	ClientId string `pulumi:"clientId"`
-	// The OAuth refresh token.
-	RefreshToken string `pulumi:"refreshToken"`
+	// The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
+	RefreshToken *string `pulumi:"refreshToken"`
 	// The OAuth resource indicator. Changing it replaces the credential.
 	Resource *string `pulumi:"resource"`
-	// The OAuth scope to request.
+	// The OAuth scope to request. Removing this setting clears the stored scope.
 	Scope *string `pulumi:"scope"`
 	// The token endpoint's URL. Changing it replaces the credential.
 	TokenEndpoint string `pulumi:"tokenEndpoint"`
@@ -1876,11 +2794,11 @@ type OAuthRefreshInput interface {
 type OAuthRefreshArgs struct {
 	// The OAuth client ID. Changing it replaces the credential.
 	ClientId pulumi.StringInput `pulumi:"clientId"`
-	// The OAuth refresh token.
-	RefreshToken pulumi.StringInput `pulumi:"refreshToken"`
+	// The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
+	RefreshToken pulumi.StringPtrInput `pulumi:"refreshToken"`
 	// The OAuth resource indicator. Changing it replaces the credential.
 	Resource pulumi.StringPtrInput `pulumi:"resource"`
-	// The OAuth scope to request.
+	// The OAuth scope to request. Removing this setting clears the stored scope.
 	Scope pulumi.StringPtrInput `pulumi:"scope"`
 	// The token endpoint's URL. Changing it replaces the credential.
 	TokenEndpoint pulumi.StringInput `pulumi:"tokenEndpoint"`
@@ -1970,9 +2888,9 @@ func (o OAuthRefreshOutput) ClientId() pulumi.StringOutput {
 	return o.ApplyT(func(v OAuthRefresh) string { return v.ClientId }).(pulumi.StringOutput)
 }
 
-// The OAuth refresh token.
-func (o OAuthRefreshOutput) RefreshToken() pulumi.StringOutput {
-	return o.ApplyT(func(v OAuthRefresh) string { return v.RefreshToken }).(pulumi.StringOutput)
+// The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
+func (o OAuthRefreshOutput) RefreshToken() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v OAuthRefresh) *string { return v.RefreshToken }).(pulumi.StringPtrOutput)
 }
 
 // The OAuth resource indicator. Changing it replaces the credential.
@@ -1980,7 +2898,7 @@ func (o OAuthRefreshOutput) Resource() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v OAuthRefresh) *string { return v.Resource }).(pulumi.StringPtrOutput)
 }
 
-// The OAuth scope to request.
+// The OAuth scope to request. Removing this setting clears the stored scope.
 func (o OAuthRefreshOutput) Scope() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v OAuthRefresh) *string { return v.Scope }).(pulumi.StringPtrOutput)
 }
@@ -2029,13 +2947,13 @@ func (o OAuthRefreshPtrOutput) ClientId() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// The OAuth refresh token.
+// The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
 func (o OAuthRefreshPtrOutput) RefreshToken() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *OAuthRefresh) *string {
 		if v == nil {
 			return nil
 		}
-		return &v.RefreshToken
+		return v.RefreshToken
 	}).(pulumi.StringPtrOutput)
 }
 
@@ -2049,7 +2967,7 @@ func (o OAuthRefreshPtrOutput) Resource() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// The OAuth scope to request.
+// The OAuth scope to request. Removing this setting clears the stored scope.
 func (o OAuthRefreshPtrOutput) Scope() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *OAuthRefresh) *string {
 		if v == nil {
@@ -2311,6 +3229,7 @@ func (o PackagesPtrOutput) Pip() pulumi.StringArrayOutput {
 	}).(pulumi.StringArrayOutput)
 }
 
+// An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
 type RosterEntry struct {
 	// The agent's ID. Required for `agent`.
 	Id *string `pulumi:"id"`
@@ -2333,6 +3252,7 @@ type RosterEntryInput interface {
 	ToRosterEntryOutputWithContext(context.Context) RosterEntryOutput
 }
 
+// An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
 type RosterEntryArgs struct {
 	// The agent's ID. Required for `agent`.
 	Id pulumi.StringPtrInput `pulumi:"id"`
@@ -2381,6 +3301,7 @@ func (i RosterEntryArray) ToRosterEntryArrayOutputWithContext(ctx context.Contex
 	return pulumi.ToOutputWithContext(ctx, i).(RosterEntryArrayOutput)
 }
 
+// An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
 type RosterEntryOutput struct{ *pulumi.OutputState }
 
 func (RosterEntryOutput) ElementType() reflect.Type {
@@ -2436,9 +3357,9 @@ func (o RosterEntryArrayOutput) Index(i pulumi.IntInput) RosterEntryOutput {
 }
 
 type Schedule struct {
-	// A cron expression, such as `0 9 * * 1-5`.
+	// A cron expression, such as 0 9 * * 1-5.
 	Expression string `pulumi:"expression"`
-	// The IANA time zone the expression is evaluated in, such as `America/New_York`.
+	// The IANA time zone the expression is evaluated in, such as America/New_York.
 	Timezone string `pulumi:"timezone"`
 }
 
@@ -2454,9 +3375,9 @@ type ScheduleInput interface {
 }
 
 type ScheduleArgs struct {
-	// A cron expression, such as `0 9 * * 1-5`.
+	// A cron expression, such as 0 9 * * 1-5.
 	Expression pulumi.StringInput `pulumi:"expression"`
-	// The IANA time zone the expression is evaluated in, such as `America/New_York`.
+	// The IANA time zone the expression is evaluated in, such as America/New_York.
 	Timezone pulumi.StringInput `pulumi:"timezone"`
 }
 
@@ -2537,12 +3458,12 @@ func (o ScheduleOutput) ToSchedulePtrOutputWithContext(ctx context.Context) Sche
 	}).(SchedulePtrOutput)
 }
 
-// A cron expression, such as `0 9 * * 1-5`.
+// A cron expression, such as 0 9 * * 1-5.
 func (o ScheduleOutput) Expression() pulumi.StringOutput {
 	return o.ApplyT(func(v Schedule) string { return v.Expression }).(pulumi.StringOutput)
 }
 
-// The IANA time zone the expression is evaluated in, such as `America/New_York`.
+// The IANA time zone the expression is evaluated in, such as America/New_York.
 func (o ScheduleOutput) Timezone() pulumi.StringOutput {
 	return o.ApplyT(func(v Schedule) string { return v.Timezone }).(pulumi.StringOutput)
 }
@@ -2571,7 +3492,7 @@ func (o SchedulePtrOutput) Elem() ScheduleOutput {
 	}).(ScheduleOutput)
 }
 
-// A cron expression, such as `0 9 * * 1-5`.
+// A cron expression, such as 0 9 * * 1-5.
 func (o SchedulePtrOutput) Expression() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Schedule) *string {
 		if v == nil {
@@ -2581,7 +3502,7 @@ func (o SchedulePtrOutput) Expression() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// The IANA time zone the expression is evaluated in, such as `America/New_York`.
+// The IANA time zone the expression is evaluated in, such as America/New_York.
 func (o SchedulePtrOutput) Timezone() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Schedule) *string {
 		if v == nil {
@@ -2591,6 +3512,204 @@ func (o SchedulePtrOutput) Timezone() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+// Approximate user location for search localization.
+type SearchLocation struct {
+	// City name.
+	City *string `pulumi:"city"`
+	// Uppercase two-letter ISO 3166-1 country code.
+	Country *string `pulumi:"country"`
+	// Region or state name.
+	Region *string `pulumi:"region"`
+	// IANA timezone identifier, such as America/Los_Angeles.
+	Timezone *string `pulumi:"timezone"`
+}
+
+// SearchLocationInput is an input type that accepts SearchLocationArgs and SearchLocationOutput values.
+// You can construct a concrete instance of `SearchLocationInput` via:
+//
+//	SearchLocationArgs{...}
+type SearchLocationInput interface {
+	pulumi.Input
+
+	ToSearchLocationOutput() SearchLocationOutput
+	ToSearchLocationOutputWithContext(context.Context) SearchLocationOutput
+}
+
+// Approximate user location for search localization.
+type SearchLocationArgs struct {
+	// City name.
+	City pulumi.StringPtrInput `pulumi:"city"`
+	// Uppercase two-letter ISO 3166-1 country code.
+	Country pulumi.StringPtrInput `pulumi:"country"`
+	// Region or state name.
+	Region pulumi.StringPtrInput `pulumi:"region"`
+	// IANA timezone identifier, such as America/Los_Angeles.
+	Timezone pulumi.StringPtrInput `pulumi:"timezone"`
+}
+
+func (SearchLocationArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*SearchLocation)(nil)).Elem()
+}
+
+func (i SearchLocationArgs) ToSearchLocationOutput() SearchLocationOutput {
+	return i.ToSearchLocationOutputWithContext(context.Background())
+}
+
+func (i SearchLocationArgs) ToSearchLocationOutputWithContext(ctx context.Context) SearchLocationOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SearchLocationOutput)
+}
+
+func (i SearchLocationArgs) ToSearchLocationPtrOutput() SearchLocationPtrOutput {
+	return i.ToSearchLocationPtrOutputWithContext(context.Background())
+}
+
+func (i SearchLocationArgs) ToSearchLocationPtrOutputWithContext(ctx context.Context) SearchLocationPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SearchLocationOutput).ToSearchLocationPtrOutputWithContext(ctx)
+}
+
+// SearchLocationPtrInput is an input type that accepts SearchLocationArgs, SearchLocationPtr and SearchLocationPtrOutput values.
+// You can construct a concrete instance of `SearchLocationPtrInput` via:
+//
+//	        SearchLocationArgs{...}
+//
+//	or:
+//
+//	        nil
+type SearchLocationPtrInput interface {
+	pulumi.Input
+
+	ToSearchLocationPtrOutput() SearchLocationPtrOutput
+	ToSearchLocationPtrOutputWithContext(context.Context) SearchLocationPtrOutput
+}
+
+type searchLocationPtrType SearchLocationArgs
+
+func SearchLocationPtr(v *SearchLocationArgs) SearchLocationPtrInput {
+	return (*searchLocationPtrType)(v)
+}
+
+func (*searchLocationPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**SearchLocation)(nil)).Elem()
+}
+
+func (i *searchLocationPtrType) ToSearchLocationPtrOutput() SearchLocationPtrOutput {
+	return i.ToSearchLocationPtrOutputWithContext(context.Background())
+}
+
+func (i *searchLocationPtrType) ToSearchLocationPtrOutputWithContext(ctx context.Context) SearchLocationPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SearchLocationPtrOutput)
+}
+
+// Approximate user location for search localization.
+type SearchLocationOutput struct{ *pulumi.OutputState }
+
+func (SearchLocationOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*SearchLocation)(nil)).Elem()
+}
+
+func (o SearchLocationOutput) ToSearchLocationOutput() SearchLocationOutput {
+	return o
+}
+
+func (o SearchLocationOutput) ToSearchLocationOutputWithContext(ctx context.Context) SearchLocationOutput {
+	return o
+}
+
+func (o SearchLocationOutput) ToSearchLocationPtrOutput() SearchLocationPtrOutput {
+	return o.ToSearchLocationPtrOutputWithContext(context.Background())
+}
+
+func (o SearchLocationOutput) ToSearchLocationPtrOutputWithContext(ctx context.Context) SearchLocationPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v SearchLocation) *SearchLocation {
+		return &v
+	}).(SearchLocationPtrOutput)
+}
+
+// City name.
+func (o SearchLocationOutput) City() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v SearchLocation) *string { return v.City }).(pulumi.StringPtrOutput)
+}
+
+// Uppercase two-letter ISO 3166-1 country code.
+func (o SearchLocationOutput) Country() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v SearchLocation) *string { return v.Country }).(pulumi.StringPtrOutput)
+}
+
+// Region or state name.
+func (o SearchLocationOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v SearchLocation) *string { return v.Region }).(pulumi.StringPtrOutput)
+}
+
+// IANA timezone identifier, such as America/Los_Angeles.
+func (o SearchLocationOutput) Timezone() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v SearchLocation) *string { return v.Timezone }).(pulumi.StringPtrOutput)
+}
+
+type SearchLocationPtrOutput struct{ *pulumi.OutputState }
+
+func (SearchLocationPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**SearchLocation)(nil)).Elem()
+}
+
+func (o SearchLocationPtrOutput) ToSearchLocationPtrOutput() SearchLocationPtrOutput {
+	return o
+}
+
+func (o SearchLocationPtrOutput) ToSearchLocationPtrOutputWithContext(ctx context.Context) SearchLocationPtrOutput {
+	return o
+}
+
+func (o SearchLocationPtrOutput) Elem() SearchLocationOutput {
+	return o.ApplyT(func(v *SearchLocation) SearchLocation {
+		if v != nil {
+			return *v
+		}
+		var ret SearchLocation
+		return ret
+	}).(SearchLocationOutput)
+}
+
+// City name.
+func (o SearchLocationPtrOutput) City() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *SearchLocation) *string {
+		if v == nil {
+			return nil
+		}
+		return v.City
+	}).(pulumi.StringPtrOutput)
+}
+
+// Uppercase two-letter ISO 3166-1 country code.
+func (o SearchLocationPtrOutput) Country() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *SearchLocation) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Country
+	}).(pulumi.StringPtrOutput)
+}
+
+// Region or state name.
+func (o SearchLocationPtrOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *SearchLocation) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Region
+	}).(pulumi.StringPtrOutput)
+}
+
+// IANA timezone identifier, such as America/Los_Angeles.
+func (o SearchLocationPtrOutput) Timezone() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *SearchLocation) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Timezone
+	}).(pulumi.StringPtrOutput)
+}
+
+// An Anthropic-provided or organization-uploaded skill available to an agent.
 type SkillRef struct {
 	// The skill's ID.
 	SkillId string `pulumi:"skillId"`
@@ -2611,6 +3730,7 @@ type SkillRefInput interface {
 	ToSkillRefOutputWithContext(context.Context) SkillRefOutput
 }
 
+// An Anthropic-provided or organization-uploaded skill available to an agent.
 type SkillRefArgs struct {
 	// The skill's ID.
 	SkillId pulumi.StringInput `pulumi:"skillId"`
@@ -2657,6 +3777,7 @@ func (i SkillRefArray) ToSkillRefArrayOutputWithContext(ctx context.Context) Ski
 	return pulumi.ToOutputWithContext(ctx, i).(SkillRefArrayOutput)
 }
 
+// An Anthropic-provided or organization-uploaded skill available to an agent.
 type SkillRefOutput struct{ *pulumi.OutputState }
 
 func (SkillRefOutput) ElementType() reflect.Type {
@@ -2709,7 +3830,7 @@ func (o SkillRefArrayOutput) Index(i pulumi.IntInput) SkillRefOutput {
 type TokenEndpointAuth struct {
 	// The client secret. Required unless the type is `none`.
 	ClientSecret *string `pulumi:"clientSecret"`
-	// The authentication method.
+	// The authentication method. Changing it replaces the credential.
 	Type TokenEndpointAuthType `pulumi:"type"`
 }
 
@@ -2727,7 +3848,7 @@ type TokenEndpointAuthInput interface {
 type TokenEndpointAuthArgs struct {
 	// The client secret. Required unless the type is `none`.
 	ClientSecret pulumi.StringPtrInput `pulumi:"clientSecret"`
-	// The authentication method.
+	// The authentication method. Changing it replaces the credential.
 	Type TokenEndpointAuthTypeInput `pulumi:"type"`
 }
 
@@ -2813,7 +3934,7 @@ func (o TokenEndpointAuthOutput) ClientSecret() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v TokenEndpointAuth) *string { return v.ClientSecret }).(pulumi.StringPtrOutput)
 }
 
-// The authentication method.
+// The authentication method. Changing it replaces the credential.
 func (o TokenEndpointAuthOutput) Type() TokenEndpointAuthTypeOutput {
 	return o.ApplyT(func(v TokenEndpointAuth) TokenEndpointAuthType { return v.Type }).(TokenEndpointAuthTypeOutput)
 }
@@ -2852,7 +3973,7 @@ func (o TokenEndpointAuthPtrOutput) ClientSecret() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// The authentication method.
+// The authentication method. Changing it replaces the credential.
 func (o TokenEndpointAuthPtrOutput) Type() TokenEndpointAuthTypePtrOutput {
 	return o.ApplyT(func(v *TokenEndpointAuth) *TokenEndpointAuthType {
 		if v == nil {
@@ -2862,6 +3983,7 @@ func (o TokenEndpointAuthPtrOutput) Type() TokenEndpointAuthTypePtrOutput {
 	}).(TokenEndpointAuthTypePtrOutput)
 }
 
+// An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
 type Tool struct {
 	// Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
 	Configs []ToolConfig `pulumi:"configs"`
@@ -2890,6 +4012,7 @@ type ToolInput interface {
 	ToToolOutputWithContext(context.Context) ToolOutput
 }
 
+// An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
 type ToolArgs struct {
 	// Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
 	Configs ToolConfigArrayInput `pulumi:"configs"`
@@ -2944,6 +4067,7 @@ func (i ToolArray) ToToolArrayOutputWithContext(ctx context.Context) ToolArrayOu
 	return pulumi.ToOutputWithContext(ctx, i).(ToolArrayOutput)
 }
 
+// An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
 type ToolOutput struct{ *pulumi.OutputState }
 
 func (ToolOutput) ElementType() reflect.Type {
@@ -3013,13 +4137,24 @@ func (o ToolArrayOutput) Index(i pulumi.IntInput) ToolOutput {
 	}).(ToolOutput)
 }
 
+// Settings for one tool within an agent or MCP toolset.
 type ToolConfig struct {
+	// Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+	AllowedDomains []string `pulumi:"allowedDomains"`
+	// Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+	BlockedDomains []string `pulumi:"blockedDomains"`
 	// Whether the agent may use the tool.
 	Enabled *bool `pulumi:"enabled"`
+	// Maximum fetched content tokens, for web_fetch.
+	MaxContentTokens *int `pulumi:"maxContentTokens"`
 	// The tool's name, such as `bash` or `web_fetch`.
 	Name string `pulumi:"name"`
 	// Whether a tool call needs approval.
 	PermissionPolicy *PermissionPolicy `pulumi:"permissionPolicy"`
+	// Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+	UrlSources *FetchURLSources `pulumi:"urlSources"`
+	// Approximate location used to localize web_search results.
+	UserLocation *SearchLocation `pulumi:"userLocation"`
 }
 
 // ToolConfigInput is an input type that accepts ToolConfigArgs and ToolConfigOutput values.
@@ -3033,13 +4168,24 @@ type ToolConfigInput interface {
 	ToToolConfigOutputWithContext(context.Context) ToolConfigOutput
 }
 
+// Settings for one tool within an agent or MCP toolset.
 type ToolConfigArgs struct {
+	// Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+	AllowedDomains pulumi.StringArrayInput `pulumi:"allowedDomains"`
+	// Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+	BlockedDomains pulumi.StringArrayInput `pulumi:"blockedDomains"`
 	// Whether the agent may use the tool.
 	Enabled pulumi.BoolPtrInput `pulumi:"enabled"`
+	// Maximum fetched content tokens, for web_fetch.
+	MaxContentTokens pulumi.IntPtrInput `pulumi:"maxContentTokens"`
 	// The tool's name, such as `bash` or `web_fetch`.
 	Name pulumi.StringInput `pulumi:"name"`
 	// Whether a tool call needs approval.
 	PermissionPolicy PermissionPolicyPtrInput `pulumi:"permissionPolicy"`
+	// Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+	UrlSources FetchURLSourcesPtrInput `pulumi:"urlSources"`
+	// Approximate location used to localize web_search results.
+	UserLocation SearchLocationPtrInput `pulumi:"userLocation"`
 }
 
 func (ToolConfigArgs) ElementType() reflect.Type {
@@ -3079,6 +4225,7 @@ func (i ToolConfigArray) ToToolConfigArrayOutputWithContext(ctx context.Context)
 	return pulumi.ToOutputWithContext(ctx, i).(ToolConfigArrayOutput)
 }
 
+// Settings for one tool within an agent or MCP toolset.
 type ToolConfigOutput struct{ *pulumi.OutputState }
 
 func (ToolConfigOutput) ElementType() reflect.Type {
@@ -3093,9 +4240,24 @@ func (o ToolConfigOutput) ToToolConfigOutputWithContext(ctx context.Context) Too
 	return o
 }
 
+// Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+func (o ToolConfigOutput) AllowedDomains() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v ToolConfig) []string { return v.AllowedDomains }).(pulumi.StringArrayOutput)
+}
+
+// Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+func (o ToolConfigOutput) BlockedDomains() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v ToolConfig) []string { return v.BlockedDomains }).(pulumi.StringArrayOutput)
+}
+
 // Whether the agent may use the tool.
 func (o ToolConfigOutput) Enabled() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v ToolConfig) *bool { return v.Enabled }).(pulumi.BoolPtrOutput)
+}
+
+// Maximum fetched content tokens, for web_fetch.
+func (o ToolConfigOutput) MaxContentTokens() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v ToolConfig) *int { return v.MaxContentTokens }).(pulumi.IntPtrOutput)
 }
 
 // The tool's name, such as `bash` or `web_fetch`.
@@ -3106,6 +4268,16 @@ func (o ToolConfigOutput) Name() pulumi.StringOutput {
 // Whether a tool call needs approval.
 func (o ToolConfigOutput) PermissionPolicy() PermissionPolicyPtrOutput {
 	return o.ApplyT(func(v ToolConfig) *PermissionPolicy { return v.PermissionPolicy }).(PermissionPolicyPtrOutput)
+}
+
+// Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+func (o ToolConfigOutput) UrlSources() FetchURLSourcesPtrOutput {
+	return o.ApplyT(func(v ToolConfig) *FetchURLSources { return v.UrlSources }).(FetchURLSourcesPtrOutput)
+}
+
+// Approximate location used to localize web_search results.
+func (o ToolConfigOutput) UserLocation() SearchLocationPtrOutput {
+	return o.ApplyT(func(v ToolConfig) *SearchLocation { return v.UserLocation }).(SearchLocationPtrOutput)
 }
 
 type ToolConfigArrayOutput struct{ *pulumi.OutputState }
@@ -3128,6 +4300,7 @@ func (o ToolConfigArrayOutput) Index(i pulumi.IntInput) ToolConfigOutput {
 	}).(ToolConfigOutput)
 }
 
+// Default settings for tools without an individual override.
 type ToolDefaults struct {
 	// Whether the agent may use the tools.
 	Enabled *bool `pulumi:"enabled"`
@@ -3146,6 +4319,7 @@ type ToolDefaultsInput interface {
 	ToToolDefaultsOutputWithContext(context.Context) ToolDefaultsOutput
 }
 
+// Default settings for tools without an individual override.
 type ToolDefaultsArgs struct {
 	// Whether the agent may use the tools.
 	Enabled pulumi.BoolPtrInput `pulumi:"enabled"`
@@ -3206,6 +4380,7 @@ func (i *toolDefaultsPtrType) ToToolDefaultsPtrOutputWithContext(ctx context.Con
 	return pulumi.ToOutputWithContext(ctx, i).(ToolDefaultsPtrOutput)
 }
 
+// Default settings for tools without an individual override.
 type ToolDefaultsOutput struct{ *pulumi.OutputState }
 
 func (ToolDefaultsOutput) ElementType() reflect.Type {
@@ -3329,6 +4504,10 @@ func (o TrustGrantMapOutput) MapIndex(k pulumi.StringInput) TrustGrantOutput {
 }
 
 func init() {
+	pulumi.RegisterInputType(reflect.TypeOf((*AgentAdvisorInput)(nil)).Elem(), AgentAdvisorArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*AgentAdvisorPtrInput)(nil)).Elem(), AgentAdvisorArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*AgentDelegationInput)(nil)).Elem(), AgentDelegationArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*AgentDelegationPtrInput)(nil)).Elem(), AgentDelegationArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*AgentReferenceInput)(nil)).Elem(), AgentReferenceArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BudgetInput)(nil)).Elem(), BudgetArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BudgetPtrInput)(nil)).Elem(), BudgetArgs{})
@@ -3343,6 +4522,12 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*EnvironmentConfigPtrInput)(nil)).Elem(), EnvironmentConfigArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*EnvironmentNetworkingInput)(nil)).Elem(), EnvironmentNetworkingArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*EnvironmentNetworkingPtrInput)(nil)).Elem(), EnvironmentNetworkingArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ExecutionIdentityInput)(nil)).Elem(), ExecutionIdentityArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ExecutionIdentityPtrInput)(nil)).Elem(), ExecutionIdentityArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*FetchToolFilterInput)(nil)).Elem(), FetchToolFilterArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*FetchToolFilterPtrInput)(nil)).Elem(), FetchToolFilterArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*FetchURLSourcesInput)(nil)).Elem(), FetchURLSourcesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*FetchURLSourcesPtrInput)(nil)).Elem(), FetchURLSourcesArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*InjectionLocationInput)(nil)).Elem(), InjectionLocationArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*InjectionLocationPtrInput)(nil)).Elem(), InjectionLocationArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*MCPServerInput)(nil)).Elem(), MCPServerArgs{})
@@ -3360,6 +4545,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*RosterEntryArrayInput)(nil)).Elem(), RosterEntryArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ScheduleInput)(nil)).Elem(), ScheduleArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*SchedulePtrInput)(nil)).Elem(), ScheduleArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*SearchLocationInput)(nil)).Elem(), SearchLocationArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*SearchLocationPtrInput)(nil)).Elem(), SearchLocationArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*SkillRefInput)(nil)).Elem(), SkillRefArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*SkillRefArrayInput)(nil)).Elem(), SkillRefArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*TokenEndpointAuthInput)(nil)).Elem(), TokenEndpointAuthArgs{})
@@ -3370,6 +4557,10 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*ToolConfigArrayInput)(nil)).Elem(), ToolConfigArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ToolDefaultsInput)(nil)).Elem(), ToolDefaultsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ToolDefaultsPtrInput)(nil)).Elem(), ToolDefaultsArgs{})
+	pulumi.RegisterOutputType(AgentAdvisorOutput{})
+	pulumi.RegisterOutputType(AgentAdvisorPtrOutput{})
+	pulumi.RegisterOutputType(AgentDelegationOutput{})
+	pulumi.RegisterOutputType(AgentDelegationPtrOutput{})
 	pulumi.RegisterOutputType(AgentReferenceOutput{})
 	pulumi.RegisterOutputType(BudgetOutput{})
 	pulumi.RegisterOutputType(BudgetPtrOutput{})
@@ -3384,6 +4575,12 @@ func init() {
 	pulumi.RegisterOutputType(EnvironmentConfigPtrOutput{})
 	pulumi.RegisterOutputType(EnvironmentNetworkingOutput{})
 	pulumi.RegisterOutputType(EnvironmentNetworkingPtrOutput{})
+	pulumi.RegisterOutputType(ExecutionIdentityOutput{})
+	pulumi.RegisterOutputType(ExecutionIdentityPtrOutput{})
+	pulumi.RegisterOutputType(FetchToolFilterOutput{})
+	pulumi.RegisterOutputType(FetchToolFilterPtrOutput{})
+	pulumi.RegisterOutputType(FetchURLSourcesOutput{})
+	pulumi.RegisterOutputType(FetchURLSourcesPtrOutput{})
 	pulumi.RegisterOutputType(InjectionLocationOutput{})
 	pulumi.RegisterOutputType(InjectionLocationPtrOutput{})
 	pulumi.RegisterOutputType(MCPServerOutput{})
@@ -3401,6 +4598,8 @@ func init() {
 	pulumi.RegisterOutputType(RosterEntryArrayOutput{})
 	pulumi.RegisterOutputType(ScheduleOutput{})
 	pulumi.RegisterOutputType(SchedulePtrOutput{})
+	pulumi.RegisterOutputType(SearchLocationOutput{})
+	pulumi.RegisterOutputType(SearchLocationPtrOutput{})
 	pulumi.RegisterOutputType(SkillRefOutput{})
 	pulumi.RegisterOutputType(SkillRefArrayOutput{})
 	pulumi.RegisterOutputType(TokenEndpointAuthOutput{})

@@ -11,9 +11,7 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents
 {
     /// <summary>
-    /// A Claude Managed Agents vault: a container for the credentials sessions use to reach MCP servers and other services. Add credentials with `VaultCredential`, and attach vaults to sessions or deployments by ID.
-    /// 
-    /// Deleting this resource deletes the vault and every credential in it.
+    /// A workspace-scoped Claude Managed Agents credential container. Add credentials with VaultCredential and reference the vault by ID. Deleting this resource permanently deletes the vault; it does not archive it. Archived vaults are treated as deleted.
     /// </summary>
     [AnthropicResourceType("anthropic:agents:Vault")]
     public partial class Vault : global::Pulumi.CustomResource
@@ -25,13 +23,13 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// The vault's display name, 1 to 255 characters.
+        /// The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
         /// </summary>
         [Output("displayName")]
         public Output<string> DisplayName { get; private set; } = null!;
 
         /// <summary>
-        /// Arbitrary key-value pairs.
+        /// At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
         /// </summary>
         [Output("metadata")]
         public Output<ImmutableDictionary<string, string>?> Metadata { get; private set; } = null!;
@@ -89,7 +87,7 @@ namespace Pulumi.Labs.Anthropic.Agents
     public sealed class VaultArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The vault's display name, 1 to 255 characters.
+        /// The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
         /// </summary>
         [Input("displayName", required: true)]
         public Input<string> DisplayName { get; set; } = null!;
@@ -98,7 +96,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         private InputMap<string>? _metadata;
 
         /// <summary>
-        /// Arbitrary key-value pairs.
+        /// At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
         /// </summary>
         public InputMap<string> Metadata
         {

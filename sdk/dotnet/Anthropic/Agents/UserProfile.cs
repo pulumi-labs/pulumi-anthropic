@@ -13,13 +13,13 @@ namespace Pulumi.Labs.Anthropic.Agents
     /// <summary>
     /// A user profile: an entity your platform serves through the Anthropic API, such as an end user of your product or a company you resell Claude access to. Send its ID in the `anthropic-user-profile-id` header of Messages, Message Batches, and token counting requests to attribute them to the entity.
     /// 
-    /// The API cannot delete user profiles, so deleting this resource only removes it from the stack; the profile remains.
+    /// Deleting this resource deletes the profile. Anthropic keeps the trust and safety records attached to the profile's ID.
     /// </summary>
     [AnthropicResourceType("anthropic:agents:UserProfile")]
     public partial class UserProfile : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// How your platform uses the API on the entity's behalf. Defaults to `application`.
+        /// How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
         /// </summary>
         [Output("accessType")]
         public Output<Pulumi.Labs.Anthropic.Agents.AccessType?> AccessType { get; private set; } = null!;
@@ -31,25 +31,25 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// Your platform's own identifier for the entity, up to 255 characters.
+        /// Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
         /// </summary>
         [Output("externalId")]
         public Output<string?> ExternalId { get; private set; } = null!;
 
         /// <summary>
-        /// When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+        /// When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
         /// </summary>
         [Output("externalUserOnboardedAt")]
         public Output<string?> ExternalUserOnboardedAt { get; private set; } = null!;
 
         /// <summary>
-        /// Arbitrary key-value pairs, up to 16.
+        /// Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
         /// </summary>
         [Output("metadata")]
         public Output<ImmutableDictionary<string, string>?> Metadata { get; private set; } = null!;
 
         /// <summary>
-        /// The entity's name, 1 to 255 characters.
+        /// The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
         /// </summary>
         [Output("name")]
         public Output<string?> Name { get; private set; } = null!;
@@ -113,19 +113,19 @@ namespace Pulumi.Labs.Anthropic.Agents
     public sealed class UserProfileArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// How your platform uses the API on the entity's behalf. Defaults to `application`.
+        /// How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
         /// </summary>
         [Input("accessType")]
         public Input<Pulumi.Labs.Anthropic.Agents.AccessType>? AccessType { get; set; }
 
         /// <summary>
-        /// Your platform's own identifier for the entity, up to 255 characters.
+        /// Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
         /// </summary>
         [Input("externalId")]
         public Input<string>? ExternalId { get; set; }
 
         /// <summary>
-        /// When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+        /// When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
         /// </summary>
         [Input("externalUserOnboardedAt")]
         public Input<string>? ExternalUserOnboardedAt { get; set; }
@@ -134,7 +134,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         private InputMap<string>? _metadata;
 
         /// <summary>
-        /// Arbitrary key-value pairs, up to 16.
+        /// Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
         /// </summary>
         public InputMap<string> Metadata
         {
@@ -143,7 +143,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         }
 
         /// <summary>
-        /// The entity's name, 1 to 255 characters.
+        /// The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
         /// </summary>
         [Input("name")]
         public Input<string>? Name { get; set; }

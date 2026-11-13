@@ -12,7 +12,7 @@ import * as utilities from "../utilities";
  *
  * Agents are versioned. Every update that changes the configuration creates a new version, reported by the `version` output; sessions and deployments can pin a version, which makes canary and staged rollouts a matter of which version each deployment references.
  *
- * The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Running sessions continue; new sessions cannot use it.
+ * The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Archiving retains historical agent records and versions; this resource does not manage running sessions.
  */
 export class Agent extends pulumi.CustomResource {
     /**
@@ -56,15 +56,19 @@ export class Agent extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * A description of the agent, up to 2,048 characters.
+     * A description of the agent, up to 2,048 characters. Removing a configured description clears it.
      */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+     */
+    declare public readonly executionIdentity: pulumi.Output<outputs.agents.ExecutionIdentity | undefined>;
     /**
      * The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
      */
     declare public readonly mcpServers: pulumi.Output<outputs.agents.MCPServer[] | undefined>;
     /**
-     * Arbitrary key-value pairs, up to 16.
+     * Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
      */
     declare public readonly metadata: pulumi.Output<{[key: string]: string} | undefined>;
     /**
@@ -72,7 +76,7 @@ export class Agent extends pulumi.CustomResource {
      */
     declare public readonly model: pulumi.Output<outputs.agents.Model>;
     /**
-     * Makes the agent a coordinator that delegates to other agents.
+     * Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
      */
     declare public readonly multiagent: pulumi.Output<outputs.agents.Multiagent | undefined>;
     /**
@@ -84,11 +88,11 @@ export class Agent extends pulumi.CustomResource {
      */
     declare public readonly skills: pulumi.Output<outputs.agents.SkillRef[] | undefined>;
     /**
-     * The system prompt, up to 100,000 characters.
+     * The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
      */
     declare public readonly system: pulumi.Output<string | undefined>;
     /**
-     * The tools the agent can use, up to 128.
+     * The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
      */
     declare public readonly tools: pulumi.Output<outputs.agents.Tool[] | undefined>;
     /**
@@ -118,6 +122,7 @@ export class Agent extends pulumi.CustomResource {
                 throw new Error("Missing required property 'name'");
             }
             resourceInputs["description"] = args?.description;
+            resourceInputs["executionIdentity"] = args?.executionIdentity;
             resourceInputs["mcpServers"] = args?.mcpServers;
             resourceInputs["metadata"] = args?.metadata;
             resourceInputs["model"] = args?.model;
@@ -132,6 +137,7 @@ export class Agent extends pulumi.CustomResource {
         } else {
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["description"] = undefined /*out*/;
+            resourceInputs["executionIdentity"] = undefined /*out*/;
             resourceInputs["mcpServers"] = undefined /*out*/;
             resourceInputs["metadata"] = undefined /*out*/;
             resourceInputs["model"] = undefined /*out*/;
@@ -153,15 +159,19 @@ export class Agent extends pulumi.CustomResource {
  */
 export interface AgentArgs {
     /**
-     * A description of the agent, up to 2,048 characters.
+     * A description of the agent, up to 2,048 characters. Removing a configured description clears it.
      */
     description?: pulumi.Input<string | undefined>;
+    /**
+     * Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+     */
+    executionIdentity?: pulumi.Input<inputs.agents.ExecutionIdentityArgs | undefined>;
     /**
      * The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
      */
     mcpServers?: pulumi.Input<pulumi.Input<inputs.agents.MCPServerArgs>[] | undefined>;
     /**
-     * Arbitrary key-value pairs, up to 16.
+     * Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
      */
     metadata?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
@@ -169,7 +179,7 @@ export interface AgentArgs {
      */
     model: pulumi.Input<inputs.agents.ModelArgs>;
     /**
-     * Makes the agent a coordinator that delegates to other agents.
+     * Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
      */
     multiagent?: pulumi.Input<inputs.agents.MultiagentArgs | undefined>;
     /**
@@ -181,11 +191,11 @@ export interface AgentArgs {
      */
     skills?: pulumi.Input<pulumi.Input<inputs.agents.SkillRefArgs>[] | undefined>;
     /**
-     * The system prompt, up to 100,000 characters.
+     * The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
      */
     system?: pulumi.Input<string | undefined>;
     /**
-     * The tools the agent can use, up to 128.
+     * The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
      */
     tools?: pulumi.Input<pulumi.Input<inputs.agents.ToolArgs>[] | undefined>;
 }

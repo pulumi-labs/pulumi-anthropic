@@ -18,20 +18,24 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 
+/**
+ * An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
+ *
+ */
 public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final ToolArgs Empty = new ToolArgs();
 
     /**
      * Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
-     * 
+     *
      */
     @Import(name="configs")
     private @Nullable Output<List<ToolConfigArgs>> configs;
 
     /**
      * @return Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
-     * 
+     *
      */
     public Optional<Output<List<ToolConfigArgs>>> configs() {
         return Optional.ofNullable(this.configs);
@@ -39,14 +43,14 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Settings for tools without an entry in `configs`, for `agent_toolset_20260401` and `mcp_toolset`.
-     * 
+     *
      */
     @Import(name="defaultConfig")
     private @Nullable Output<ToolDefaultsArgs> defaultConfig;
 
     /**
      * @return Settings for tools without an entry in `configs`, for `agent_toolset_20260401` and `mcp_toolset`.
-     * 
+     *
      */
     public Optional<Output<ToolDefaultsArgs>> defaultConfig() {
         return Optional.ofNullable(this.defaultConfig);
@@ -54,14 +58,14 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * What the tool does, for the model. Required for `custom`.
-     * 
+     *
      */
     @Import(name="description")
     private @Nullable Output<String> description;
 
     /**
      * @return What the tool does, for the model. Required for `custom`.
-     * 
+     *
      */
     public Optional<Output<String>> description() {
         return Optional.ofNullable(this.description);
@@ -69,14 +73,14 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The JSON Schema of the tool&#39;s input. Required for `custom`.
-     * 
+     *
      */
     @Import(name="inputSchema")
     private @Nullable Output<Map<String,Object>> inputSchema;
 
     /**
      * @return The JSON Schema of the tool&#39;s input. Required for `custom`.
-     * 
+     *
      */
     public Optional<Output<Map<String,Object>>> inputSchema() {
         return Optional.ofNullable(this.inputSchema);
@@ -84,14 +88,14 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The `mcpServers` entry whose tools to grant. Required for `mcp_toolset`.
-     * 
+     *
      */
     @Import(name="mcpServerName")
     private @Nullable Output<String> mcpServerName;
 
     /**
      * @return The `mcpServers` entry whose tools to grant. Required for `mcp_toolset`.
-     * 
+     *
      */
     public Optional<Output<String>> mcpServerName() {
         return Optional.ofNullable(this.mcpServerName);
@@ -99,14 +103,14 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The tool&#39;s name. Required for `custom`.
-     * 
+     *
      */
     @Import(name="name")
     private @Nullable Output<String> name;
 
     /**
      * @return The tool&#39;s name. Required for `custom`.
-     * 
+     *
      */
     public Optional<Output<String>> name() {
         return Optional.ofNullable(this.name);
@@ -114,14 +118,14 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The kind of tool.
-     * 
+     *
      */
     @Import(name="type", required=true)
     private Output<ToolType> type;
 
     /**
      * @return The kind of tool.
-     * 
+     *
      */
     public Output<ToolType> type() {
         return this.type;
@@ -159,9 +163,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param configs Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder configs(@Nullable Output<List<ToolConfigArgs>> configs) {
             $.configs = configs;
@@ -170,9 +174,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param configs Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder configs(List<ToolConfigArgs> configs) {
             return configs(Output.of(configs));
@@ -180,9 +184,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param configs Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder configs(ToolConfigArgs... configs) {
             return configs(List.of(configs));
@@ -190,9 +194,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param defaultConfig Settings for tools without an entry in `configs`, for `agent_toolset_20260401` and `mcp_toolset`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder defaultConfig(@Nullable Output<ToolDefaultsArgs> defaultConfig) {
             $.defaultConfig = defaultConfig;
@@ -201,9 +205,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param defaultConfig Settings for tools without an entry in `configs`, for `agent_toolset_20260401` and `mcp_toolset`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder defaultConfig(ToolDefaultsArgs defaultConfig) {
             return defaultConfig(Output.of(defaultConfig));
@@ -211,9 +215,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param description What the tool does, for the model. Required for `custom`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder description(@Nullable Output<String> description) {
             $.description = description;
@@ -222,9 +226,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param description What the tool does, for the model. Required for `custom`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder description(String description) {
             return description(Output.of(description));
@@ -232,9 +236,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param inputSchema The JSON Schema of the tool&#39;s input. Required for `custom`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder inputSchema(@Nullable Output<Map<String,Object>> inputSchema) {
             $.inputSchema = inputSchema;
@@ -243,9 +247,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param inputSchema The JSON Schema of the tool&#39;s input. Required for `custom`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder inputSchema(Map<String,Object> inputSchema) {
             return inputSchema(Output.of(inputSchema));
@@ -253,9 +257,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param mcpServerName The `mcpServers` entry whose tools to grant. Required for `mcp_toolset`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder mcpServerName(@Nullable Output<String> mcpServerName) {
             $.mcpServerName = mcpServerName;
@@ -264,9 +268,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param mcpServerName The `mcpServers` entry whose tools to grant. Required for `mcp_toolset`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder mcpServerName(String mcpServerName) {
             return mcpServerName(Output.of(mcpServerName));
@@ -274,9 +278,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param name The tool&#39;s name. Required for `custom`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder name(@Nullable Output<String> name) {
             $.name = name;
@@ -285,9 +289,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param name The tool&#39;s name. Required for `custom`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder name(String name) {
             return name(Output.of(name));
@@ -295,9 +299,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param type The kind of tool.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder type(Output<ToolType> type) {
             $.type = type;
@@ -306,9 +310,9 @@ public final class ToolArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param type The kind of tool.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder type(ToolType type) {
             return type(Output.of(type));

@@ -25,15 +25,15 @@ __all__ = [
 class DataResidencyArgsDict(TypedDict):
     allowed_inference_geos: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input['InferenceGeo']]]]]
     """
-    The geographies inference may run in. Omit to allow any geography.
+    The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
     """
     default_inference_geo: NotRequired[pulumi.Input[Optional['InferenceGeo']]]
     """
-    The geography inference runs in when a request doesn't choose one.
+    The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
     """
     workspace_geo: NotRequired[pulumi.Input[Optional['WorkspaceGeo']]]
     """
-    Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.
+    Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
     """
 
 @pulumi.input_type
@@ -43,9 +43,9 @@ class DataResidencyArgs:
                  default_inference_geo: pulumi.Input[Optional['InferenceGeo']] = None,
                  workspace_geo: pulumi.Input[Optional['WorkspaceGeo']] = None):
         """
-        :param pulumi.Input[Sequence[pulumi.Input['InferenceGeo']]] allowed_inference_geos: The geographies inference may run in. Omit to allow any geography.
-        :param pulumi.Input['InferenceGeo'] default_inference_geo: The geography inference runs in when a request doesn't choose one.
-        :param pulumi.Input['WorkspaceGeo'] workspace_geo: Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.
+        :param pulumi.Input[Sequence[pulumi.Input['InferenceGeo']]] allowed_inference_geos: The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
+        :param pulumi.Input['InferenceGeo'] default_inference_geo: The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
+        :param pulumi.Input['WorkspaceGeo'] workspace_geo: Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
         """
         if allowed_inference_geos is not None:
             pulumi.set(__self__, "allowed_inference_geos", allowed_inference_geos)
@@ -58,7 +58,7 @@ class DataResidencyArgs:
     @pulumi.getter(name="allowedInferenceGeos")
     def allowed_inference_geos(self) -> pulumi.Input[Optional[Sequence[pulumi.Input['InferenceGeo']]]]:
         """
-        The geographies inference may run in. Omit to allow any geography.
+        The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
         """
         return pulumi.get(self, "allowed_inference_geos")
 
@@ -70,7 +70,7 @@ class DataResidencyArgs:
     @pulumi.getter(name="defaultInferenceGeo")
     def default_inference_geo(self) -> pulumi.Input[Optional['InferenceGeo']]:
         """
-        The geography inference runs in when a request doesn't choose one.
+        The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
         """
         return pulumi.get(self, "default_inference_geo")
 
@@ -82,7 +82,7 @@ class DataResidencyArgs:
     @pulumi.getter(name="workspaceGeo")
     def workspace_geo(self) -> pulumi.Input[Optional['WorkspaceGeo']]:
         """
-        Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.
+        Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
         """
         return pulumi.get(self, "workspace_geo")
 
@@ -92,6 +92,9 @@ class DataResidencyArgs:
 
 
 class SpendLimitScopeArgsDict(TypedDict):
+    """
+    The user, workspace, or organization whose spending is capped. Specify only the ID matching the scope type.
+    """
     type: pulumi.Input['SpendLimitScopeType']
     """
     The kind of scope.
@@ -112,6 +115,8 @@ class SpendLimitScopeArgs:
                  user_id: pulumi.Input[Optional[_builtins.str]] = None,
                  workspace_id: pulumi.Input[Optional[_builtins.str]] = None):
         """
+        The user, workspace, or organization whose spending is capped. Specify only the ID matching the scope type.
+
         :param pulumi.Input['SpendLimitScopeType'] type: The kind of scope.
         :param pulumi.Input[_builtins.str] user_id: The user the limit applies to. Required for `user`.
         :param pulumi.Input[_builtins.str] workspace_id: The workspace the limit applies to. Required for `workspace`.

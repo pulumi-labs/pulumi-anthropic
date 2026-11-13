@@ -19,10 +19,14 @@ package config
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strings"
 
-	"github.com/anthropics/anthropic-sdk-go"
-	"github.com/anthropics/anthropic-sdk-go/option"
+	"github.com/anthropics/anthropic-sdk-go/v2"
+	sdkconfig "github.com/anthropics/anthropic-sdk-go/v2/config"
+	"github.com/anthropics/anthropic-sdk-go/v2/option"
 	"github.com/pulumi/pulumi-go-provider/infer"
+	"github.com/pulumi/pulumi/sdk/v3/go/property"
 )
 
 // Plane identifies the class of credential an endpoint accepts. The Anthropic API
@@ -42,32 +46,40 @@ const (
 
 // Config is the provider configuration.
 type Config struct {
-	APIKey      string `pulumi:"apiKey,optional"      provider:"secret"`
-	AdminKey    string `pulumi:"adminKey,optional"    provider:"secret"`
-	AuthToken   string `pulumi:"authToken,optional"   provider:"secret"`
-	BaseURL     string `pulumi:"baseUrl,optional"`
-	WorkspaceID string `pulumi:"workspaceId,optional"`
+	APIKey      string      `pulumi:"apiKey,optional"      provider:"secret"`
+	AdminKey    string      `pulumi:"adminKey,optional"    provider:"secret"`
+	AuthToken   string      `pulumi:"authToken,optional"   provider:"secret"`
+	BaseURL     string      `pulumi:"baseUrl,optional"`
+	WorkspaceID string      `pulumi:"workspaceId,optional"`
+	Federation  *Federation `pulumi:"federation,optional"`
 
 	clients map[Plane]*anthropic.Client
+
+	// Only set on a request-local CheckConfig receiver, never the configured client owner.
+	checkInputs *property.Map
 }
 
 var _ infer.CustomConfigure = (*Config)(nil)
 
 func (c *Config) Annotate(a infer.Annotator) {
+	a.Describe(c, "Authentication and organization/workspace settings for the Anthropic provider.")
 	a.Describe(&c.APIKey, "An Anthropic API key, used for workspace-scoped resources such as "+
-		"agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.")
+		"agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.")
 	a.Describe(&c.AdminKey, "An Anthropic Admin API key (`sk-ant-admin...`), used for "+
 		"organization resources such as workspaces, members, and invites. "+
-		"Falls back to `ANTHROPIC_ADMIN_KEY`.")
-	a.Describe(&c.AuthToken, "An OAuth access token, sent as a bearer token. It substitutes for "+
-		"either key, and is required for service accounts and workload identity federation, "+
-		"which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.")
+		"Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.")
+	a.Describe(&c.AuthToken, "An OAuth access token. Used when the API key or Admin API key for an operation is not set. "+
+		"OAuth-only identity operations require the `org:admin` scope. "+
+		"Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.")
+	a.Describe(&c.Federation, "Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. "+
+		"Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.")
 	a.Describe(&c.BaseURL, "The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, "+
 		"then to `https://api.anthropic.com`.")
-	a.Describe(&c.WorkspaceID, "The workspace that workspace-scoped resources are created in, "+
-		"sent as the `anthropic-workspace-id` header. Only needed when a credential can act "+
-		"on more than one workspace. To manage several workspaces, use one explicit "+
-		"provider per workspace.")
+	a.Describe(&c.WorkspaceID, "The workspace used for workspace-scoped operations. Required with federation, "+
+		"where it selects the workspace during token exchange. Otherwise, it is sent in the "+
+		"`anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. "+
+		"Changing this selection does not automatically replace resources. "+
+		"To manage several workspaces, use one explicit provider per workspace.")
 	a.SetDefault(&c.APIKey, "", "ANTHROPIC_API_KEY")
 	a.SetDefault(&c.AdminKey, "", "ANTHROPIC_ADMIN_KEY")
 	a.SetDefault(&c.AuthToken, "", "ANTHROPIC_AUTH_TOKEN")
@@ -76,35 +88,81 @@ func (c *Config) Annotate(a infer.Annotator) {
 
 // Configure builds one client per plane that has a usable credential.
 func (c *Config) Configure(context.Context) error {
+	c.clients = nil
+	base, err := normalizeBaseURL(c.BaseURL)
+	if err != nil {
+		return err
+	}
+	c.BaseURL = base
+	if failures := validateConfig(*c, nil); len(failures) != 0 {
+		return fmt.Errorf("%s: %s", failures[0].Property, failures[0].Reason)
+	}
 	common := []option.RequestOption{option.WithoutEnvironmentDefaults()}
 	if c.BaseURL != "" {
 		common = append(common, option.WithBaseURL(c.BaseURL))
 	}
-	if c.WorkspaceID != "" {
-		common = append(common, option.WithHeader("anthropic-workspace-id", c.WorkspaceID))
-	}
-	newClient := func(auth option.RequestOption) *anthropic.Client {
-		client := anthropic.NewClient(append(common, auth)...)
+	newClient := func(oauth, federation bool, auth ...option.RequestOption) *anthropic.Client {
+		// Never append to common's backing array: generated services retain options.
+		opts := append([]option.RequestOption(nil), common...)
+		if c.WorkspaceID != "" && !federation {
+			opts = append(opts, option.WithHeader("anthropic-workspace-id", c.WorkspaceID))
+		}
+		opts = append(opts, auth...)
+		if oauth {
+			opts = append(opts, option.WithMiddleware(oauthBeta))
+		}
+		client := anthropic.NewClient(opts...)
 		return &client
+	}
+	var oauth option.RequestOption
+	if c.AuthToken != "" {
+		oauth = option.WithAuthToken(c.AuthToken)
+	} else if c.Federation != nil {
+		oauth = option.WithFederationTokenProvider(c.Federation.IdentityToken.provider(), option.FederationOptions{
+			FederationRuleID: c.Federation.RuleID, OrganizationID: c.Federation.OrganizationID,
+			WorkspaceID: c.WorkspaceID, ServiceAccountID: c.Federation.ServiceAccountID,
+		})
 	}
 
 	c.clients = map[Plane]*anthropic.Client{}
 	switch {
 	case c.APIKey != "":
-		c.clients[Workspace] = newClient(option.WithAPIKey(c.APIKey))
-	case c.AuthToken != "":
-		c.clients[Workspace] = newClient(option.WithAuthToken(c.AuthToken))
+		// Use x-api-key without competing Authorization for API-key credentials.
+		c.clients[Workspace] = newClient(false, false, option.WithAPIKey(c.APIKey), option.WithHeader("x-api-key", c.APIKey), option.WithHeaderDel("Authorization"))
+	case oauth != nil:
+		c.clients[Workspace] = newClient(true, c.Federation != nil, oauth)
 	}
 	switch {
 	case c.AdminKey != "":
-		c.clients[Admin] = newClient(option.WithAPIKey(c.AdminKey))
-	case c.AuthToken != "":
-		c.clients[Admin] = newClient(option.WithAuthToken(c.AuthToken))
+		c.clients[Admin] = newClient(false, false, option.WithAPIKey(c.AdminKey), option.WithHeader("x-api-key", c.AdminKey), option.WithHeaderDel("Authorization"))
+	case oauth != nil:
+		c.clients[Admin] = newClient(true, c.Federation != nil, oauth)
 	}
-	if c.AuthToken != "" {
-		c.clients[OrgAdminOAuth] = newClient(option.WithAuthToken(c.AuthToken))
+	if oauth != nil {
+		c.clients[OrgAdminOAuth] = newClient(true, c.Federation != nil, oauth)
 	}
 	return nil
+}
+
+// oauthBeta runs after generated services have set their per-operation beta headers.
+func oauthBeta(req *http.Request, next option.MiddlewareNext) (*http.Response, error) {
+	req = req.Clone(req.Context())
+	var betas []string
+	seen := map[string]bool{}
+	for _, value := range req.Header.Values("anthropic-beta") {
+		for _, beta := range strings.Split(value, ",") {
+			beta = strings.TrimSpace(beta)
+			if beta != "" && !seen[beta] {
+				betas = append(betas, beta)
+				seen[beta] = true
+			}
+		}
+	}
+	if !seen[sdkconfig.OAuthAPIBetaHeader] {
+		betas = append(betas, sdkconfig.OAuthAPIBetaHeader)
+	}
+	req.Header.Set("anthropic-beta", strings.Join(betas, ","))
+	return next(req)
 }
 
 // Client returns the API client for a plane, or an error naming the credential to set.

@@ -20,14 +20,14 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
     public static final FederationIssuerArgs Empty = new FederationIssuerArgs();
 
     /**
-     * Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
+     * Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
      * 
      */
     @Import(name="checkJti")
     private @Nullable Output<Boolean> checkJti;
 
     /**
-     * @return Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
+     * @return Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
      * 
      */
     public Optional<Output<Boolean>> checkJti() {
@@ -35,14 +35,14 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
     }
 
     /**
-     * The issuer URL, which must match the `iss` claim of accepted tokens.
+     * The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
      * 
      */
     @Import(name="issuerUrl", required=true)
     private Output<String> issuerUrl;
 
     /**
-     * @return The issuer URL, which must match the `iss` claim of accepted tokens.
+     * @return The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
      * 
      */
     public Output<String> issuerUrl() {
@@ -50,14 +50,14 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
     }
 
     /**
-     * Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL.
+     * Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
      * 
      */
     @Import(name="jwks")
     private @Nullable Output<JwksArgs> jwks;
 
     /**
-     * @return Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL.
+     * @return Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
      * 
      */
     public Optional<Output<JwksArgs>> jwks() {
@@ -65,14 +65,14 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
     }
 
     /**
-     * The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+     * The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
      * 
      */
     @Import(name="maxJwtLifetimeSeconds")
     private @Nullable Output<Integer> maxJwtLifetimeSeconds;
 
     /**
-     * @return The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+     * @return The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
      * 
      */
     public Optional<Output<Integer>> maxJwtLifetimeSeconds() {
@@ -80,14 +80,14 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
     }
 
     /**
-     * A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+     * A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
      * 
      */
     @Import(name="name", required=true)
     private Output<String> name;
 
     /**
-     * @return A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+     * @return A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
      * 
      */
     public Output<String> name() {
@@ -123,7 +123,7 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param checkJti Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
+         * @param checkJti Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
          * 
          * @return builder
          * 
@@ -134,7 +134,7 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param checkJti Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
+         * @param checkJti Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
          * 
          * @return builder
          * 
@@ -144,7 +144,7 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param issuerUrl The issuer URL, which must match the `iss` claim of accepted tokens.
+         * @param issuerUrl The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
          * 
          * @return builder
          * 
@@ -155,7 +155,7 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param issuerUrl The issuer URL, which must match the `iss` claim of accepted tokens.
+         * @param issuerUrl The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
          * 
          * @return builder
          * 
@@ -165,7 +165,7 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param jwks Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL.
+         * @param jwks Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
          * 
          * @return builder
          * 
@@ -176,7 +176,7 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param jwks Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL.
+         * @param jwks Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
          * 
          * @return builder
          * 
@@ -186,7 +186,7 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param maxJwtLifetimeSeconds The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+         * @param maxJwtLifetimeSeconds The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
          * 
          * @return builder
          * 
@@ -197,7 +197,7 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param maxJwtLifetimeSeconds The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+         * @param maxJwtLifetimeSeconds The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
          * 
          * @return builder
          * 
@@ -207,7 +207,7 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param name A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+         * @param name A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
          * 
          * @return builder
          * 
@@ -218,7 +218,7 @@ public final class FederationIssuerArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param name A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+         * @param name A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
          * 
          * @return builder
          * 

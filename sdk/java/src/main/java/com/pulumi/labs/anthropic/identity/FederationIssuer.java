@@ -20,22 +20,24 @@ import javax.annotation.Nullable;
 /**
  * A workload identity federation issuer: an OIDC identity provider, such as GitHub Actions, a Kubernetes cluster, or a cloud&#39;s workload identity service, whose signed tokens workloads exchange for short-lived Anthropic access tokens. Which tokens are accepted, and which service account they act as, is decided by `FederationRule`s.
  * 
- * Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+ * Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. Issuers backing rules with scopes other than `workspace:developer` or `workspace:inference` must be updated in the Console. Creation registers trust configuration; it does not wait for signing-key polling or verify token exchange.
  * 
+ * Optional settings omitted from the start use platform defaults at creation; later changes to those settings outside this resource are preserved until you configure them. Import by issuer ID recovers the current settings.
+ *
  * The API cannot delete issuers, so deleting this resource archives the issuer. Archiving is refused while a live rule references the issuer.
  * 
  */
 @ResourceType(type="anthropic:identity:FederationIssuer")
 public class FederationIssuer extends com.pulumi.resources.CustomResource {
     /**
-     * Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
+     * Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
      * 
      */
     @Export(name="checkJti", refs={Boolean.class}, tree="[0]")
     private Output</* @Nullable */ Boolean> checkJti;
 
     /**
-     * @return Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
+     * @return Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
      * 
      */
     public Output<Optional<Boolean>> checkJti() {
@@ -56,70 +58,84 @@ public class FederationIssuer extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * The issuer URL, which must match the `iss` claim of accepted tokens.
+     * The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
      * 
      */
     @Export(name="issuerUrl", refs={String.class}, tree="[0]")
     private Output<String> issuerUrl;
 
     /**
-     * @return The issuer URL, which must match the `iss` claim of accepted tokens.
+     * @return The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
      * 
      */
     public Output<String> issuerUrl() {
         return this.issuerUrl;
     }
     /**
-     * Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL.
+     * Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
      * 
      */
     @Export(name="jwks", refs={Jwks.class}, tree="[0]")
     private Output</* @Nullable */ Jwks> jwks;
 
     /**
-     * @return Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL.
+     * @return Where the issuer&#39;s signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
      * 
      */
     public Output<Optional<Jwks>> jwks() {
         return Codegen.optional(this.jwks);
     }
     /**
-     * The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+     * When signing-key polling was automatically paused after repeated failures, in RFC 3339 format. After repairing the key endpoint, resume polling outside this resource using the Console or the issuer update API; this resource does not automatically resume it.
+     *
+     */
+    @Export(name="jwksPollingDisabledAt", refs={String.class}, tree="[0]")
+    private Output</* @Nullable */ String> jwksPollingDisabledAt;
+
+    /**
+     * @return When signing-key polling was automatically paused after repeated failures, in RFC 3339 format. After repairing the key endpoint, resume polling outside this resource using the Console or the issuer update API; this resource does not automatically resume it.
+     *
+     */
+    public Output<Optional<String>> jwksPollingDisabledAt() {
+        return Codegen.optional(this.jwksPollingDisabledAt);
+    }
+    /**
+     * The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
      * 
      */
     @Export(name="maxJwtLifetimeSeconds", refs={Integer.class}, tree="[0]")
     private Output</* @Nullable */ Integer> maxJwtLifetimeSeconds;
 
     /**
-     * @return The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+     * @return The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
      * 
      */
     public Output<Optional<Integer>> maxJwtLifetimeSeconds() {
         return Codegen.optional(this.maxJwtLifetimeSeconds);
     }
     /**
-     * A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+     * A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
      * 
      */
     @Export(name="name", refs={String.class}, tree="[0]")
     private Output<String> name;
 
     /**
-     * @return A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+     * @return A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
      * 
      */
     public Output<String> name() {
         return this.name;
     }
     /**
-     * The health of the platform&#39;s polling of the issuer&#39;s signing keys.
+     * The health of signing-key polling, when available. Usually absent for inline keys or before polling starts.
      * 
      */
     @Export(name="pollStatus", refs={PollStatus.class}, tree="[0]")
     private Output</* @Nullable */ PollStatus> pollStatus;
 
     /**
-     * @return The health of the platform&#39;s polling of the issuer&#39;s signing keys.
+     * @return The health of signing-key polling, when available. Usually absent for inline keys or before polling starts.
      * 
      */
     public Output<Optional<PollStatus>> pollStatus() {

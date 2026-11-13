@@ -14,38 +14,38 @@ import javax.annotation.Nullable;
 @CustomType
 public final class DataResidency {
     /**
-     * @return The geographies inference may run in. Omit to allow any geography.
+     * @return The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
      * 
      */
     private @Nullable List<InferenceGeo> allowedInferenceGeos;
     /**
-     * @return The geography inference runs in when a request doesn&#39;t choose one.
+     * @return The geography inference runs in when a request doesn&#39;t choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
      * 
      */
     private @Nullable InferenceGeo defaultInferenceGeo;
     /**
-     * @return Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace.
+     * @return Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
      * 
      */
     private @Nullable WorkspaceGeo workspaceGeo;
 
     private DataResidency() {}
     /**
-     * @return The geographies inference may run in. Omit to allow any geography.
+     * @return The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
      * 
      */
     public List<InferenceGeo> allowedInferenceGeos() {
         return this.allowedInferenceGeos == null ? List.of() : this.allowedInferenceGeos;
     }
     /**
-     * @return The geography inference runs in when a request doesn&#39;t choose one.
+     * @return The geography inference runs in when a request doesn&#39;t choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
      * 
      */
     public Optional<InferenceGeo> defaultInferenceGeo() {
         return Optional.ofNullable(this.defaultInferenceGeo);
     }
     /**
-     * @return Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace.
+     * @return Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
      * 
      */
     public Optional<WorkspaceGeo> workspaceGeo() {

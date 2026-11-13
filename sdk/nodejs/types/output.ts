@@ -6,6 +6,46 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 import * as enums from "../types/enums";
 
+/**
+ * Workload identity federation using an explicitly configured OIDC identity token source. Files are reread and commands are rerun when a new access token is needed. No default token file or authentication profile is used.
+ */
+export interface Federation {
+    /**
+     * The OIDC assertion source. Specify exactly one of token, file or command. This configuration is secret; file contents and command output are not saved in provider state. Assertions with a jti claim must be fresh for each exchange; use a command that obtains a new assertion rather than sharing a previously exchanged token.
+     */
+    identityToken: outputs.IdentityToken;
+    /**
+     * The organization the federation rule belongs to. Required for the token exchange; this value does not select an organization for API-key operations.
+     */
+    organizationId: string;
+    /**
+     * Federation rule ID (fdrl_...). The server's rule determines granted scopes; OAuth-only identity operations require org:admin.
+     */
+    ruleId: string;
+    /**
+     * Optional expected service-account target (svac_...). Omit for user-targeted rules.
+     */
+    serviceAccountId?: string;
+}
+
+/**
+ * An OIDC identity token source. Specify exactly one of token, file or command.
+ */
+export interface IdentityToken {
+    /**
+     * Executable followed by zero or more arguments, invoked whenever a new access token is needed. Must print one nonempty JWT to stdout, at most 64 KiB; surrounding whitespace is trimmed. Runs directly without a shell, inherits the provider process environment and working directory, and is stopped after 30 seconds or operation cancellation. Specify a shell explicitly for shell syntax. Command stdout and stderr are never logged or saved in provider state.
+     */
+    command?: string[];
+    /**
+     * Absolute path to an OIDC JWT file, reread whenever a new access token is needed. Rotate the file before each exchange if its JWT carries a single-use jti claim. The file contents are not saved in provider state.
+     */
+    file?: string;
+    /**
+     * A literal OIDC JWT. It is reused for each exchange and cannot be renewed by the provider. A JWT with a jti claim can be exchanged only once when issuer replay protection is enabled.
+     */
+    token?: string;
+}
+
 export interface ModelInfo {
     /**
      * When the model was released, in RFC 3339 format.
@@ -75,31 +115,63 @@ export interface RateLimitValue {
 }
 
 export namespace agents {
+    /**
+     * Controls whether the primary thread can consult an advisor model.
+     */
+    export interface AgentAdvisor {
+        /**
+         * Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+         */
+        model?: string;
+        /**
+         * enabled or disabled.
+         */
+        type: string;
+    }
+
+    /**
+     * Controls subagent or workflow delegation independently.
+     */
+    export interface AgentDelegation {
+        /**
+         * enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+         */
+        inlineAgents?: string;
+        /**
+         * At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+         */
+        predefinedAgents?: outputs.agents.RosterEntry[];
+        /**
+         * enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+         */
+        type: string;
+    }
+
     export interface AgentReference {
         /**
          * The agent's ID.
          */
         id: string;
         /**
-         * The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+         * The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
          */
         version?: number;
     }
 
     export interface Budget {
         /**
-         * The most the deployment may spend, at list price.
+         * The most each future session may spend at public list prices, rather than negotiated prices.
          */
         maxListCost: outputs.agents.MonetaryAmount;
     }
 
     export interface Checkout {
         /**
-         * The branch. Required for `branch`.
+         * The branch. Required for branch.
          */
         name?: string;
         /**
-         * The commit SHA. Required for `commit`.
+         * The commit SHA. Required for commit.
          */
         sha?: string;
         /**
@@ -114,7 +186,7 @@ export namespace agents {
          */
         accessToken?: string;
         /**
-         * When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+         * When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
          */
         expiresAt?: string;
         /**
@@ -164,31 +236,31 @@ export namespace agents {
 
     export interface DeploymentResource {
         /**
-         * Whether the agent can write to the memory store. For `memory_store`.
+         * Whether the agent can write to the memory store. For memory_store; defaults to read_write.
          */
         access?: enums.agents.MemoryAccess;
         /**
-         * A token that can read the repository. For `github_repository`.
+         * A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
          */
         authorizationToken?: string;
         /**
-         * The branch or commit to check out. For `github_repository`; defaults to the default branch.
+         * The branch or commit to check out. For github_repository; defaults to the default branch.
          */
         checkout?: outputs.agents.Checkout;
         /**
-         * The file's ID. Required for `file`.
+         * The file's ID. Required for file.
          */
         fileId?: string;
         /**
-         * How the agent should use the memory store. For `memory_store`.
+         * How the agent should use the memory store. For memory_store; at most 4096 characters.
          */
         instructions?: string;
         /**
-         * The memory store's ID. Required for `memory_store`.
+         * The memory store's ID. Required for memory_store.
          */
         memoryStoreId?: string;
         /**
-         * Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+         * Where the resource is mounted in the sandbox. For github_repository and file.
          */
         mountPath?: string;
         /**
@@ -196,18 +268,18 @@ export namespace agents {
          */
         type: enums.agents.DeploymentResourceType;
         /**
-         * The repository's URL. Required for `github_repository`.
+         * The repository's URL. Required for github_repository.
          */
         url?: string;
     }
 
     export interface EnvironmentConfig {
         /**
-         * The sandbox's network access. Applies to `cloud`.
+         * The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
          */
         networking?: outputs.agents.EnvironmentNetworking;
         /**
-         * Packages installed in the sandbox. Applies to `cloud`.
+         * Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
          */
         packages?: outputs.agents.Packages;
         /**
@@ -218,21 +290,67 @@ export namespace agents {
 
     export interface EnvironmentNetworking {
         /**
-         * Whether the agent's MCP servers are reachable. Applies to `limited`.
+         * Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
          */
         allowMcpServers?: boolean;
         /**
-         * Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+         * Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
          */
         allowPackageManagers?: boolean;
         /**
-         * Hosts the sandbox can reach. Applies to `limited`.
+         * Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
          */
         allowedHosts?: string[];
         /**
          * Whether network access is unrestricted or limited.
          */
         type: enums.agents.NetworkingType;
+    }
+
+    /**
+     * Execution principal for agent runs. Configuring a principal does not grant its permissions.
+     */
+    export interface ExecutionIdentity {
+        /**
+         * AWS IAM role ARN. Required only for aws_role.
+         */
+        roleArn?: string;
+        /**
+         * aws_role or service_account. service_account restores the default principal.
+         */
+        type: string;
+    }
+
+    /**
+     * Selects tool results whose URLs may be fetched.
+     */
+    export interface FetchToolFilter {
+        /**
+         * Exact case-sensitive tool names for only or except.
+         */
+        tools?: string[];
+        /**
+         * all, none, only or except. only and except require a tools list.
+         */
+        type: string;
+    }
+
+    /**
+     * Conversation sources allowed to contribute fetchable URLs.
+     */
+    export interface FetchURLSources {
+        /**
+         * Filter for custom tool results. Tool names must refer to custom tools in this agent.
+         */
+        clientToolResults?: outputs.agents.FetchToolFilter;
+        /**
+         * Filter for built-in tool results. Listed names must be web_search or web_fetch.
+         */
+        serverToolResults?: outputs.agents.FetchToolFilter;
+        /**
+         * all or none, controlling URLs in user messages. Defaults to all.
+         */
+        userInput?: string;
     }
 
     export interface InjectionLocation {
@@ -246,6 +364,9 @@ export namespace agents {
         header?: boolean;
     }
 
+    /**
+     * A named remote MCP endpoint available to the agent.
+     */
     export interface MCPServer {
         /**
          * The server's name, which an `mcp_toolset` tool refers to.
@@ -257,9 +378,12 @@ export namespace agents {
         url: string;
     }
 
+    /**
+     * Model selection and inference settings for an agent.
+     */
     export interface Model {
         /**
-         * How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
+         * How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
          */
         effort?: enums.agents.Effort;
         /**
@@ -267,31 +391,50 @@ export namespace agents {
          */
         id: string;
         /**
-         * Where inference runs, such as `us` or `global`.
+         * Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
          */
         inferenceGeo?: string;
         /**
-         * The inference speed tier.
+         * The inference speed tier. Removing a configured tier restores standard.
          */
         speed?: enums.agents.Speed;
     }
 
     export interface MonetaryAmount {
         /**
-         * The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+         * The amount in the currency's minor units, as an integer string: 2500 is $25.00.
          */
         amount: string;
         /**
-         * The ISO 4217 currency code. Only `USD` is supported.
+         * The ISO 4217 currency code. Only USD is supported.
          */
         currency: string;
     }
 
+    /**
+     * Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
+     */
     export interface Multiagent {
         /**
-         * The agents the coordinator can delegate to, between 1 and 20.
+         * Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
          */
-        agents: outputs.agents.RosterEntry[];
+        advisor?: outputs.agents.AgentAdvisor;
+        /**
+         * The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
+         */
+        agents?: outputs.agents.RosterEntry[];
+        /**
+         * Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+         */
+        subagents?: outputs.agents.AgentDelegation;
+        /**
+         * Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+         */
+        type?: string;
+        /**
+         * Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+         */
+        workflows?: outputs.agents.AgentDelegation;
     }
 
     export interface OAuthRefresh {
@@ -300,15 +443,15 @@ export namespace agents {
          */
         clientId: string;
         /**
-         * The OAuth refresh token.
+         * The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
          */
-        refreshToken: string;
+        refreshToken?: string;
         /**
          * The OAuth resource indicator. Changing it replaces the credential.
          */
         resource?: string;
         /**
-         * The OAuth scope to request.
+         * The OAuth scope to request. Removing this setting clears the stored scope.
          */
         scope?: string;
         /**
@@ -348,6 +491,9 @@ export namespace agents {
         pip?: string[];
     }
 
+    /**
+     * An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
+     */
     export interface RosterEntry {
         /**
          * The agent's ID. Required for `agent`.
@@ -369,15 +515,40 @@ export namespace agents {
 
     export interface Schedule {
         /**
-         * A cron expression, such as `0 9 * * 1-5`.
+         * A cron expression, such as 0 9 * * 1-5.
          */
         expression: string;
         /**
-         * The IANA time zone the expression is evaluated in, such as `America/New_York`.
+         * The IANA time zone the expression is evaluated in, such as America/New_York.
          */
         timezone: string;
     }
 
+    /**
+     * Approximate user location for search localization.
+     */
+    export interface SearchLocation {
+        /**
+         * City name.
+         */
+        city?: string;
+        /**
+         * Uppercase two-letter ISO 3166-1 country code.
+         */
+        country?: string;
+        /**
+         * Region or state name.
+         */
+        region?: string;
+        /**
+         * IANA timezone identifier, such as America/Los_Angeles.
+         */
+        timezone?: string;
+    }
+
+    /**
+     * An Anthropic-provided or organization-uploaded skill available to an agent.
+     */
     export interface SkillRef {
         /**
          * The skill's ID.
@@ -399,11 +570,14 @@ export namespace agents {
          */
         clientSecret?: string;
         /**
-         * The authentication method.
+         * The authentication method. Changing it replaces the credential.
          */
         type: enums.agents.TokenEndpointAuthType;
     }
 
+    /**
+     * An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
+     */
     export interface Tool {
         /**
          * Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
@@ -435,11 +609,26 @@ export namespace agents {
         type: enums.agents.ToolType;
     }
 
+    /**
+     * Settings for one tool within an agent or MCP toolset.
+     */
     export interface ToolConfig {
+        /**
+         * Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+         */
+        allowedDomains?: string[];
+        /**
+         * Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+         */
+        blockedDomains?: string[];
         /**
          * Whether the agent may use the tool.
          */
         enabled?: boolean;
+        /**
+         * Maximum fetched content tokens, for web_fetch.
+         */
+        maxContentTokens?: number;
         /**
          * The tool's name, such as `bash` or `web_fetch`.
          */
@@ -448,8 +637,19 @@ export namespace agents {
          * Whether a tool call needs approval.
          */
         permissionPolicy?: enums.agents.PermissionPolicy;
+        /**
+         * Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+         */
+        urlSources?: outputs.agents.FetchURLSources;
+        /**
+         * Approximate location used to localize web_search results.
+         */
+        userLocation?: outputs.agents.SearchLocation;
     }
 
+    /**
+     * Default settings for tools without an individual override.
+     */
     export interface ToolDefaults {
         /**
          * Whether the agent may use the tools.
@@ -471,6 +671,9 @@ export namespace agents {
 }
 
 export namespace identity {
+    /**
+     * Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
+     */
     export interface FederationMatch {
         /**
          * The required `aud` claim.
@@ -485,11 +688,14 @@ export namespace identity {
          */
         condition?: string;
         /**
-         * A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+         * Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
          */
         subjectPrefix?: string;
     }
 
+    /**
+     * The service account that tokens issued by a federation rule act as.
+     */
     export interface FederationTarget {
         /**
          * The service account's ID.
@@ -497,17 +703,20 @@ export namespace identity {
         serviceAccountId: string;
     }
 
+    /**
+     * The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
+     */
     export interface Jwks {
         /**
          * A PEM-encoded CA certificate to trust when fetching the keys, up to 8,192 characters. For `discovery` and `explicit_url`.
          */
         caCertPem?: string;
         /**
-         * The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+         * The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
          */
         discoveryBase?: string;
         /**
-         * The signing keys, as JSON Web Keys. Required for `inline`.
+         * A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
          */
         keys?: {[key: string]: any}[];
         /**
@@ -515,11 +724,14 @@ export namespace identity {
          */
         type: enums.identity.JwksType;
         /**
-         * The JWKS URL. Required for `explicit_url`.
+         * The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
          */
         url?: string;
     }
 
+    /**
+     * The health and schedule of automatic signing-key polling, when available.
+     */
     export interface PollStatus {
         /**
          * How many polls in a row have failed.
@@ -538,21 +750,52 @@ export namespace identity {
 }
 
 export namespace organization {
+    /**
+     * A user or service account associated with a key.
+     */
+    export interface ApiKeyActor {
+        /**
+         * The user or service account ID.
+         */
+        id: string;
+        /**
+         * Either user or service_account.
+         */
+        type: string;
+    }
+
+    /**
+     * The organization or workspace to which a key belongs.
+     */
+    export interface ApiKeyScope {
+        /**
+         * Either organization or workspace.
+         */
+        type: string;
+        /**
+         * The actual workspace ID, including for the default workspace; absent for organization-scoped keys.
+         */
+        workspaceId?: string;
+    }
+
     export interface DataResidency {
         /**
-         * The geographies inference may run in. Omit to allow any geography.
+         * The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
          */
         allowedInferenceGeos?: enums.organization.InferenceGeo[];
         /**
-         * The geography inference runs in when a request doesn't choose one.
+         * The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
          */
         defaultInferenceGeo?: enums.organization.InferenceGeo;
         /**
-         * Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.
+         * Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
          */
         workspaceGeo?: enums.organization.WorkspaceGeo;
     }
 
+    /**
+     * The user, workspace, or organization whose spending is capped. Specify only the ID matching the scope type.
+     */
     export interface SpendLimitScope {
         /**
          * The kind of scope.

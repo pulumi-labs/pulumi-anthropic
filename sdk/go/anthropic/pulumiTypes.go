@@ -13,6 +13,381 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
+// Workload identity federation using an explicitly configured OIDC identity token source. Files are reread and commands are rerun when a new access token is needed. No default token file or authentication profile is used.
+type Federation struct {
+	// The OIDC assertion source. Specify exactly one of token, file or command. This configuration is secret; file contents and command output are not saved in provider state. Assertions with a jti claim must be fresh for each exchange; use a command that obtains a new assertion rather than sharing a previously exchanged token.
+	IdentityToken IdentityToken `pulumi:"identityToken"`
+	// The organization the federation rule belongs to. Required for the token exchange; this value does not select an organization for API-key operations.
+	OrganizationId string `pulumi:"organizationId"`
+	// Federation rule ID (fdrl_...). The server's rule determines granted scopes; OAuth-only identity operations require org:admin.
+	RuleId string `pulumi:"ruleId"`
+	// Optional expected service-account target (svac_...). Omit for user-targeted rules.
+	ServiceAccountId *string `pulumi:"serviceAccountId"`
+}
+
+// FederationInput is an input type that accepts FederationArgs and FederationOutput values.
+// You can construct a concrete instance of `FederationInput` via:
+//
+//	FederationArgs{...}
+type FederationInput interface {
+	pulumi.Input
+
+	ToFederationOutput() FederationOutput
+	ToFederationOutputWithContext(context.Context) FederationOutput
+}
+
+// Workload identity federation using an explicitly configured OIDC identity token source. Files are reread and commands are rerun when a new access token is needed. No default token file or authentication profile is used.
+type FederationArgs struct {
+	// The OIDC assertion source. Specify exactly one of token, file or command. This configuration is secret; file contents and command output are not saved in provider state. Assertions with a jti claim must be fresh for each exchange; use a command that obtains a new assertion rather than sharing a previously exchanged token.
+	IdentityToken IdentityTokenInput `pulumi:"identityToken"`
+	// The organization the federation rule belongs to. Required for the token exchange; this value does not select an organization for API-key operations.
+	OrganizationId pulumi.StringInput `pulumi:"organizationId"`
+	// Federation rule ID (fdrl_...). The server's rule determines granted scopes; OAuth-only identity operations require org:admin.
+	RuleId pulumi.StringInput `pulumi:"ruleId"`
+	// Optional expected service-account target (svac_...). Omit for user-targeted rules.
+	ServiceAccountId pulumi.StringPtrInput `pulumi:"serviceAccountId"`
+}
+
+func (FederationArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*Federation)(nil)).Elem()
+}
+
+func (i FederationArgs) ToFederationOutput() FederationOutput {
+	return i.ToFederationOutputWithContext(context.Background())
+}
+
+func (i FederationArgs) ToFederationOutputWithContext(ctx context.Context) FederationOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(FederationOutput)
+}
+
+func (i FederationArgs) ToFederationPtrOutput() FederationPtrOutput {
+	return i.ToFederationPtrOutputWithContext(context.Background())
+}
+
+func (i FederationArgs) ToFederationPtrOutputWithContext(ctx context.Context) FederationPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(FederationOutput).ToFederationPtrOutputWithContext(ctx)
+}
+
+// FederationPtrInput is an input type that accepts FederationArgs, FederationPtr and FederationPtrOutput values.
+// You can construct a concrete instance of `FederationPtrInput` via:
+//
+//	        FederationArgs{...}
+//
+//	or:
+//
+//	        nil
+type FederationPtrInput interface {
+	pulumi.Input
+
+	ToFederationPtrOutput() FederationPtrOutput
+	ToFederationPtrOutputWithContext(context.Context) FederationPtrOutput
+}
+
+type federationPtrType FederationArgs
+
+func FederationPtr(v *FederationArgs) FederationPtrInput {
+	return (*federationPtrType)(v)
+}
+
+func (*federationPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**Federation)(nil)).Elem()
+}
+
+func (i *federationPtrType) ToFederationPtrOutput() FederationPtrOutput {
+	return i.ToFederationPtrOutputWithContext(context.Background())
+}
+
+func (i *federationPtrType) ToFederationPtrOutputWithContext(ctx context.Context) FederationPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(FederationPtrOutput)
+}
+
+// Workload identity federation using an explicitly configured OIDC identity token source. Files are reread and commands are rerun when a new access token is needed. No default token file or authentication profile is used.
+type FederationOutput struct{ *pulumi.OutputState }
+
+func (FederationOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*Federation)(nil)).Elem()
+}
+
+func (o FederationOutput) ToFederationOutput() FederationOutput {
+	return o
+}
+
+func (o FederationOutput) ToFederationOutputWithContext(ctx context.Context) FederationOutput {
+	return o
+}
+
+func (o FederationOutput) ToFederationPtrOutput() FederationPtrOutput {
+	return o.ToFederationPtrOutputWithContext(context.Background())
+}
+
+func (o FederationOutput) ToFederationPtrOutputWithContext(ctx context.Context) FederationPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v Federation) *Federation {
+		return &v
+	}).(FederationPtrOutput)
+}
+
+// The OIDC assertion source. Specify exactly one of token, file or command. This configuration is secret; file contents and command output are not saved in provider state. Assertions with a jti claim must be fresh for each exchange; use a command that obtains a new assertion rather than sharing a previously exchanged token.
+func (o FederationOutput) IdentityToken() IdentityTokenOutput {
+	return o.ApplyT(func(v Federation) IdentityToken { return v.IdentityToken }).(IdentityTokenOutput)
+}
+
+// The organization the federation rule belongs to. Required for the token exchange; this value does not select an organization for API-key operations.
+func (o FederationOutput) OrganizationId() pulumi.StringOutput {
+	return o.ApplyT(func(v Federation) string { return v.OrganizationId }).(pulumi.StringOutput)
+}
+
+// Federation rule ID (fdrl_...). The server's rule determines granted scopes; OAuth-only identity operations require org:admin.
+func (o FederationOutput) RuleId() pulumi.StringOutput {
+	return o.ApplyT(func(v Federation) string { return v.RuleId }).(pulumi.StringOutput)
+}
+
+// Optional expected service-account target (svac_...). Omit for user-targeted rules.
+func (o FederationOutput) ServiceAccountId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v Federation) *string { return v.ServiceAccountId }).(pulumi.StringPtrOutput)
+}
+
+type FederationPtrOutput struct{ *pulumi.OutputState }
+
+func (FederationPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**Federation)(nil)).Elem()
+}
+
+func (o FederationPtrOutput) ToFederationPtrOutput() FederationPtrOutput {
+	return o
+}
+
+func (o FederationPtrOutput) ToFederationPtrOutputWithContext(ctx context.Context) FederationPtrOutput {
+	return o
+}
+
+func (o FederationPtrOutput) Elem() FederationOutput {
+	return o.ApplyT(func(v *Federation) Federation {
+		if v != nil {
+			return *v
+		}
+		var ret Federation
+		return ret
+	}).(FederationOutput)
+}
+
+// The OIDC assertion source. Specify exactly one of token, file or command. This configuration is secret; file contents and command output are not saved in provider state. Assertions with a jti claim must be fresh for each exchange; use a command that obtains a new assertion rather than sharing a previously exchanged token.
+func (o FederationPtrOutput) IdentityToken() IdentityTokenPtrOutput {
+	return o.ApplyT(func(v *Federation) *IdentityToken {
+		if v == nil {
+			return nil
+		}
+		return &v.IdentityToken
+	}).(IdentityTokenPtrOutput)
+}
+
+// The organization the federation rule belongs to. Required for the token exchange; this value does not select an organization for API-key operations.
+func (o FederationPtrOutput) OrganizationId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Federation) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.OrganizationId
+	}).(pulumi.StringPtrOutput)
+}
+
+// Federation rule ID (fdrl_...). The server's rule determines granted scopes; OAuth-only identity operations require org:admin.
+func (o FederationPtrOutput) RuleId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Federation) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.RuleId
+	}).(pulumi.StringPtrOutput)
+}
+
+// Optional expected service-account target (svac_...). Omit for user-targeted rules.
+func (o FederationPtrOutput) ServiceAccountId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Federation) *string {
+		if v == nil {
+			return nil
+		}
+		return v.ServiceAccountId
+	}).(pulumi.StringPtrOutput)
+}
+
+// An OIDC identity token source. Specify exactly one of token, file or command.
+type IdentityToken struct {
+	// Executable followed by zero or more arguments, invoked whenever a new access token is needed. Must print one nonempty JWT to stdout, at most 64 KiB; surrounding whitespace is trimmed. Runs directly without a shell, inherits the provider process environment and working directory, and is stopped after 30 seconds or operation cancellation. Specify a shell explicitly for shell syntax. Command stdout and stderr are never logged or saved in provider state.
+	Command []string `pulumi:"command"`
+	// Absolute path to an OIDC JWT file, reread whenever a new access token is needed. Rotate the file before each exchange if its JWT carries a single-use jti claim. The file contents are not saved in provider state.
+	File *string `pulumi:"file"`
+	// A literal OIDC JWT. It is reused for each exchange and cannot be renewed by the provider. A JWT with a jti claim can be exchanged only once when issuer replay protection is enabled.
+	Token *string `pulumi:"token"`
+}
+
+// IdentityTokenInput is an input type that accepts IdentityTokenArgs and IdentityTokenOutput values.
+// You can construct a concrete instance of `IdentityTokenInput` via:
+//
+//	IdentityTokenArgs{...}
+type IdentityTokenInput interface {
+	pulumi.Input
+
+	ToIdentityTokenOutput() IdentityTokenOutput
+	ToIdentityTokenOutputWithContext(context.Context) IdentityTokenOutput
+}
+
+// An OIDC identity token source. Specify exactly one of token, file or command.
+type IdentityTokenArgs struct {
+	// Executable followed by zero or more arguments, invoked whenever a new access token is needed. Must print one nonempty JWT to stdout, at most 64 KiB; surrounding whitespace is trimmed. Runs directly without a shell, inherits the provider process environment and working directory, and is stopped after 30 seconds or operation cancellation. Specify a shell explicitly for shell syntax. Command stdout and stderr are never logged or saved in provider state.
+	Command pulumi.StringArrayInput `pulumi:"command"`
+	// Absolute path to an OIDC JWT file, reread whenever a new access token is needed. Rotate the file before each exchange if its JWT carries a single-use jti claim. The file contents are not saved in provider state.
+	File pulumi.StringPtrInput `pulumi:"file"`
+	// A literal OIDC JWT. It is reused for each exchange and cannot be renewed by the provider. A JWT with a jti claim can be exchanged only once when issuer replay protection is enabled.
+	Token pulumi.StringPtrInput `pulumi:"token"`
+}
+
+func (IdentityTokenArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*IdentityToken)(nil)).Elem()
+}
+
+func (i IdentityTokenArgs) ToIdentityTokenOutput() IdentityTokenOutput {
+	return i.ToIdentityTokenOutputWithContext(context.Background())
+}
+
+func (i IdentityTokenArgs) ToIdentityTokenOutputWithContext(ctx context.Context) IdentityTokenOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(IdentityTokenOutput)
+}
+
+func (i IdentityTokenArgs) ToIdentityTokenPtrOutput() IdentityTokenPtrOutput {
+	return i.ToIdentityTokenPtrOutputWithContext(context.Background())
+}
+
+func (i IdentityTokenArgs) ToIdentityTokenPtrOutputWithContext(ctx context.Context) IdentityTokenPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(IdentityTokenOutput).ToIdentityTokenPtrOutputWithContext(ctx)
+}
+
+// IdentityTokenPtrInput is an input type that accepts IdentityTokenArgs, IdentityTokenPtr and IdentityTokenPtrOutput values.
+// You can construct a concrete instance of `IdentityTokenPtrInput` via:
+//
+//	        IdentityTokenArgs{...}
+//
+//	or:
+//
+//	        nil
+type IdentityTokenPtrInput interface {
+	pulumi.Input
+
+	ToIdentityTokenPtrOutput() IdentityTokenPtrOutput
+	ToIdentityTokenPtrOutputWithContext(context.Context) IdentityTokenPtrOutput
+}
+
+type identityTokenPtrType IdentityTokenArgs
+
+func IdentityTokenPtr(v *IdentityTokenArgs) IdentityTokenPtrInput {
+	return (*identityTokenPtrType)(v)
+}
+
+func (*identityTokenPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**IdentityToken)(nil)).Elem()
+}
+
+func (i *identityTokenPtrType) ToIdentityTokenPtrOutput() IdentityTokenPtrOutput {
+	return i.ToIdentityTokenPtrOutputWithContext(context.Background())
+}
+
+func (i *identityTokenPtrType) ToIdentityTokenPtrOutputWithContext(ctx context.Context) IdentityTokenPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(IdentityTokenPtrOutput)
+}
+
+// An OIDC identity token source. Specify exactly one of token, file or command.
+type IdentityTokenOutput struct{ *pulumi.OutputState }
+
+func (IdentityTokenOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*IdentityToken)(nil)).Elem()
+}
+
+func (o IdentityTokenOutput) ToIdentityTokenOutput() IdentityTokenOutput {
+	return o
+}
+
+func (o IdentityTokenOutput) ToIdentityTokenOutputWithContext(ctx context.Context) IdentityTokenOutput {
+	return o
+}
+
+func (o IdentityTokenOutput) ToIdentityTokenPtrOutput() IdentityTokenPtrOutput {
+	return o.ToIdentityTokenPtrOutputWithContext(context.Background())
+}
+
+func (o IdentityTokenOutput) ToIdentityTokenPtrOutputWithContext(ctx context.Context) IdentityTokenPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v IdentityToken) *IdentityToken {
+		return &v
+	}).(IdentityTokenPtrOutput)
+}
+
+// Executable followed by zero or more arguments, invoked whenever a new access token is needed. Must print one nonempty JWT to stdout, at most 64 KiB; surrounding whitespace is trimmed. Runs directly without a shell, inherits the provider process environment and working directory, and is stopped after 30 seconds or operation cancellation. Specify a shell explicitly for shell syntax. Command stdout and stderr are never logged or saved in provider state.
+func (o IdentityTokenOutput) Command() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v IdentityToken) []string { return v.Command }).(pulumi.StringArrayOutput)
+}
+
+// Absolute path to an OIDC JWT file, reread whenever a new access token is needed. Rotate the file before each exchange if its JWT carries a single-use jti claim. The file contents are not saved in provider state.
+func (o IdentityTokenOutput) File() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v IdentityToken) *string { return v.File }).(pulumi.StringPtrOutput)
+}
+
+// A literal OIDC JWT. It is reused for each exchange and cannot be renewed by the provider. A JWT with a jti claim can be exchanged only once when issuer replay protection is enabled.
+func (o IdentityTokenOutput) Token() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v IdentityToken) *string { return v.Token }).(pulumi.StringPtrOutput)
+}
+
+type IdentityTokenPtrOutput struct{ *pulumi.OutputState }
+
+func (IdentityTokenPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**IdentityToken)(nil)).Elem()
+}
+
+func (o IdentityTokenPtrOutput) ToIdentityTokenPtrOutput() IdentityTokenPtrOutput {
+	return o
+}
+
+func (o IdentityTokenPtrOutput) ToIdentityTokenPtrOutputWithContext(ctx context.Context) IdentityTokenPtrOutput {
+	return o
+}
+
+func (o IdentityTokenPtrOutput) Elem() IdentityTokenOutput {
+	return o.ApplyT(func(v *IdentityToken) IdentityToken {
+		if v != nil {
+			return *v
+		}
+		var ret IdentityToken
+		return ret
+	}).(IdentityTokenOutput)
+}
+
+// Executable followed by zero or more arguments, invoked whenever a new access token is needed. Must print one nonempty JWT to stdout, at most 64 KiB; surrounding whitespace is trimmed. Runs directly without a shell, inherits the provider process environment and working directory, and is stopped after 30 seconds or operation cancellation. Specify a shell explicitly for shell syntax. Command stdout and stderr are never logged or saved in provider state.
+func (o IdentityTokenPtrOutput) Command() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *IdentityToken) []string {
+		if v == nil {
+			return nil
+		}
+		return v.Command
+	}).(pulumi.StringArrayOutput)
+}
+
+// Absolute path to an OIDC JWT file, reread whenever a new access token is needed. Rotate the file before each exchange if its JWT carries a single-use jti claim. The file contents are not saved in provider state.
+func (o IdentityTokenPtrOutput) File() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *IdentityToken) *string {
+		if v == nil {
+			return nil
+		}
+		return v.File
+	}).(pulumi.StringPtrOutput)
+}
+
+// A literal OIDC JWT. It is reused for each exchange and cannot be renewed by the provider. A JWT with a jti claim can be exchanged only once when issuer replay protection is enabled.
+func (o IdentityTokenPtrOutput) Token() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *IdentityToken) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Token
+	}).(pulumi.StringPtrOutput)
+}
+
 type ModelInfo struct {
 	// When the model was released, in RFC 3339 format.
 	CreatedAt string `pulumi:"createdAt"`
@@ -240,6 +615,14 @@ func (o RateLimitValueArrayOutput) Index(i pulumi.IntInput) RateLimitValueOutput
 }
 
 func init() {
+	pulumi.RegisterInputType(reflect.TypeOf((*FederationInput)(nil)).Elem(), FederationArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*FederationPtrInput)(nil)).Elem(), FederationArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*IdentityTokenInput)(nil)).Elem(), IdentityTokenArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*IdentityTokenPtrInput)(nil)).Elem(), IdentityTokenArgs{})
+	pulumi.RegisterOutputType(FederationOutput{})
+	pulumi.RegisterOutputType(FederationPtrOutput{})
+	pulumi.RegisterOutputType(IdentityTokenOutput{})
+	pulumi.RegisterOutputType(IdentityTokenPtrOutput{})
 	pulumi.RegisterOutputType(ModelInfoOutput{})
 	pulumi.RegisterOutputType(ModelInfoArrayOutput{})
 	pulumi.RegisterOutputType(RateLimitOutput{})

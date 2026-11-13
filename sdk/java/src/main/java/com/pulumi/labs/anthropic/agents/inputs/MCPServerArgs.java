@@ -10,20 +10,24 @@ import java.lang.String;
 import java.util.Objects;
 
 
+/**
+ * A named remote MCP endpoint available to the agent.
+ *
+ */
 public final class MCPServerArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final MCPServerArgs Empty = new MCPServerArgs();
 
     /**
      * The server&#39;s name, which an `mcp_toolset` tool refers to.
-     * 
+     *
      */
     @Import(name="name", required=true)
     private Output<String> name;
 
     /**
      * @return The server&#39;s name, which an `mcp_toolset` tool refers to.
-     * 
+     *
      */
     public Output<String> name() {
         return this.name;
@@ -31,14 +35,14 @@ public final class MCPServerArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The server&#39;s URL. Credentials for it are supplied by a vault at session time.
-     * 
+     *
      */
     @Import(name="url", required=true)
     private Output<String> url;
 
     /**
      * @return The server&#39;s URL. Credentials for it are supplied by a vault at session time.
-     * 
+     *
      */
     public Output<String> url() {
         return this.url;
@@ -71,9 +75,9 @@ public final class MCPServerArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param name The server&#39;s name, which an `mcp_toolset` tool refers to.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder name(Output<String> name) {
             $.name = name;
@@ -82,9 +86,9 @@ public final class MCPServerArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param name The server&#39;s name, which an `mcp_toolset` tool refers to.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder name(String name) {
             return name(Output.of(name));
@@ -92,9 +96,9 @@ public final class MCPServerArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param url The server&#39;s URL. Credentials for it are supplied by a vault at session time.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder url(Output<String> url) {
             $.url = url;
@@ -103,9 +107,9 @@ public final class MCPServerArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param url The server&#39;s URL. Credentials for it are supplied by a vault at session time.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder url(String url) {
             return url(Output.of(url));

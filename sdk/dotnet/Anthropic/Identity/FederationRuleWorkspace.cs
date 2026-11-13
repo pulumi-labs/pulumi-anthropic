@@ -11,38 +11,38 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Identity
 {
     /// <summary>
-    /// Binds a federation rule to a workspace, so that the rule's access tokens can act in it. The resource's ID is `&lt;federation-rule-id&gt;/&lt;workspace-id&gt;`.
+    /// Binds a federation rule to an additional workspace. The resource ID is `&lt;federation-rule-id&gt;/&lt;workspace-id&gt;` and supports import. Changing either ID replaces the binding. Deleting the resource removes this explicit binding, not the rule or workspace. Other grants, including all-workspace access, are unaffected.
     /// 
-    /// Do not also bind the workspace the rule was created in (its `workspaceId`): that binding belongs to the rule.
+    /// Do not also manage the workspace the rule was created in with this resource. Manage each rule/workspace pair with only one resource: deleting either duplicate removes the shared binding.
     /// 
-    /// Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+    /// Requires an OAuth token with `org:admin` (`anthropic:authToken`). The rule and workspace must belong to your organization; the rule must grant `workspace:developer` or `workspace:inference`. Enabling a workspace does not enroll the target service account: token exchange requires its membership in that workspace.
     /// </summary>
     [AnthropicResourceType("anthropic:identity:FederationRuleWorkspace")]
     public partial class FederationRuleWorkspace : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// When the binding was created, in RFC 3339 format.
+        /// When the binding was created, in RFC 3339 format, when available.
         /// </summary>
         [Output("createdAt")]
-        public Output<string> CreatedAt { get; private set; } = null!;
+        public Output<string?> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// The federation rule's ID.
+        /// The federation rule's nonempty ID. Changing it replaces the binding.
         /// </summary>
         [Output("federationRuleId")]
         public Output<string> FederationRuleId { get; private set; } = null!;
 
         /// <summary>
-        /// The workspace's ID.
+        /// The workspace's nonempty ID. Changing it replaces the binding.
         /// </summary>
         [Output("workspaceId")]
         public Output<string> WorkspaceId { get; private set; } = null!;
 
         /// <summary>
-        /// The workspace's name when the binding was created.
+        /// The workspace name reported when the binding is read. Not available immediately after enabling the binding.
         /// </summary>
         [Output("workspaceName")]
-        public Output<string> WorkspaceName { get; private set; } = null!;
+        public Output<string?> WorkspaceName { get; private set; } = null!;
 
 
         /// <summary>
@@ -96,13 +96,13 @@ namespace Pulumi.Labs.Anthropic.Identity
     public sealed class FederationRuleWorkspaceArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The federation rule's ID.
+        /// The federation rule's nonempty ID. Changing it replaces the binding.
         /// </summary>
         [Input("federationRuleId", required: true)]
         public Input<string> FederationRuleId { get; set; } = null!;
 
         /// <summary>
-        /// The workspace's ID.
+        /// The workspace's nonempty ID. Changing it replaces the binding.
         /// </summary>
         [Input("workspaceId", required: true)]
         public Input<string> WorkspaceId { get; set; } = null!;

@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Identity.Outputs
 {
 
+    /// <summary>
+    /// The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
+    /// </summary>
     [OutputType]
     public sealed class Jwks
     {
@@ -19,11 +22,11 @@ namespace Pulumi.Labs.Anthropic.Identity.Outputs
         /// </summary>
         public readonly string? CaCertPem;
         /// <summary>
-        /// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+        /// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
         /// </summary>
         public readonly string? DiscoveryBase;
         /// <summary>
-        /// The signing keys, as JSON Web Keys. Required for `inline`.
+        /// A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
         /// </summary>
         public readonly ImmutableArray<ImmutableDictionary<string, object>> Keys;
         /// <summary>
@@ -31,7 +34,7 @@ namespace Pulumi.Labs.Anthropic.Identity.Outputs
         /// </summary>
         public readonly Pulumi.Labs.Anthropic.Identity.JwksType Type;
         /// <summary>
-        /// The JWKS URL. Required for `explicit_url`.
+        /// The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
         /// </summary>
         public readonly string? Url;
 

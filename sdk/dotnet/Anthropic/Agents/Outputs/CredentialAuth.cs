@@ -19,7 +19,7 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
         /// </summary>
         public readonly string? AccessToken;
         /// <summary>
-        /// When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+        /// When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
         /// </summary>
         public readonly string? ExpiresAt;
         /// <summary>

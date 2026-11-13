@@ -19,11 +19,11 @@ namespace Pulumi.Labs.Anthropic.Agents.Inputs
         [Input("clientId", required: true)]
         public Input<string> ClientId { get; set; } = null!;
 
-        [Input("refreshToken", required: true)]
+        [Input("refreshToken")]
         private Input<string>? _refreshToken;
 
         /// <summary>
-        /// The OAuth refresh token.
+        /// The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
         /// </summary>
         public Input<string>? RefreshToken
         {
@@ -42,7 +42,7 @@ namespace Pulumi.Labs.Anthropic.Agents.Inputs
         public Input<string>? Resource { get; set; }
 
         /// <summary>
-        /// The OAuth scope to request.
+        /// The OAuth scope to request. Removing this setting clears the stored scope.
         /// </summary>
         [Input("scope")]
         public Input<string>? Scope { get; set; }

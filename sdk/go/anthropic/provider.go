@@ -11,18 +11,19 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+// Authentication and organization/workspace settings for the Anthropic provider.
 type Provider struct {
 	pulumi.ProviderResourceState
 
-	// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+	// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
 	AdminKey pulumi.StringPtrOutput `pulumi:"adminKey"`
-	// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+	// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
 	ApiKey pulumi.StringPtrOutput `pulumi:"apiKey"`
-	// An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+	// An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
 	AuthToken pulumi.StringPtrOutput `pulumi:"authToken"`
 	// The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.
 	BaseUrl pulumi.StringPtrOutput `pulumi:"baseUrl"`
-	// The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+	// The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
 	WorkspaceId pulumi.StringPtrOutput `pulumi:"workspaceId"`
 }
 
@@ -78,29 +79,33 @@ func NewProvider(ctx *pulumi.Context,
 }
 
 type providerArgs struct {
-	// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+	// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
 	AdminKey *string `pulumi:"adminKey"`
-	// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+	// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
 	ApiKey *string `pulumi:"apiKey"`
-	// An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+	// An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
 	AuthToken *string `pulumi:"authToken"`
 	// The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.
 	BaseUrl *string `pulumi:"baseUrl"`
-	// The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+	// Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+	Federation *Federation `pulumi:"federation"`
+	// The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
 	WorkspaceId *string `pulumi:"workspaceId"`
 }
 
 // The set of arguments for constructing a Provider resource.
 type ProviderArgs struct {
-	// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+	// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
 	AdminKey pulumi.StringPtrInput
-	// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+	// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
 	ApiKey pulumi.StringPtrInput
-	// An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+	// An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
 	AuthToken pulumi.StringPtrInput
 	// The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.
 	BaseUrl pulumi.StringPtrInput
-	// The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+	// Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+	Federation FederationPtrInput
+	// The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
 	WorkspaceId pulumi.StringPtrInput
 }
 
@@ -141,17 +146,17 @@ func (o ProviderOutput) ToProviderOutputWithContext(ctx context.Context) Provide
 	return o
 }
 
-// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
 func (o ProviderOutput) AdminKey() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.AdminKey }).(pulumi.StringPtrOutput)
 }
 
-// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
 func (o ProviderOutput) ApiKey() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.ApiKey }).(pulumi.StringPtrOutput)
 }
 
-// An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+// An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
 func (o ProviderOutput) AuthToken() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.AuthToken }).(pulumi.StringPtrOutput)
 }
@@ -161,7 +166,7 @@ func (o ProviderOutput) BaseUrl() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.BaseUrl }).(pulumi.StringPtrOutput)
 }
 
-// The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+// The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
 func (o ProviderOutput) WorkspaceId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.WorkspaceId }).(pulumi.StringPtrOutput)
 }

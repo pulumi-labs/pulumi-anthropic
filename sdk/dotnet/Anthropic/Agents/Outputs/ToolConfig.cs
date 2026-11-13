@@ -11,13 +11,28 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Outputs
 {
 
+    /// <summary>
+    /// Settings for one tool within an agent or MCP toolset.
+    /// </summary>
     [OutputType]
     public sealed class ToolConfig
     {
         /// <summary>
+        /// Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+        /// </summary>
+        public readonly ImmutableArray<string> AllowedDomains;
+        /// <summary>
+        /// Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+        /// </summary>
+        public readonly ImmutableArray<string> BlockedDomains;
+        /// <summary>
         /// Whether the agent may use the tool.
         /// </summary>
         public readonly bool? Enabled;
+        /// <summary>
+        /// Maximum fetched content tokens, for web_fetch.
+        /// </summary>
+        public readonly int? MaxContentTokens;
         /// <summary>
         /// The tool's name, such as `bash` or `web_fetch`.
         /// </summary>
@@ -26,18 +41,41 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
         /// Whether a tool call needs approval.
         /// </summary>
         public readonly Pulumi.Labs.Anthropic.Agents.PermissionPolicy? PermissionPolicy;
+        /// <summary>
+        /// Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+        /// </summary>
+        public readonly Outputs.FetchURLSources? UrlSources;
+        /// <summary>
+        /// Approximate location used to localize web_search results.
+        /// </summary>
+        public readonly Outputs.SearchLocation? UserLocation;
 
         [OutputConstructor]
         private ToolConfig(
+            ImmutableArray<string> allowedDomains,
+
+            ImmutableArray<string> blockedDomains,
+
             bool? enabled,
+
+            int? maxContentTokens,
 
             string name,
 
-            Pulumi.Labs.Anthropic.Agents.PermissionPolicy? permissionPolicy)
+            Pulumi.Labs.Anthropic.Agents.PermissionPolicy? permissionPolicy,
+
+            Outputs.FetchURLSources? urlSources,
+
+            Outputs.SearchLocation? userLocation)
         {
+            AllowedDomains = allowedDomains;
+            BlockedDomains = blockedDomains;
             Enabled = enabled;
+            MaxContentTokens = maxContentTokens;
             Name = name;
             PermissionPolicy = permissionPolicy;
+            UrlSources = urlSources;
+            UserLocation = userLocation;
         }
     }
 }

@@ -9,6 +9,7 @@ import com.pulumi.core.annotations.ResourceType;
 import com.pulumi.core.internal.Codegen;
 import com.pulumi.labs.anthropic.Utilities;
 import com.pulumi.labs.anthropic.agents.AgentArgs;
+import com.pulumi.labs.anthropic.agents.outputs.ExecutionIdentity;
 import com.pulumi.labs.anthropic.agents.outputs.MCPServer;
 import com.pulumi.labs.anthropic.agents.outputs.Model;
 import com.pulumi.labs.anthropic.agents.outputs.Multiagent;
@@ -23,178 +24,192 @@ import javax.annotation.Nullable;
 
 /**
  * A Claude Managed Agents agent: the model, system prompt, tools, MCP servers, and skills that sessions run with.
- * 
+ *
  * Agents are versioned. Every update that changes the configuration creates a new version, reported by the `version` output; sessions and deployments can pin a version, which makes canary and staged rollouts a matter of which version each deployment references.
- * 
- * The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Running sessions continue; new sessions cannot use it.
- * 
+ *
+ * The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Archiving retains historical agent records and versions; this resource does not manage running sessions.
+ *
  */
 @ResourceType(type="anthropic:agents:Agent")
 public class Agent extends com.pulumi.resources.CustomResource {
     /**
      * When the agent was created, in RFC 3339 format.
-     * 
+     *
      */
     @Export(name="createdAt", refs={String.class}, tree="[0]")
     private Output<String> createdAt;
 
     /**
      * @return When the agent was created, in RFC 3339 format.
-     * 
+     *
      */
     public Output<String> createdAt() {
         return this.createdAt;
     }
     /**
-     * A description of the agent, up to 2,048 characters.
-     * 
+     * A description of the agent, up to 2,048 characters. Removing a configured description clears it.
+     *
      */
     @Export(name="description", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> description;
 
     /**
-     * @return A description of the agent, up to 2,048 characters.
-     * 
+     * @return A description of the agent, up to 2,048 characters. Removing a configured description clears it.
+     *
      */
     public Output<Optional<String>> description() {
         return Codegen.optional(this.description);
     }
     /**
+     * Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+     *
+     */
+    @Export(name="executionIdentity", refs={ExecutionIdentity.class}, tree="[0]")
+    private Output</* @Nullable */ ExecutionIdentity> executionIdentity;
+
+    /**
+     * @return Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+     *
+     */
+    public Output<Optional<ExecutionIdentity>> executionIdentity() {
+        return Codegen.optional(this.executionIdentity);
+    }
+    /**
      * The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
-     * 
+     *
      */
     @Export(name="mcpServers", refs={List.class,MCPServer.class}, tree="[0,1]")
     private Output</* @Nullable */ List<MCPServer>> mcpServers;
 
     /**
      * @return The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
-     * 
+     *
      */
     public Output<Optional<List<MCPServer>>> mcpServers() {
         return Codegen.optional(this.mcpServers);
     }
     /**
-     * Arbitrary key-value pairs, up to 16.
-     * 
+     * Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
+     *
      */
     @Export(name="metadata", refs={Map.class,String.class}, tree="[0,1,1]")
     private Output</* @Nullable */ Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs, up to 16.
-     * 
+     * @return Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
+     *
      */
     public Output<Optional<Map<String,String>>> metadata() {
         return Codegen.optional(this.metadata);
     }
     /**
      * The model the agent runs on.
-     * 
+     *
      */
     @Export(name="model", refs={Model.class}, tree="[0]")
     private Output<Model> model;
 
     /**
      * @return The model the agent runs on.
-     * 
+     *
      */
     public Output<Model> model() {
         return this.model;
     }
     /**
-     * Makes the agent a coordinator that delegates to other agents.
-     * 
+     * Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
+     *
      */
     @Export(name="multiagent", refs={Multiagent.class}, tree="[0]")
     private Output</* @Nullable */ Multiagent> multiagent;
 
     /**
-     * @return Makes the agent a coordinator that delegates to other agents.
-     * 
+     * @return Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
+     *
      */
     public Output<Optional<Multiagent>> multiagent() {
         return Codegen.optional(this.multiagent);
     }
     /**
      * The agent&#39;s name, 1 to 256 characters.
-     * 
+     *
      */
     @Export(name="name", refs={String.class}, tree="[0]")
     private Output<String> name;
 
     /**
      * @return The agent&#39;s name, 1 to 256 characters.
-     * 
+     *
      */
     public Output<String> name() {
         return this.name;
     }
     /**
      * The skills available to the agent.
-     * 
+     *
      */
     @Export(name="skills", refs={List.class,SkillRef.class}, tree="[0,1]")
     private Output</* @Nullable */ List<SkillRef>> skills;
 
     /**
      * @return The skills available to the agent.
-     * 
+     *
      */
     public Output<Optional<List<SkillRef>>> skills() {
         return Codegen.optional(this.skills);
     }
     /**
-     * The system prompt, up to 100,000 characters.
-     * 
+     * The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
+     *
      */
     @Export(name="system", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> system;
 
     /**
-     * @return The system prompt, up to 100,000 characters.
-     * 
+     * @return The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
+     *
      */
     public Output<Optional<String>> system() {
         return Codegen.optional(this.system);
     }
     /**
-     * The tools the agent can use, up to 128.
-     * 
+     * The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
+     *
      */
     @Export(name="tools", refs={List.class,Tool.class}, tree="[0,1]")
     private Output</* @Nullable */ List<Tool>> tools;
 
     /**
-     * @return The tools the agent can use, up to 128.
-     * 
+     * @return The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
+     *
      */
     public Output<Optional<List<Tool>>> tools() {
         return Codegen.optional(this.tools);
     }
     /**
      * When the agent was last updated, in RFC 3339 format.
-     * 
+     *
      */
     @Export(name="updatedAt", refs={String.class}, tree="[0]")
     private Output<String> updatedAt;
 
     /**
      * @return When the agent was last updated, in RFC 3339 format.
-     * 
+     *
      */
     public Output<String> updatedAt() {
         return this.updatedAt;
     }
     /**
      * The agent&#39;s current version. It starts at 1 and increments with every update that changes the configuration.
-     * 
+     *
      */
     @Export(name="version", refs={Integer.class}, tree="[0]")
     private Output<Integer> version;
 
     /**
      * @return The agent&#39;s current version. It starts at 1 and increments with every update that changes the configuration.
-     * 
+     *
      */
     public Output<Integer> version() {
         return this.version;

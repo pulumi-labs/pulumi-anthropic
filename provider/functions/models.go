@@ -16,10 +16,12 @@ package functions
 
 import (
 	"context"
+	"time"
 
+	anthropic "github.com/anthropics/anthropic-sdk-go/v2"
 	"github.com/pulumi/pulumi-go-provider/infer"
 
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
 )
 
 // GetModels lists the models available to the workspace.
@@ -55,6 +57,21 @@ func (m *ModelInfo) Annotate(a infer.Annotator) {
 func (*GetModels) Invoke(
 	ctx context.Context, _ infer.FunctionRequest[GetModelsArgs],
 ) (infer.FunctionResponse[GetModelsResult], error) {
-	models, err := rest.List[ModelInfo](ctx, modelCollection)
-	return infer.FunctionResponse[GetModelsResult]{Output: GetModelsResult{Models: models}}, err
+	client, err := config.ClientFor(ctx, config.Workspace)
+	if err != nil {
+		return infer.FunctionResponse[GetModelsResult]{}, err
+	}
+	models := []ModelInfo{}
+	pages := client.Models.ListAutoPaging(ctx, anthropic.ModelListParams{})
+	for pages.Next() {
+		model := pages.Current()
+		models = append(models, ModelInfo{
+			ID: model.ID, DisplayName: model.DisplayName,
+			CreatedAt: model.CreatedAt.Format(time.RFC3339Nano),
+		})
+	}
+	if err := pages.Err(); err != nil {
+		return infer.FunctionResponse[GetModelsResult]{}, err
+	}
+	return infer.FunctionResponse[GetModelsResult]{Output: GetModelsResult{Models: models}}, nil
 }

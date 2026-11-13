@@ -199,3 +199,16 @@ export const ToolType = {
 } as const;
 
 export type ToolType = (typeof ToolType)[keyof typeof ToolType];
+
+export const TunnelCertificateStatus = {
+    /**
+     * The certificate is in the tunnel's trusted set.
+     */
+    Active: "active",
+    /**
+     * The certificate has been archived and is no longer trusted.
+     */
+    Archived: "archived",
+} as const;
+
+export type TunnelCertificateStatus = (typeof TunnelCertificateStatus)[keyof typeof TunnelCertificateStatus];

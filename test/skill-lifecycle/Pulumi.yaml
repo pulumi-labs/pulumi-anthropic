@@ -1,0 +1,47 @@
+name: skill-lifecycle
+runtime: yaml
+config:
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  apiKey:
+    type: string
+    secret: true
+  workspaceId:
+    type: string
+    default: ""
+  runName:
+    type: string
+    default: synthetic-skill
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  anthropic:
+    type: pulumi:providers:anthropic
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+      workspaceId: ${workspaceId}
+    options:
+      version: TEST_PROVIDER_VERSION
+  skill:
+    type: anthropic:skills:Skill
+    properties:
+      displayName: ${runName}
+      source:
+        fn::fileArchive: ./source
+    options:
+      provider: ${anthropic}
+outputs:
+  skillId: ${skill.id}
+  version: ${skill.latestVersionId}
+  createdAt: ${skill.createdAt}

@@ -14,7 +14,7 @@ import (
 
 // Adds a user to an RBAC group. The resource's ID is `<rbac-group-id>/<user-id>`.
 //
-// RBAC groups are available to Claude Enterprise organizations.
+// RBAC groups are available to Claude Enterprise organizations. Deleting this resource removes only the membership, not the user or group. Membership of SCIM-provisioned groups cannot be changed while SCIM provisioning is active in the tenant. Owner-access protections can prevent adding or removing members.
 type RbacGroupMember struct {
 	pulumi.CustomResourceState
 
@@ -22,9 +22,9 @@ type RbacGroupMember struct {
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
 	// The user's email address.
 	Email pulumi.StringOutput `pulumi:"email"`
-	// The group's ID.
+	// The group's ID. Changing this value replaces the membership.
 	RbacGroupId pulumi.StringOutput `pulumi:"rbacGroupId"`
-	// The user's ID.
+	// The user's ID. Changing this value replaces the membership.
 	UserId pulumi.StringOutput `pulumi:"userId"`
 }
 
@@ -85,17 +85,17 @@ func RbacGroupMemberExists(ctx *pulumi.Context,
 }
 
 type rbacGroupMemberArgs struct {
-	// The group's ID.
+	// The group's ID. Changing this value replaces the membership.
 	RbacGroupId string `pulumi:"rbacGroupId"`
-	// The user's ID.
+	// The user's ID. Changing this value replaces the membership.
 	UserId string `pulumi:"userId"`
 }
 
 // The set of arguments for constructing a RbacGroupMember resource.
 type RbacGroupMemberArgs struct {
-	// The group's ID.
+	// The group's ID. Changing this value replaces the membership.
 	RbacGroupId pulumi.StringInput
-	// The user's ID.
+	// The user's ID. Changing this value replaces the membership.
 	UserId pulumi.StringInput
 }
 
@@ -196,12 +196,12 @@ func (o RbacGroupMemberOutput) Email() pulumi.StringOutput {
 	return o.ApplyT(func(v *RbacGroupMember) pulumi.StringOutput { return v.Email }).(pulumi.StringOutput)
 }
 
-// The group's ID.
+// The group's ID. Changing this value replaces the membership.
 func (o RbacGroupMemberOutput) RbacGroupId() pulumi.StringOutput {
 	return o.ApplyT(func(v *RbacGroupMember) pulumi.StringOutput { return v.RbacGroupId }).(pulumi.StringOutput)
 }
 
-// The user's ID.
+// The user's ID. Changing this value replaces the membership.
 func (o RbacGroupMemberOutput) UserId() pulumi.StringOutput {
 	return o.ApplyT(func(v *RbacGroupMember) pulumi.StringOutput { return v.UserId }).(pulumi.StringOutput)
 }

@@ -11,10 +11,13 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Inputs
 {
 
+    /// <summary>
+    /// Model selection and inference settings for an agent.
+    /// </summary>
     public sealed class ModelArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
+        /// How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
         /// </summary>
         [Input("effort")]
         public Input<Pulumi.Labs.Anthropic.Agents.Effort>? Effort { get; set; }
@@ -26,13 +29,13 @@ namespace Pulumi.Labs.Anthropic.Agents.Inputs
         public Input<string> Id { get; set; } = null!;
 
         /// <summary>
-        /// Where inference runs, such as `us` or `global`.
+        /// Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
         /// </summary>
         [Input("inferenceGeo")]
         public Input<string>? InferenceGeo { get; set; }
 
         /// <summary>
-        /// The inference speed tier.
+        /// The inference speed tier. Removing a configured tier restores standard.
         /// </summary>
         [Input("speed")]
         public Input<Pulumi.Labs.Anthropic.Agents.Speed>? Speed { get; set; }

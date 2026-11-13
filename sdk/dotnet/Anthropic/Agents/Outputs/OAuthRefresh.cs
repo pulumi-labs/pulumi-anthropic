@@ -19,15 +19,15 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
         /// </summary>
         public readonly string ClientId;
         /// <summary>
-        /// The OAuth refresh token.
+        /// The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
         /// </summary>
-        public readonly string RefreshToken;
+        public readonly string? RefreshToken;
         /// <summary>
         /// The OAuth resource indicator. Changing it replaces the credential.
         /// </summary>
         public readonly string? Resource;
         /// <summary>
-        /// The OAuth scope to request.
+        /// The OAuth scope to request. Removing this setting clears the stored scope.
         /// </summary>
         public readonly string? Scope;
         /// <summary>
@@ -43,7 +43,7 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
         private OAuthRefresh(
             string clientId,
 
-            string refreshToken,
+            string? refreshToken,
 
             string? resource,
 

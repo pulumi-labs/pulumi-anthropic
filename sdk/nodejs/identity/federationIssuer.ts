@@ -10,7 +10,9 @@ import * as utilities from "../utilities";
 /**
  * A workload identity federation issuer: an OIDC identity provider, such as GitHub Actions, a Kubernetes cluster, or a cloud's workload identity service, whose signed tokens workloads exchange for short-lived Anthropic access tokens. Which tokens are accepted, and which service account they act as, is decided by `FederationRule`s.
  *
- * Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+ * Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. Issuers backing rules with scopes other than `workspace:developer` or `workspace:inference` must be updated in the Console. Creation registers trust configuration; it does not wait for signing-key polling or verify token exchange.
+ *
+ * Optional settings omitted from the start use platform defaults at creation; later changes to those settings outside this resource are preserved until you configure them. Import by issuer ID recovers the current settings.
  *
  * The API cannot delete issuers, so deleting this resource archives the issuer. Archiving is refused while a live rule references the issuer.
  */
@@ -52,7 +54,7 @@ export class FederationIssuer extends pulumi.CustomResource {
     }
 
     /**
-     * Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
+     * Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
      */
     declare public readonly checkJti: pulumi.Output<boolean | undefined>;
     /**
@@ -60,23 +62,27 @@ export class FederationIssuer extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * The issuer URL, which must match the `iss` claim of accepted tokens.
+     * The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
      */
     declare public readonly issuerUrl: pulumi.Output<string>;
     /**
-     * Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL.
+     * Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
      */
     declare public readonly jwks: pulumi.Output<outputs.identity.Jwks | undefined>;
     /**
-     * The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+     * When signing-key polling was automatically paused after repeated failures, in RFC 3339 format. After repairing the key endpoint, resume polling outside this resource using the Console or the issuer update API; this resource does not automatically resume it.
+     */
+    declare public /*out*/ readonly jwksPollingDisabledAt: pulumi.Output<string | undefined>;
+    /**
+     * The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
      */
     declare public readonly maxJwtLifetimeSeconds: pulumi.Output<number | undefined>;
     /**
-     * A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+     * A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
      */
     declare public readonly name: pulumi.Output<string>;
     /**
-     * The health of the platform's polling of the issuer's signing keys.
+     * The health of signing-key polling, when available. Usually absent for inline keys or before polling starts.
      */
     declare public /*out*/ readonly pollStatus: pulumi.Output<outputs.identity.PollStatus | undefined>;
     /**
@@ -107,6 +113,7 @@ export class FederationIssuer extends pulumi.CustomResource {
             resourceInputs["maxJwtLifetimeSeconds"] = args?.maxJwtLifetimeSeconds;
             resourceInputs["name"] = args?.name;
             resourceInputs["createdAt"] = undefined /*out*/;
+            resourceInputs["jwksPollingDisabledAt"] = undefined /*out*/;
             resourceInputs["pollStatus"] = undefined /*out*/;
             resourceInputs["updatedAt"] = undefined /*out*/;
         } else {
@@ -114,6 +121,7 @@ export class FederationIssuer extends pulumi.CustomResource {
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["issuerUrl"] = undefined /*out*/;
             resourceInputs["jwks"] = undefined /*out*/;
+            resourceInputs["jwksPollingDisabledAt"] = undefined /*out*/;
             resourceInputs["maxJwtLifetimeSeconds"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["pollStatus"] = undefined /*out*/;
@@ -129,23 +137,23 @@ export class FederationIssuer extends pulumi.CustomResource {
  */
 export interface FederationIssuerArgs {
     /**
-     * Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
+     * Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
      */
     checkJti?: pulumi.Input<boolean | undefined>;
     /**
-     * The issuer URL, which must match the `iss` claim of accepted tokens.
+     * The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
      */
     issuerUrl: pulumi.Input<string>;
     /**
-     * Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL.
+     * Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
      */
     jwks?: pulumi.Input<inputs.identity.JwksArgs | undefined>;
     /**
-     * The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+     * The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
      */
     maxJwtLifetimeSeconds?: pulumi.Input<number | undefined>;
     /**
-     * A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+     * A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
      */
     name: pulumi.Input<string>;
 }

@@ -16,6 +16,10 @@ from .. import _utilities
 from ._enums import *
 
 __all__ = [
+    'AgentAdvisorArgs',
+    'AgentAdvisorArgsDict',
+    'AgentDelegationArgs',
+    'AgentDelegationArgsDict',
     'AgentReferenceArgs',
     'AgentReferenceArgsDict',
     'BudgetArgs',
@@ -32,6 +36,12 @@ __all__ = [
     'EnvironmentConfigArgsDict',
     'EnvironmentNetworkingArgs',
     'EnvironmentNetworkingArgsDict',
+    'ExecutionIdentityArgs',
+    'ExecutionIdentityArgsDict',
+    'FetchToolFilterArgs',
+    'FetchToolFilterArgsDict',
+    'FetchURLSourcesArgs',
+    'FetchURLSourcesArgsDict',
     'InjectionLocationArgs',
     'InjectionLocationArgsDict',
     'MCPServerArgs',
@@ -50,6 +60,8 @@ __all__ = [
     'RosterEntryArgsDict',
     'ScheduleArgs',
     'ScheduleArgsDict',
+    'SearchLocationArgs',
+    'SearchLocationArgsDict',
     'SkillRefArgs',
     'SkillRefArgsDict',
     'TokenEndpointAuthArgs',
@@ -62,6 +74,132 @@ __all__ = [
     'ToolDefaultsArgsDict',
 ]
 
+class AgentAdvisorArgsDict(TypedDict):
+    """
+    Controls whether the primary thread can consult an advisor model.
+    """
+    type: pulumi.Input[_builtins.str]
+    """
+    enabled or disabled.
+    """
+    model: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+    """
+
+@pulumi.input_type
+class AgentAdvisorArgs:
+    def __init__(__self__, *,
+                 type: pulumi.Input[_builtins.str],
+                 model: pulumi.Input[Optional[_builtins.str]] = None):
+        """
+        Controls whether the primary thread can consult an advisor model.
+
+        :param pulumi.Input[_builtins.str] type: enabled or disabled.
+        :param pulumi.Input[_builtins.str] model: Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+        """
+        pulumi.set(__self__, "type", type)
+        if model is not None:
+            pulumi.set(__self__, "model", model)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> pulumi.Input[_builtins.str]:
+        """
+        enabled or disabled.
+        """
+        return pulumi.get(self, "type")
+
+    @type.setter
+    def type(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "type", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def model(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+        """
+        return pulumi.get(self, "model")
+
+    @model.setter
+    def model(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "model", value)
+
+
+class AgentDelegationArgsDict(TypedDict):
+    """
+    Controls subagent or workflow delegation independently.
+    """
+    type: pulumi.Input[_builtins.str]
+    """
+    enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+    """
+    inline_agents: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+    """
+    predefined_agents: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input['RosterEntryArgsDict']]]]]
+    """
+    At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+    """
+
+@pulumi.input_type
+class AgentDelegationArgs:
+    def __init__(__self__, *,
+                 type: pulumi.Input[_builtins.str],
+                 inline_agents: pulumi.Input[Optional[_builtins.str]] = None,
+                 predefined_agents: pulumi.Input[Optional[Sequence[pulumi.Input['RosterEntryArgs']]]] = None):
+        """
+        Controls subagent or workflow delegation independently.
+
+        :param pulumi.Input[_builtins.str] type: enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+        :param pulumi.Input[_builtins.str] inline_agents: enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+        :param pulumi.Input[Sequence[pulumi.Input['RosterEntryArgs']]] predefined_agents: At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+        """
+        pulumi.set(__self__, "type", type)
+        if inline_agents is not None:
+            pulumi.set(__self__, "inline_agents", inline_agents)
+        if predefined_agents is not None:
+            pulumi.set(__self__, "predefined_agents", predefined_agents)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> pulumi.Input[_builtins.str]:
+        """
+        enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+        """
+        return pulumi.get(self, "type")
+
+    @type.setter
+    def type(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "type", value)
+
+    @_builtins.property
+    @pulumi.getter(name="inlineAgents")
+    def inline_agents(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+        """
+        return pulumi.get(self, "inline_agents")
+
+    @inline_agents.setter
+    def inline_agents(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "inline_agents", value)
+
+    @_builtins.property
+    @pulumi.getter(name="predefinedAgents")
+    def predefined_agents(self) -> pulumi.Input[Optional[Sequence[pulumi.Input['RosterEntryArgs']]]]:
+        """
+        At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+        """
+        return pulumi.get(self, "predefined_agents")
+
+    @predefined_agents.setter
+    def predefined_agents(self, value: pulumi.Input[Optional[Sequence[pulumi.Input['RosterEntryArgs']]]]):
+        pulumi.set(self, "predefined_agents", value)
+
+
 class AgentReferenceArgsDict(TypedDict):
     id: pulumi.Input[_builtins.str]
     """
@@ -69,7 +207,7 @@ class AgentReferenceArgsDict(TypedDict):
     """
     version: NotRequired[pulumi.Input[Optional[_builtins.int]]]
     """
-    The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+    The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
     """
 
 @pulumi.input_type
@@ -79,7 +217,7 @@ class AgentReferenceArgs:
                  version: pulumi.Input[Optional[_builtins.int]] = None):
         """
         :param pulumi.Input[_builtins.str] id: The agent's ID.
-        :param pulumi.Input[_builtins.int] version: The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+        :param pulumi.Input[_builtins.int] version: The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
         """
         pulumi.set(__self__, "id", id)
         if version is not None:
@@ -101,7 +239,7 @@ class AgentReferenceArgs:
     @pulumi.getter
     def version(self) -> pulumi.Input[Optional[_builtins.int]]:
         """
-        The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+        The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
         """
         return pulumi.get(self, "version")
 
@@ -113,7 +251,7 @@ class AgentReferenceArgs:
 class BudgetArgsDict(TypedDict):
     max_list_cost: pulumi.Input['MonetaryAmountArgsDict']
     """
-    The most the deployment may spend, at list price.
+    The most each future session may spend at public list prices, rather than negotiated prices.
     """
 
 @pulumi.input_type
@@ -121,7 +259,7 @@ class BudgetArgs:
     def __init__(__self__, *,
                  max_list_cost: pulumi.Input['MonetaryAmountArgs']):
         """
-        :param pulumi.Input['MonetaryAmountArgs'] max_list_cost: The most the deployment may spend, at list price.
+        :param pulumi.Input['MonetaryAmountArgs'] max_list_cost: The most each future session may spend at public list prices, rather than negotiated prices.
         """
         pulumi.set(__self__, "max_list_cost", max_list_cost)
 
@@ -129,7 +267,7 @@ class BudgetArgs:
     @pulumi.getter(name="maxListCost")
     def max_list_cost(self) -> pulumi.Input['MonetaryAmountArgs']:
         """
-        The most the deployment may spend, at list price.
+        The most each future session may spend at public list prices, rather than negotiated prices.
         """
         return pulumi.get(self, "max_list_cost")
 
@@ -145,11 +283,11 @@ class CheckoutArgsDict(TypedDict):
     """
     name: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    The branch. Required for `branch`.
+    The branch. Required for branch.
     """
     sha: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    The commit SHA. Required for `commit`.
+    The commit SHA. Required for commit.
     """
 
 @pulumi.input_type
@@ -160,8 +298,8 @@ class CheckoutArgs:
                  sha: pulumi.Input[Optional[_builtins.str]] = None):
         """
         :param pulumi.Input['CheckoutType'] type: Whether to check out a branch or a commit.
-        :param pulumi.Input[_builtins.str] name: The branch. Required for `branch`.
-        :param pulumi.Input[_builtins.str] sha: The commit SHA. Required for `commit`.
+        :param pulumi.Input[_builtins.str] name: The branch. Required for branch.
+        :param pulumi.Input[_builtins.str] sha: The commit SHA. Required for commit.
         """
         pulumi.set(__self__, "type", type)
         if name is not None:
@@ -185,7 +323,7 @@ class CheckoutArgs:
     @pulumi.getter
     def name(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The branch. Required for `branch`.
+        The branch. Required for branch.
         """
         return pulumi.get(self, "name")
 
@@ -197,7 +335,7 @@ class CheckoutArgs:
     @pulumi.getter
     def sha(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The commit SHA. Required for `commit`.
+        The commit SHA. Required for commit.
         """
         return pulumi.get(self, "sha")
 
@@ -217,7 +355,7 @@ class CredentialAuthArgsDict(TypedDict):
     """
     expires_at: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+    When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
     """
     injection_location: NotRequired[pulumi.Input[Optional['InjectionLocationArgsDict']]]
     """
@@ -264,7 +402,7 @@ class CredentialAuthArgs:
         """
         :param pulumi.Input['CredentialType'] type: The kind of credential. Changing it replaces the credential.
         :param pulumi.Input[_builtins.str] access_token: The OAuth access token. Required for `mcp_oauth`.
-        :param pulumi.Input[_builtins.str] expires_at: When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+        :param pulumi.Input[_builtins.str] expires_at: When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
         :param pulumi.Input['InjectionLocationArgs'] injection_location: Where in outbound requests the secret is injected. For `environment_variable`; both locations are enabled when omitted.
         :param pulumi.Input[_builtins.str] mcp_server_url: The MCP server the credential is for, unique within the vault. Required for `mcp_oauth` and `static_bearer`. Changing it replaces the credential.
         :param pulumi.Input['CredentialNetworkingArgs'] networking: The hosts the secret may be sent to. Required for `environment_variable`.
@@ -321,7 +459,7 @@ class CredentialAuthArgs:
     @pulumi.getter(name="expiresAt")
     def expires_at(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+        When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
         """
         return pulumi.get(self, "expires_at")
 
@@ -469,35 +607,35 @@ class DeploymentResourceArgsDict(TypedDict):
     """
     access: NotRequired[pulumi.Input[Optional['MemoryAccess']]]
     """
-    Whether the agent can write to the memory store. For `memory_store`.
+    Whether the agent can write to the memory store. For memory_store; defaults to read_write.
     """
     authorization_token: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    A token that can read the repository. For `github_repository`.
+    A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
     """
     checkout: NotRequired[pulumi.Input[Optional['CheckoutArgsDict']]]
     """
-    The branch or commit to check out. For `github_repository`; defaults to the default branch.
+    The branch or commit to check out. For github_repository; defaults to the default branch.
     """
     file_id: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    The file's ID. Required for `file`.
+    The file's ID. Required for file.
     """
     instructions: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    How the agent should use the memory store. For `memory_store`.
+    How the agent should use the memory store. For memory_store; at most 4096 characters.
     """
     memory_store_id: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    The memory store's ID. Required for `memory_store`.
+    The memory store's ID. Required for memory_store.
     """
     mount_path: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+    Where the resource is mounted in the sandbox. For github_repository and file.
     """
     url: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    The repository's URL. Required for `github_repository`.
+    The repository's URL. Required for github_repository.
     """
 
 @pulumi.input_type
@@ -514,14 +652,14 @@ class DeploymentResourceArgs:
                  url: pulumi.Input[Optional[_builtins.str]] = None):
         """
         :param pulumi.Input['DeploymentResourceType'] type: The kind of resource.
-        :param pulumi.Input['MemoryAccess'] access: Whether the agent can write to the memory store. For `memory_store`.
-        :param pulumi.Input[_builtins.str] authorization_token: A token that can read the repository. For `github_repository`.
-        :param pulumi.Input['CheckoutArgs'] checkout: The branch or commit to check out. For `github_repository`; defaults to the default branch.
-        :param pulumi.Input[_builtins.str] file_id: The file's ID. Required for `file`.
-        :param pulumi.Input[_builtins.str] instructions: How the agent should use the memory store. For `memory_store`.
-        :param pulumi.Input[_builtins.str] memory_store_id: The memory store's ID. Required for `memory_store`.
-        :param pulumi.Input[_builtins.str] mount_path: Where the resource is mounted in the sandbox. For `github_repository` and `file`.
-        :param pulumi.Input[_builtins.str] url: The repository's URL. Required for `github_repository`.
+        :param pulumi.Input['MemoryAccess'] access: Whether the agent can write to the memory store. For memory_store; defaults to read_write.
+        :param pulumi.Input[_builtins.str] authorization_token: A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
+        :param pulumi.Input['CheckoutArgs'] checkout: The branch or commit to check out. For github_repository; defaults to the default branch.
+        :param pulumi.Input[_builtins.str] file_id: The file's ID. Required for file.
+        :param pulumi.Input[_builtins.str] instructions: How the agent should use the memory store. For memory_store; at most 4096 characters.
+        :param pulumi.Input[_builtins.str] memory_store_id: The memory store's ID. Required for memory_store.
+        :param pulumi.Input[_builtins.str] mount_path: Where the resource is mounted in the sandbox. For github_repository and file.
+        :param pulumi.Input[_builtins.str] url: The repository's URL. Required for github_repository.
         """
         pulumi.set(__self__, "type", type)
         if access is not None:
@@ -557,7 +695,7 @@ class DeploymentResourceArgs:
     @pulumi.getter
     def access(self) -> pulumi.Input[Optional['MemoryAccess']]:
         """
-        Whether the agent can write to the memory store. For `memory_store`.
+        Whether the agent can write to the memory store. For memory_store; defaults to read_write.
         """
         return pulumi.get(self, "access")
 
@@ -569,7 +707,7 @@ class DeploymentResourceArgs:
     @pulumi.getter(name="authorizationToken")
     def authorization_token(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        A token that can read the repository. For `github_repository`.
+        A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
         """
         return pulumi.get(self, "authorization_token")
 
@@ -581,7 +719,7 @@ class DeploymentResourceArgs:
     @pulumi.getter
     def checkout(self) -> pulumi.Input[Optional['CheckoutArgs']]:
         """
-        The branch or commit to check out. For `github_repository`; defaults to the default branch.
+        The branch or commit to check out. For github_repository; defaults to the default branch.
         """
         return pulumi.get(self, "checkout")
 
@@ -593,7 +731,7 @@ class DeploymentResourceArgs:
     @pulumi.getter(name="fileId")
     def file_id(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The file's ID. Required for `file`.
+        The file's ID. Required for file.
         """
         return pulumi.get(self, "file_id")
 
@@ -605,7 +743,7 @@ class DeploymentResourceArgs:
     @pulumi.getter
     def instructions(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        How the agent should use the memory store. For `memory_store`.
+        How the agent should use the memory store. For memory_store; at most 4096 characters.
         """
         return pulumi.get(self, "instructions")
 
@@ -617,7 +755,7 @@ class DeploymentResourceArgs:
     @pulumi.getter(name="memoryStoreId")
     def memory_store_id(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The memory store's ID. Required for `memory_store`.
+        The memory store's ID. Required for memory_store.
         """
         return pulumi.get(self, "memory_store_id")
 
@@ -629,7 +767,7 @@ class DeploymentResourceArgs:
     @pulumi.getter(name="mountPath")
     def mount_path(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+        Where the resource is mounted in the sandbox. For github_repository and file.
         """
         return pulumi.get(self, "mount_path")
 
@@ -641,7 +779,7 @@ class DeploymentResourceArgs:
     @pulumi.getter
     def url(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The repository's URL. Required for `github_repository`.
+        The repository's URL. Required for github_repository.
         """
         return pulumi.get(self, "url")
 
@@ -657,11 +795,11 @@ class EnvironmentConfigArgsDict(TypedDict):
     """
     networking: NotRequired[pulumi.Input[Optional['EnvironmentNetworkingArgsDict']]]
     """
-    The sandbox's network access. Applies to `cloud`.
+    The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
     """
     packages: NotRequired[pulumi.Input[Optional['PackagesArgsDict']]]
     """
-    Packages installed in the sandbox. Applies to `cloud`.
+    Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
     """
 
 @pulumi.input_type
@@ -672,8 +810,8 @@ class EnvironmentConfigArgs:
                  packages: pulumi.Input[Optional['PackagesArgs']] = None):
         """
         :param pulumi.Input['EnvironmentType'] type: Whether sessions run in an Anthropic-managed cloud sandbox or on your own infrastructure. Changing it replaces the environment.
-        :param pulumi.Input['EnvironmentNetworkingArgs'] networking: The sandbox's network access. Applies to `cloud`.
-        :param pulumi.Input['PackagesArgs'] packages: Packages installed in the sandbox. Applies to `cloud`.
+        :param pulumi.Input['EnvironmentNetworkingArgs'] networking: The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
+        :param pulumi.Input['PackagesArgs'] packages: Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
         """
         pulumi.set(__self__, "type", type)
         if networking is not None:
@@ -697,7 +835,7 @@ class EnvironmentConfigArgs:
     @pulumi.getter
     def networking(self) -> pulumi.Input[Optional['EnvironmentNetworkingArgs']]:
         """
-        The sandbox's network access. Applies to `cloud`.
+        The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
         """
         return pulumi.get(self, "networking")
 
@@ -709,7 +847,7 @@ class EnvironmentConfigArgs:
     @pulumi.getter
     def packages(self) -> pulumi.Input[Optional['PackagesArgs']]:
         """
-        Packages installed in the sandbox. Applies to `cloud`.
+        Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
         """
         return pulumi.get(self, "packages")
 
@@ -725,15 +863,15 @@ class EnvironmentNetworkingArgsDict(TypedDict):
     """
     allow_mcp_servers: NotRequired[pulumi.Input[Optional[_builtins.bool]]]
     """
-    Whether the agent's MCP servers are reachable. Applies to `limited`.
+    Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
     """
     allow_package_managers: NotRequired[pulumi.Input[Optional[_builtins.bool]]]
     """
-    Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+    Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
     """
     allowed_hosts: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]]
     """
-    Hosts the sandbox can reach. Applies to `limited`.
+    Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
     """
 
 @pulumi.input_type
@@ -745,9 +883,9 @@ class EnvironmentNetworkingArgs:
                  allowed_hosts: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None):
         """
         :param pulumi.Input['NetworkingType'] type: Whether network access is unrestricted or limited.
-        :param pulumi.Input[_builtins.bool] allow_mcp_servers: Whether the agent's MCP servers are reachable. Applies to `limited`.
-        :param pulumi.Input[_builtins.bool] allow_package_managers: Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] allowed_hosts: Hosts the sandbox can reach. Applies to `limited`.
+        :param pulumi.Input[_builtins.bool] allow_mcp_servers: Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
+        :param pulumi.Input[_builtins.bool] allow_package_managers: Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] allowed_hosts: Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
         """
         pulumi.set(__self__, "type", type)
         if allow_mcp_servers is not None:
@@ -773,7 +911,7 @@ class EnvironmentNetworkingArgs:
     @pulumi.getter(name="allowMcpServers")
     def allow_mcp_servers(self) -> pulumi.Input[Optional[_builtins.bool]]:
         """
-        Whether the agent's MCP servers are reachable. Applies to `limited`.
+        Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
         """
         return pulumi.get(self, "allow_mcp_servers")
 
@@ -785,7 +923,7 @@ class EnvironmentNetworkingArgs:
     @pulumi.getter(name="allowPackageManagers")
     def allow_package_managers(self) -> pulumi.Input[Optional[_builtins.bool]]:
         """
-        Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+        Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
         """
         return pulumi.get(self, "allow_package_managers")
 
@@ -797,13 +935,193 @@ class EnvironmentNetworkingArgs:
     @pulumi.getter(name="allowedHosts")
     def allowed_hosts(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
         """
-        Hosts the sandbox can reach. Applies to `limited`.
+        Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
         """
         return pulumi.get(self, "allowed_hosts")
 
     @allowed_hosts.setter
     def allowed_hosts(self, value: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]):
         pulumi.set(self, "allowed_hosts", value)
+
+
+class ExecutionIdentityArgsDict(TypedDict):
+    """
+    Execution principal for agent runs. Configuring a principal does not grant its permissions.
+    """
+    type: pulumi.Input[_builtins.str]
+    """
+    aws_role or service_account. service_account restores the default principal.
+    """
+    role_arn: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    AWS IAM role ARN. Required only for aws_role.
+    """
+
+@pulumi.input_type
+class ExecutionIdentityArgs:
+    def __init__(__self__, *,
+                 type: pulumi.Input[_builtins.str],
+                 role_arn: pulumi.Input[Optional[_builtins.str]] = None):
+        """
+        Execution principal for agent runs. Configuring a principal does not grant its permissions.
+
+        :param pulumi.Input[_builtins.str] type: aws_role or service_account. service_account restores the default principal.
+        :param pulumi.Input[_builtins.str] role_arn: AWS IAM role ARN. Required only for aws_role.
+        """
+        pulumi.set(__self__, "type", type)
+        if role_arn is not None:
+            pulumi.set(__self__, "role_arn", role_arn)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> pulumi.Input[_builtins.str]:
+        """
+        aws_role or service_account. service_account restores the default principal.
+        """
+        return pulumi.get(self, "type")
+
+    @type.setter
+    def type(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "type", value)
+
+    @_builtins.property
+    @pulumi.getter(name="roleArn")
+    def role_arn(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        AWS IAM role ARN. Required only for aws_role.
+        """
+        return pulumi.get(self, "role_arn")
+
+    @role_arn.setter
+    def role_arn(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "role_arn", value)
+
+
+class FetchToolFilterArgsDict(TypedDict):
+    """
+    Selects tool results whose URLs may be fetched.
+    """
+    type: pulumi.Input[_builtins.str]
+    """
+    all, none, only or except. only and except require a tools list.
+    """
+    tools: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]]
+    """
+    Exact case-sensitive tool names for only or except.
+    """
+
+@pulumi.input_type
+class FetchToolFilterArgs:
+    def __init__(__self__, *,
+                 type: pulumi.Input[_builtins.str],
+                 tools: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None):
+        """
+        Selects tool results whose URLs may be fetched.
+
+        :param pulumi.Input[_builtins.str] type: all, none, only or except. only and except require a tools list.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] tools: Exact case-sensitive tool names for only or except.
+        """
+        pulumi.set(__self__, "type", type)
+        if tools is not None:
+            pulumi.set(__self__, "tools", tools)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> pulumi.Input[_builtins.str]:
+        """
+        all, none, only or except. only and except require a tools list.
+        """
+        return pulumi.get(self, "type")
+
+    @type.setter
+    def type(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "type", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def tools(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Exact case-sensitive tool names for only or except.
+        """
+        return pulumi.get(self, "tools")
+
+    @tools.setter
+    def tools(self, value: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "tools", value)
+
+
+class FetchURLSourcesArgsDict(TypedDict):
+    """
+    Conversation sources allowed to contribute fetchable URLs.
+    """
+    client_tool_results: NotRequired[pulumi.Input[Optional['FetchToolFilterArgsDict']]]
+    """
+    Filter for custom tool results. Tool names must refer to custom tools in this agent.
+    """
+    server_tool_results: NotRequired[pulumi.Input[Optional['FetchToolFilterArgsDict']]]
+    """
+    Filter for built-in tool results. Listed names must be web_search or web_fetch.
+    """
+    user_input: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    all or none, controlling URLs in user messages. Defaults to all.
+    """
+
+@pulumi.input_type
+class FetchURLSourcesArgs:
+    def __init__(__self__, *,
+                 client_tool_results: pulumi.Input[Optional['FetchToolFilterArgs']] = None,
+                 server_tool_results: pulumi.Input[Optional['FetchToolFilterArgs']] = None,
+                 user_input: pulumi.Input[Optional[_builtins.str]] = None):
+        """
+        Conversation sources allowed to contribute fetchable URLs.
+
+        :param pulumi.Input['FetchToolFilterArgs'] client_tool_results: Filter for custom tool results. Tool names must refer to custom tools in this agent.
+        :param pulumi.Input['FetchToolFilterArgs'] server_tool_results: Filter for built-in tool results. Listed names must be web_search or web_fetch.
+        :param pulumi.Input[_builtins.str] user_input: all or none, controlling URLs in user messages. Defaults to all.
+        """
+        if client_tool_results is not None:
+            pulumi.set(__self__, "client_tool_results", client_tool_results)
+        if server_tool_results is not None:
+            pulumi.set(__self__, "server_tool_results", server_tool_results)
+        if user_input is not None:
+            pulumi.set(__self__, "user_input", user_input)
+
+    @_builtins.property
+    @pulumi.getter(name="clientToolResults")
+    def client_tool_results(self) -> pulumi.Input[Optional['FetchToolFilterArgs']]:
+        """
+        Filter for custom tool results. Tool names must refer to custom tools in this agent.
+        """
+        return pulumi.get(self, "client_tool_results")
+
+    @client_tool_results.setter
+    def client_tool_results(self, value: pulumi.Input[Optional['FetchToolFilterArgs']]):
+        pulumi.set(self, "client_tool_results", value)
+
+    @_builtins.property
+    @pulumi.getter(name="serverToolResults")
+    def server_tool_results(self) -> pulumi.Input[Optional['FetchToolFilterArgs']]:
+        """
+        Filter for built-in tool results. Listed names must be web_search or web_fetch.
+        """
+        return pulumi.get(self, "server_tool_results")
+
+    @server_tool_results.setter
+    def server_tool_results(self, value: pulumi.Input[Optional['FetchToolFilterArgs']]):
+        pulumi.set(self, "server_tool_results", value)
+
+    @_builtins.property
+    @pulumi.getter(name="userInput")
+    def user_input(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        all or none, controlling URLs in user messages. Defaults to all.
+        """
+        return pulumi.get(self, "user_input")
+
+    @user_input.setter
+    def user_input(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "user_input", value)
 
 
 class InjectionLocationArgsDict(TypedDict):
@@ -856,6 +1174,9 @@ class InjectionLocationArgs:
 
 
 class MCPServerArgsDict(TypedDict):
+    """
+    A named remote MCP endpoint available to the agent.
+    """
     name: pulumi.Input[_builtins.str]
     """
     The server's name, which an `mcp_toolset` tool refers to.
@@ -871,6 +1192,8 @@ class MCPServerArgs:
                  name: pulumi.Input[_builtins.str],
                  url: pulumi.Input[_builtins.str]):
         """
+        A named remote MCP endpoint available to the agent.
+
         :param pulumi.Input[_builtins.str] name: The server's name, which an `mcp_toolset` tool refers to.
         :param pulumi.Input[_builtins.str] url: The server's URL. Credentials for it are supplied by a vault at session time.
         """
@@ -903,21 +1226,24 @@ class MCPServerArgs:
 
 
 class ModelArgsDict(TypedDict):
+    """
+    Model selection and inference settings for an agent.
+    """
     id: pulumi.Input[_builtins.str]
     """
     The model ID, such as `claude-opus-5-5`.
     """
     effort: NotRequired[pulumi.Input[Optional['Effort']]]
     """
-    How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
+    How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
     """
     inference_geo: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Where inference runs, such as `us` or `global`.
+    Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
     """
     speed: NotRequired[pulumi.Input[Optional['Speed']]]
     """
-    The inference speed tier.
+    The inference speed tier. Removing a configured tier restores standard.
     """
 
 @pulumi.input_type
@@ -928,10 +1254,12 @@ class ModelArgs:
                  inference_geo: pulumi.Input[Optional[_builtins.str]] = None,
                  speed: pulumi.Input[Optional['Speed']] = None):
         """
+        Model selection and inference settings for an agent.
+
         :param pulumi.Input[_builtins.str] id: The model ID, such as `claude-opus-5-5`.
-        :param pulumi.Input['Effort'] effort: How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
-        :param pulumi.Input[_builtins.str] inference_geo: Where inference runs, such as `us` or `global`.
-        :param pulumi.Input['Speed'] speed: The inference speed tier.
+        :param pulumi.Input['Effort'] effort: How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
+        :param pulumi.Input[_builtins.str] inference_geo: Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
+        :param pulumi.Input['Speed'] speed: The inference speed tier. Removing a configured tier restores standard.
         """
         pulumi.set(__self__, "id", id)
         if effort is not None:
@@ -957,7 +1285,7 @@ class ModelArgs:
     @pulumi.getter
     def effort(self) -> pulumi.Input[Optional['Effort']]:
         """
-        How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
+        How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
         """
         return pulumi.get(self, "effort")
 
@@ -969,7 +1297,7 @@ class ModelArgs:
     @pulumi.getter(name="inferenceGeo")
     def inference_geo(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Where inference runs, such as `us` or `global`.
+        Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
         """
         return pulumi.get(self, "inference_geo")
 
@@ -981,7 +1309,7 @@ class ModelArgs:
     @pulumi.getter
     def speed(self) -> pulumi.Input[Optional['Speed']]:
         """
-        The inference speed tier.
+        The inference speed tier. Removing a configured tier restores standard.
         """
         return pulumi.get(self, "speed")
 
@@ -993,11 +1321,11 @@ class ModelArgs:
 class MonetaryAmountArgsDict(TypedDict):
     amount: pulumi.Input[_builtins.str]
     """
-    The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+    The amount in the currency's minor units, as an integer string: 2500 is $25.00.
     """
     currency: pulumi.Input[_builtins.str]
     """
-    The ISO 4217 currency code. Only `USD` is supported.
+    The ISO 4217 currency code. Only USD is supported.
     """
 
 @pulumi.input_type
@@ -1006,8 +1334,8 @@ class MonetaryAmountArgs:
                  amount: pulumi.Input[_builtins.str],
                  currency: pulumi.Input[_builtins.str]):
         """
-        :param pulumi.Input[_builtins.str] amount: The amount in the currency's minor units, as an integer string: `2500` is $25.00.
-        :param pulumi.Input[_builtins.str] currency: The ISO 4217 currency code. Only `USD` is supported.
+        :param pulumi.Input[_builtins.str] amount: The amount in the currency's minor units, as an integer string: 2500 is $25.00.
+        :param pulumi.Input[_builtins.str] currency: The ISO 4217 currency code. Only USD is supported.
         """
         pulumi.set(__self__, "amount", amount)
         pulumi.set(__self__, "currency", currency)
@@ -1016,7 +1344,7 @@ class MonetaryAmountArgs:
     @pulumi.getter
     def amount(self) -> pulumi.Input[_builtins.str]:
         """
-        The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+        The amount in the currency's minor units, as an integer string: 2500 is $25.00.
         """
         return pulumi.get(self, "amount")
 
@@ -1028,7 +1356,7 @@ class MonetaryAmountArgs:
     @pulumi.getter
     def currency(self) -> pulumi.Input[_builtins.str]:
         """
-        The ISO 4217 currency code. Only `USD` is supported.
+        The ISO 4217 currency code. Only USD is supported.
         """
         return pulumi.get(self, "currency")
 
@@ -1038,41 +1366,123 @@ class MonetaryAmountArgs:
 
 
 class MultiagentArgsDict(TypedDict):
-    agents: pulumi.Input[Sequence[pulumi.Input['RosterEntryArgsDict']]]
     """
-    The agents the coordinator can delegate to, between 1 and 20.
+    Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
+    """
+    advisor: NotRequired[pulumi.Input[Optional['AgentAdvisorArgsDict']]]
+    """
+    Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+    """
+    agents: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input['RosterEntryArgsDict']]]]]
+    """
+    The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
+    """
+    subagents: NotRequired[pulumi.Input[Optional['AgentDelegationArgsDict']]]
+    """
+    Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+    """
+    type: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+    """
+    workflows: NotRequired[pulumi.Input[Optional['AgentDelegationArgsDict']]]
+    """
+    Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
     """
 
 @pulumi.input_type
 class MultiagentArgs:
     def __init__(__self__, *,
-                 agents: pulumi.Input[Sequence[pulumi.Input['RosterEntryArgs']]]):
+                 advisor: pulumi.Input[Optional['AgentAdvisorArgs']] = None,
+                 agents: pulumi.Input[Optional[Sequence[pulumi.Input['RosterEntryArgs']]]] = None,
+                 subagents: pulumi.Input[Optional['AgentDelegationArgs']] = None,
+                 type: pulumi.Input[Optional[_builtins.str]] = None,
+                 workflows: pulumi.Input[Optional['AgentDelegationArgs']] = None):
         """
-        :param pulumi.Input[Sequence[pulumi.Input['RosterEntryArgs']]] agents: The agents the coordinator can delegate to, between 1 and 20.
+        Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
+
+        :param pulumi.Input['AgentAdvisorArgs'] advisor: Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+        :param pulumi.Input[Sequence[pulumi.Input['RosterEntryArgs']]] agents: The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
+        :param pulumi.Input['AgentDelegationArgs'] subagents: Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+        :param pulumi.Input[_builtins.str] type: Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+        :param pulumi.Input['AgentDelegationArgs'] workflows: Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
         """
-        pulumi.set(__self__, "agents", agents)
+        if advisor is not None:
+            pulumi.set(__self__, "advisor", advisor)
+        if agents is not None:
+            pulumi.set(__self__, "agents", agents)
+        if subagents is not None:
+            pulumi.set(__self__, "subagents", subagents)
+        if type is not None:
+            pulumi.set(__self__, "type", type)
+        if workflows is not None:
+            pulumi.set(__self__, "workflows", workflows)
 
     @_builtins.property
     @pulumi.getter
-    def agents(self) -> pulumi.Input[Sequence[pulumi.Input['RosterEntryArgs']]]:
+    def advisor(self) -> pulumi.Input[Optional['AgentAdvisorArgs']]:
         """
-        The agents the coordinator can delegate to, between 1 and 20.
+        Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+        """
+        return pulumi.get(self, "advisor")
+
+    @advisor.setter
+    def advisor(self, value: pulumi.Input[Optional['AgentAdvisorArgs']]):
+        pulumi.set(self, "advisor", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def agents(self) -> pulumi.Input[Optional[Sequence[pulumi.Input['RosterEntryArgs']]]]:
+        """
+        The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
         """
         return pulumi.get(self, "agents")
 
     @agents.setter
-    def agents(self, value: pulumi.Input[Sequence[pulumi.Input['RosterEntryArgs']]]):
+    def agents(self, value: pulumi.Input[Optional[Sequence[pulumi.Input['RosterEntryArgs']]]]):
         pulumi.set(self, "agents", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def subagents(self) -> pulumi.Input[Optional['AgentDelegationArgs']]:
+        """
+        Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+        """
+        return pulumi.get(self, "subagents")
+
+    @subagents.setter
+    def subagents(self, value: pulumi.Input[Optional['AgentDelegationArgs']]):
+        pulumi.set(self, "subagents", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+        """
+        return pulumi.get(self, "type")
+
+    @type.setter
+    def type(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "type", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def workflows(self) -> pulumi.Input[Optional['AgentDelegationArgs']]:
+        """
+        Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+        """
+        return pulumi.get(self, "workflows")
+
+    @workflows.setter
+    def workflows(self, value: pulumi.Input[Optional['AgentDelegationArgs']]):
+        pulumi.set(self, "workflows", value)
 
 
 class OAuthRefreshArgsDict(TypedDict):
     client_id: pulumi.Input[_builtins.str]
     """
     The OAuth client ID. Changing it replaces the credential.
-    """
-    refresh_token: pulumi.Input[_builtins.str]
-    """
-    The OAuth refresh token.
     """
     token_endpoint: pulumi.Input[_builtins.str]
     """
@@ -1082,36 +1492,41 @@ class OAuthRefreshArgsDict(TypedDict):
     """
     How the client authenticates to the token endpoint.
     """
+    refresh_token: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
+    """
     resource: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
     The OAuth resource indicator. Changing it replaces the credential.
     """
     scope: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    The OAuth scope to request.
+    The OAuth scope to request. Removing this setting clears the stored scope.
     """
 
 @pulumi.input_type
 class OAuthRefreshArgs:
     def __init__(__self__, *,
                  client_id: pulumi.Input[_builtins.str],
-                 refresh_token: pulumi.Input[_builtins.str],
                  token_endpoint: pulumi.Input[_builtins.str],
                  token_endpoint_auth: pulumi.Input['TokenEndpointAuthArgs'],
+                 refresh_token: pulumi.Input[Optional[_builtins.str]] = None,
                  resource: pulumi.Input[Optional[_builtins.str]] = None,
                  scope: pulumi.Input[Optional[_builtins.str]] = None):
         """
         :param pulumi.Input[_builtins.str] client_id: The OAuth client ID. Changing it replaces the credential.
-        :param pulumi.Input[_builtins.str] refresh_token: The OAuth refresh token.
         :param pulumi.Input[_builtins.str] token_endpoint: The token endpoint's URL. Changing it replaces the credential.
         :param pulumi.Input['TokenEndpointAuthArgs'] token_endpoint_auth: How the client authenticates to the token endpoint.
+        :param pulumi.Input[_builtins.str] refresh_token: The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
         :param pulumi.Input[_builtins.str] resource: The OAuth resource indicator. Changing it replaces the credential.
-        :param pulumi.Input[_builtins.str] scope: The OAuth scope to request.
+        :param pulumi.Input[_builtins.str] scope: The OAuth scope to request. Removing this setting clears the stored scope.
         """
         pulumi.set(__self__, "client_id", client_id)
-        pulumi.set(__self__, "refresh_token", refresh_token)
         pulumi.set(__self__, "token_endpoint", token_endpoint)
         pulumi.set(__self__, "token_endpoint_auth", token_endpoint_auth)
+        if refresh_token is not None:
+            pulumi.set(__self__, "refresh_token", refresh_token)
         if resource is not None:
             pulumi.set(__self__, "resource", resource)
         if scope is not None:
@@ -1128,18 +1543,6 @@ class OAuthRefreshArgs:
     @client_id.setter
     def client_id(self, value: pulumi.Input[_builtins.str]):
         pulumi.set(self, "client_id", value)
-
-    @_builtins.property
-    @pulumi.getter(name="refreshToken")
-    def refresh_token(self) -> pulumi.Input[_builtins.str]:
-        """
-        The OAuth refresh token.
-        """
-        return pulumi.get(self, "refresh_token")
-
-    @refresh_token.setter
-    def refresh_token(self, value: pulumi.Input[_builtins.str]):
-        pulumi.set(self, "refresh_token", value)
 
     @_builtins.property
     @pulumi.getter(name="tokenEndpoint")
@@ -1166,6 +1569,18 @@ class OAuthRefreshArgs:
         pulumi.set(self, "token_endpoint_auth", value)
 
     @_builtins.property
+    @pulumi.getter(name="refreshToken")
+    def refresh_token(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
+        """
+        return pulumi.get(self, "refresh_token")
+
+    @refresh_token.setter
+    def refresh_token(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "refresh_token", value)
+
+    @_builtins.property
     @pulumi.getter
     def resource(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
@@ -1181,7 +1596,7 @@ class OAuthRefreshArgs:
     @pulumi.getter
     def scope(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The OAuth scope to request.
+        The OAuth scope to request. Removing this setting clears the stored scope.
         """
         return pulumi.get(self, "scope")
 
@@ -1320,6 +1735,9 @@ class PackagesArgs:
 
 
 class RosterEntryArgsDict(TypedDict):
+    """
+    An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
+    """
     type: pulumi.Input['RosterEntryType']
     """
     The kind of roster entry.
@@ -1345,6 +1763,8 @@ class RosterEntryArgs:
                  model: pulumi.Input[Optional[_builtins.str]] = None,
                  version: pulumi.Input[Optional[_builtins.int]] = None):
         """
+        An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
+
         :param pulumi.Input['RosterEntryType'] type: The kind of roster entry.
         :param pulumi.Input[_builtins.str] id: The agent's ID. Required for `agent`.
         :param pulumi.Input[_builtins.str] model: The advisor's model ID. Required for `advisor`.
@@ -1410,11 +1830,11 @@ class RosterEntryArgs:
 class ScheduleArgsDict(TypedDict):
     expression: pulumi.Input[_builtins.str]
     """
-    A cron expression, such as `0 9 * * 1-5`.
+    A cron expression, such as 0 9 * * 1-5.
     """
     timezone: pulumi.Input[_builtins.str]
     """
-    The IANA time zone the expression is evaluated in, such as `America/New_York`.
+    The IANA time zone the expression is evaluated in, such as America/New_York.
     """
 
 @pulumi.input_type
@@ -1423,8 +1843,8 @@ class ScheduleArgs:
                  expression: pulumi.Input[_builtins.str],
                  timezone: pulumi.Input[_builtins.str]):
         """
-        :param pulumi.Input[_builtins.str] expression: A cron expression, such as `0 9 * * 1-5`.
-        :param pulumi.Input[_builtins.str] timezone: The IANA time zone the expression is evaluated in, such as `America/New_York`.
+        :param pulumi.Input[_builtins.str] expression: A cron expression, such as 0 9 * * 1-5.
+        :param pulumi.Input[_builtins.str] timezone: The IANA time zone the expression is evaluated in, such as America/New_York.
         """
         pulumi.set(__self__, "expression", expression)
         pulumi.set(__self__, "timezone", timezone)
@@ -1433,7 +1853,7 @@ class ScheduleArgs:
     @pulumi.getter
     def expression(self) -> pulumi.Input[_builtins.str]:
         """
-        A cron expression, such as `0 9 * * 1-5`.
+        A cron expression, such as 0 9 * * 1-5.
         """
         return pulumi.get(self, "expression")
 
@@ -1445,7 +1865,7 @@ class ScheduleArgs:
     @pulumi.getter
     def timezone(self) -> pulumi.Input[_builtins.str]:
         """
-        The IANA time zone the expression is evaluated in, such as `America/New_York`.
+        The IANA time zone the expression is evaluated in, such as America/New_York.
         """
         return pulumi.get(self, "timezone")
 
@@ -1454,7 +1874,104 @@ class ScheduleArgs:
         pulumi.set(self, "timezone", value)
 
 
+class SearchLocationArgsDict(TypedDict):
+    """
+    Approximate user location for search localization.
+    """
+    city: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    City name.
+    """
+    country: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Uppercase two-letter ISO 3166-1 country code.
+    """
+    region: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Region or state name.
+    """
+    timezone: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    IANA timezone identifier, such as America/Los_Angeles.
+    """
+
+@pulumi.input_type
+class SearchLocationArgs:
+    def __init__(__self__, *,
+                 city: pulumi.Input[Optional[_builtins.str]] = None,
+                 country: pulumi.Input[Optional[_builtins.str]] = None,
+                 region: pulumi.Input[Optional[_builtins.str]] = None,
+                 timezone: pulumi.Input[Optional[_builtins.str]] = None):
+        """
+        Approximate user location for search localization.
+
+        :param pulumi.Input[_builtins.str] city: City name.
+        :param pulumi.Input[_builtins.str] country: Uppercase two-letter ISO 3166-1 country code.
+        :param pulumi.Input[_builtins.str] region: Region or state name.
+        :param pulumi.Input[_builtins.str] timezone: IANA timezone identifier, such as America/Los_Angeles.
+        """
+        if city is not None:
+            pulumi.set(__self__, "city", city)
+        if country is not None:
+            pulumi.set(__self__, "country", country)
+        if region is not None:
+            pulumi.set(__self__, "region", region)
+        if timezone is not None:
+            pulumi.set(__self__, "timezone", timezone)
+
+    @_builtins.property
+    @pulumi.getter
+    def city(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        City name.
+        """
+        return pulumi.get(self, "city")
+
+    @city.setter
+    def city(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "city", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def country(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Uppercase two-letter ISO 3166-1 country code.
+        """
+        return pulumi.get(self, "country")
+
+    @country.setter
+    def country(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "country", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def region(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Region or state name.
+        """
+        return pulumi.get(self, "region")
+
+    @region.setter
+    def region(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "region", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def timezone(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        IANA timezone identifier, such as America/Los_Angeles.
+        """
+        return pulumi.get(self, "timezone")
+
+    @timezone.setter
+    def timezone(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "timezone", value)
+
+
 class SkillRefArgsDict(TypedDict):
+    """
+    An Anthropic-provided or organization-uploaded skill available to an agent.
+    """
     skill_id: pulumi.Input[_builtins.str]
     """
     The skill's ID.
@@ -1475,6 +1992,8 @@ class SkillRefArgs:
                  type: pulumi.Input['SkillType'],
                  version: pulumi.Input[Optional[_builtins.str]] = None):
         """
+        An Anthropic-provided or organization-uploaded skill available to an agent.
+
         :param pulumi.Input[_builtins.str] skill_id: The skill's ID.
         :param pulumi.Input['SkillType'] type: Whether the skill is provided by Anthropic or uploaded to the organization.
         :param pulumi.Input[_builtins.str] version: The skill version to pin. Omit to always use the latest version.
@@ -1524,7 +2043,7 @@ class SkillRefArgs:
 class TokenEndpointAuthArgsDict(TypedDict):
     type: pulumi.Input['TokenEndpointAuthType']
     """
-    The authentication method.
+    The authentication method. Changing it replaces the credential.
     """
     client_secret: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
@@ -1537,7 +2056,7 @@ class TokenEndpointAuthArgs:
                  type: pulumi.Input['TokenEndpointAuthType'],
                  client_secret: pulumi.Input[Optional[_builtins.str]] = None):
         """
-        :param pulumi.Input['TokenEndpointAuthType'] type: The authentication method.
+        :param pulumi.Input['TokenEndpointAuthType'] type: The authentication method. Changing it replaces the credential.
         :param pulumi.Input[_builtins.str] client_secret: The client secret. Required unless the type is `none`.
         """
         pulumi.set(__self__, "type", type)
@@ -1548,7 +2067,7 @@ class TokenEndpointAuthArgs:
     @pulumi.getter
     def type(self) -> pulumi.Input['TokenEndpointAuthType']:
         """
-        The authentication method.
+        The authentication method. Changing it replaces the credential.
         """
         return pulumi.get(self, "type")
 
@@ -1570,6 +2089,9 @@ class TokenEndpointAuthArgs:
 
 
 class ToolArgsDict(TypedDict):
+    """
+    An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
+    """
     type: pulumi.Input['ToolType']
     """
     The kind of tool.
@@ -1610,6 +2132,8 @@ class ToolArgs:
                  mcp_server_name: pulumi.Input[Optional[_builtins.str]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None):
         """
+        An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
+
         :param pulumi.Input['ToolType'] type: The kind of tool.
         :param pulumi.Input[Sequence[pulumi.Input['ToolConfigArgs']]] configs: Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
         :param pulumi.Input['ToolDefaultsArgs'] default_config: Settings for tools without an entry in `configs`, for `agent_toolset_20260401` and `mcp_toolset`.
@@ -1718,35 +2242,80 @@ class ToolArgs:
 
 
 class ToolConfigArgsDict(TypedDict):
+    """
+    Settings for one tool within an agent or MCP toolset.
+    """
     name: pulumi.Input[_builtins.str]
     """
     The tool's name, such as `bash` or `web_fetch`.
+    """
+    allowed_domains: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]]
+    """
+    Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+    """
+    blocked_domains: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]]
+    """
+    Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
     """
     enabled: NotRequired[pulumi.Input[Optional[_builtins.bool]]]
     """
     Whether the agent may use the tool.
     """
+    max_content_tokens: NotRequired[pulumi.Input[Optional[_builtins.int]]]
+    """
+    Maximum fetched content tokens, for web_fetch.
+    """
     permission_policy: NotRequired[pulumi.Input[Optional['PermissionPolicy']]]
     """
     Whether a tool call needs approval.
+    """
+    url_sources: NotRequired[pulumi.Input[Optional['FetchURLSourcesArgsDict']]]
+    """
+    Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+    """
+    user_location: NotRequired[pulumi.Input[Optional['SearchLocationArgsDict']]]
+    """
+    Approximate location used to localize web_search results.
     """
 
 @pulumi.input_type
 class ToolConfigArgs:
     def __init__(__self__, *,
                  name: pulumi.Input[_builtins.str],
+                 allowed_domains: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 blocked_domains: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  enabled: pulumi.Input[Optional[_builtins.bool]] = None,
-                 permission_policy: pulumi.Input[Optional['PermissionPolicy']] = None):
+                 max_content_tokens: pulumi.Input[Optional[_builtins.int]] = None,
+                 permission_policy: pulumi.Input[Optional['PermissionPolicy']] = None,
+                 url_sources: pulumi.Input[Optional['FetchURLSourcesArgs']] = None,
+                 user_location: pulumi.Input[Optional['SearchLocationArgs']] = None):
         """
+        Settings for one tool within an agent or MCP toolset.
+
         :param pulumi.Input[_builtins.str] name: The tool's name, such as `bash` or `web_fetch`.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] allowed_domains: Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] blocked_domains: Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
         :param pulumi.Input[_builtins.bool] enabled: Whether the agent may use the tool.
+        :param pulumi.Input[_builtins.int] max_content_tokens: Maximum fetched content tokens, for web_fetch.
         :param pulumi.Input['PermissionPolicy'] permission_policy: Whether a tool call needs approval.
+        :param pulumi.Input['FetchURLSourcesArgs'] url_sources: Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+        :param pulumi.Input['SearchLocationArgs'] user_location: Approximate location used to localize web_search results.
         """
         pulumi.set(__self__, "name", name)
+        if allowed_domains is not None:
+            pulumi.set(__self__, "allowed_domains", allowed_domains)
+        if blocked_domains is not None:
+            pulumi.set(__self__, "blocked_domains", blocked_domains)
         if enabled is not None:
             pulumi.set(__self__, "enabled", enabled)
+        if max_content_tokens is not None:
+            pulumi.set(__self__, "max_content_tokens", max_content_tokens)
         if permission_policy is not None:
             pulumi.set(__self__, "permission_policy", permission_policy)
+        if url_sources is not None:
+            pulumi.set(__self__, "url_sources", url_sources)
+        if user_location is not None:
+            pulumi.set(__self__, "user_location", user_location)
 
     @_builtins.property
     @pulumi.getter
@@ -1761,6 +2330,30 @@ class ToolConfigArgs:
         pulumi.set(self, "name", value)
 
     @_builtins.property
+    @pulumi.getter(name="allowedDomains")
+    def allowed_domains(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+        """
+        return pulumi.get(self, "allowed_domains")
+
+    @allowed_domains.setter
+    def allowed_domains(self, value: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "allowed_domains", value)
+
+    @_builtins.property
+    @pulumi.getter(name="blockedDomains")
+    def blocked_domains(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+        """
+        return pulumi.get(self, "blocked_domains")
+
+    @blocked_domains.setter
+    def blocked_domains(self, value: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "blocked_domains", value)
+
+    @_builtins.property
     @pulumi.getter
     def enabled(self) -> pulumi.Input[Optional[_builtins.bool]]:
         """
@@ -1771,6 +2364,18 @@ class ToolConfigArgs:
     @enabled.setter
     def enabled(self, value: pulumi.Input[Optional[_builtins.bool]]):
         pulumi.set(self, "enabled", value)
+
+    @_builtins.property
+    @pulumi.getter(name="maxContentTokens")
+    def max_content_tokens(self) -> pulumi.Input[Optional[_builtins.int]]:
+        """
+        Maximum fetched content tokens, for web_fetch.
+        """
+        return pulumi.get(self, "max_content_tokens")
+
+    @max_content_tokens.setter
+    def max_content_tokens(self, value: pulumi.Input[Optional[_builtins.int]]):
+        pulumi.set(self, "max_content_tokens", value)
 
     @_builtins.property
     @pulumi.getter(name="permissionPolicy")
@@ -1784,8 +2389,35 @@ class ToolConfigArgs:
     def permission_policy(self, value: pulumi.Input[Optional['PermissionPolicy']]):
         pulumi.set(self, "permission_policy", value)
 
+    @_builtins.property
+    @pulumi.getter(name="urlSources")
+    def url_sources(self) -> pulumi.Input[Optional['FetchURLSourcesArgs']]:
+        """
+        Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+        """
+        return pulumi.get(self, "url_sources")
+
+    @url_sources.setter
+    def url_sources(self, value: pulumi.Input[Optional['FetchURLSourcesArgs']]):
+        pulumi.set(self, "url_sources", value)
+
+    @_builtins.property
+    @pulumi.getter(name="userLocation")
+    def user_location(self) -> pulumi.Input[Optional['SearchLocationArgs']]:
+        """
+        Approximate location used to localize web_search results.
+        """
+        return pulumi.get(self, "user_location")
+
+    @user_location.setter
+    def user_location(self, value: pulumi.Input[Optional['SearchLocationArgs']]):
+        pulumi.set(self, "user_location", value)
+
 
 class ToolDefaultsArgsDict(TypedDict):
+    """
+    Default settings for tools without an individual override.
+    """
     enabled: NotRequired[pulumi.Input[Optional[_builtins.bool]]]
     """
     Whether the agent may use the tools.
@@ -1801,6 +2433,8 @@ class ToolDefaultsArgs:
                  enabled: pulumi.Input[Optional[_builtins.bool]] = None,
                  permission_policy: pulumi.Input[Optional['PermissionPolicy']] = None):
         """
+        Default settings for tools without an individual override.
+
         :param pulumi.Input[_builtins.bool] enabled: Whether the agent may use the tools.
         :param pulumi.Input['PermissionPolicy'] permission_policy: Whether a tool call needs approval.
         """

@@ -120,49 +120,49 @@ public final class AnthropicFunctions {
         return Deployment.getInstance().invokeAsync("anthropic:index:getOrganization", TypeShape.of(GetOrganizationResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
      * 
      */
     public static Output<GetRateLimitsResult> getRateLimits() {
         return getRateLimits(GetRateLimitsArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
      * 
      */
     public static CompletableFuture<GetRateLimitsResult> getRateLimitsPlain() {
         return getRateLimitsPlain(GetRateLimitsPlainArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
      * 
      */
     public static Output<GetRateLimitsResult> getRateLimits(GetRateLimitsArgs args) {
         return getRateLimits(args, InvokeOptions.Empty);
     }
     /**
-     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
      * 
      */
     public static CompletableFuture<GetRateLimitsResult> getRateLimitsPlain(GetRateLimitsPlainArgs args) {
         return getRateLimitsPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
      * 
      */
     public static Output<GetRateLimitsResult> getRateLimits(GetRateLimitsArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("anthropic:index:getRateLimits", TypeShape.of(GetRateLimitsResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
      * 
      */
     public static Output<GetRateLimitsResult> getRateLimits(GetRateLimitsArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("anthropic:index:getRateLimits", TypeShape.of(GetRateLimitsResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+     * Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
      * 
      */
     public static CompletableFuture<GetRateLimitsResult> getRateLimitsPlain(GetRateLimitsPlainArgs args, InvokeOptions options) {

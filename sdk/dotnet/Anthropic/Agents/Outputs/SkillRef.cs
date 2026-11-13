@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Outputs
 {
 
+    /// <summary>
+    /// An Anthropic-provided or organization-uploaded skill available to an agent.
+    /// </summary>
     [OutputType]
     public sealed class SkillRef
     {

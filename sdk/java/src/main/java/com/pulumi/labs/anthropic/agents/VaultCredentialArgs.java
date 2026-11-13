@@ -34,14 +34,14 @@ public final class VaultCredentialArgs extends com.pulumi.resources.ResourceArgs
     }
 
     /**
-     * The credential&#39;s display name.
+     * The credential&#39;s display name, 1–255 characters. Removing a name you previously configured replaces the credential.
      * 
      */
     @Import(name="displayName")
     private @Nullable Output<String> displayName;
 
     /**
-     * @return The credential&#39;s display name.
+     * @return The credential&#39;s display name, 1–255 characters. Removing a name you previously configured replaces the credential.
      * 
      */
     public Optional<Output<String>> displayName() {
@@ -127,7 +127,7 @@ public final class VaultCredentialArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param displayName The credential&#39;s display name.
+         * @param displayName The credential&#39;s display name, 1–255 characters. Removing a name you previously configured replaces the credential.
          * 
          * @return builder
          * 
@@ -138,7 +138,7 @@ public final class VaultCredentialArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param displayName The credential&#39;s display name.
+         * @param displayName The credential&#39;s display name, 1–255 characters. Removing a name you previously configured replaces the credential.
          * 
          * @return builder
          * 

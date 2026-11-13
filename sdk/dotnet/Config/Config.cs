@@ -34,7 +34,7 @@ namespace Pulumi.Labs.Anthropic
 
         private static readonly __Value<string?> _adminKey = new __Value<string?>(() => __config.Get("adminKey") ?? Utilities.GetEnv("ANTHROPIC_ADMIN_KEY") ?? "");
         /// <summary>
-        /// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+        /// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
         /// </summary>
         public static string? AdminKey
         {
@@ -44,7 +44,7 @@ namespace Pulumi.Labs.Anthropic
 
         private static readonly __Value<string?> _apiKey = new __Value<string?>(() => __config.Get("apiKey") ?? Utilities.GetEnv("ANTHROPIC_API_KEY") ?? "");
         /// <summary>
-        /// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+        /// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
         /// </summary>
         public static string? ApiKey
         {
@@ -54,7 +54,7 @@ namespace Pulumi.Labs.Anthropic
 
         private static readonly __Value<string?> _authToken = new __Value<string?>(() => __config.Get("authToken") ?? Utilities.GetEnv("ANTHROPIC_AUTH_TOKEN") ?? "");
         /// <summary>
-        /// An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+        /// An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
         /// </summary>
         public static string? AuthToken
         {
@@ -72,9 +72,19 @@ namespace Pulumi.Labs.Anthropic
             set => _baseUrl.Set(value);
         }
 
+        private static readonly __Value<Types.Federation?> _federation = new __Value<Types.Federation?>(() => __config.GetObject<Types.Federation>("federation"));
+        /// <summary>
+        /// Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+        /// </summary>
+        public static Types.Federation? Federation
+        {
+            get => _federation.Get();
+            set => _federation.Set(value);
+        }
+
         private static readonly __Value<string?> _workspaceId = new __Value<string?>(() => __config.Get("workspaceId"));
         /// <summary>
-        /// The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+        /// The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
         /// </summary>
         public static string? WorkspaceId
         {
@@ -82,5 +92,44 @@ namespace Pulumi.Labs.Anthropic
             set => _workspaceId.Set(value);
         }
 
+        public static class Types
+        {
+
+             public class Federation
+             {
+            /// <summary>
+            /// The OIDC assertion source. Specify exactly one of token, file or command. This configuration is secret; file contents and command output are not saved in provider state. Assertions with a jti claim must be fresh for each exchange; use a command that obtains a new assertion rather than sharing a previously exchanged token.
+            /// </summary>
+                public Types.IdentityToken IdentityToken { get; set; }
+            /// <summary>
+            /// The organization the federation rule belongs to. Required for the token exchange; this value does not select an organization for API-key operations.
+            /// </summary>
+                public string OrganizationId { get; set; }
+            /// <summary>
+            /// Federation rule ID (fdrl_...). The server's rule determines granted scopes; OAuth-only identity operations require org:admin.
+            /// </summary>
+                public string RuleId { get; set; }
+            /// <summary>
+            /// Optional expected service-account target (svac_...). Omit for user-targeted rules.
+            /// </summary>
+                public string? ServiceAccountId { get; set; } = null!;
+            }
+
+             public class IdentityToken
+             {
+            /// <summary>
+            /// Executable followed by zero or more arguments, invoked whenever a new access token is needed. Must print one nonempty JWT to stdout, at most 64 KiB; surrounding whitespace is trimmed. Runs directly without a shell, inherits the provider process environment and working directory, and is stopped after 30 seconds or operation cancellation. Specify a shell explicitly for shell syntax. Command stdout and stderr are never logged or saved in provider state.
+            /// </summary>
+                public ImmutableArray<string> Command { get; set; }
+            /// <summary>
+            /// Absolute path to an OIDC JWT file, reread whenever a new access token is needed. Rotate the file before each exchange if its JWT carries a single-use jti claim. The file contents are not saved in provider state.
+            /// </summary>
+                public string? File { get; set; } = null!;
+            /// <summary>
+            /// A literal OIDC JWT. It is reused for each exchange and cannot be renewed by the provider. A JWT with a jti claim can be exchanged only once when issuer replay protection is enabled.
+            /// </summary>
+                public string? Token { get; set; } = null!;
+            }
+        }
     }
 }

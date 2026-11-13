@@ -11,73 +11,74 @@ import com.pulumi.labs.anthropic.Utilities;
 import com.pulumi.labs.anthropic.identity.FederationRuleWorkspaceArgs;
 import java.lang.String;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * Binds a federation rule to a workspace, so that the rule&#39;s access tokens can act in it. The resource&#39;s ID is `&lt;federation-rule-id&gt;/&lt;workspace-id&gt;`.
+ * Binds a federation rule to an additional workspace. The resource ID is `&lt;federation-rule-id&gt;/&lt;workspace-id&gt;` and supports import. Changing either ID replaces the binding. Deleting the resource removes this explicit binding, not the rule or workspace. Other grants, including all-workspace access, are unaffected.
  * 
- * Do not also bind the workspace the rule was created in (its `workspaceId`): that binding belongs to the rule.
+ * Do not also manage the workspace the rule was created in with this resource. Manage each rule/workspace pair with only one resource: deleting either duplicate removes the shared binding.
  * 
- * Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+ * Requires an OAuth token with `org:admin` (`anthropic:authToken`). The rule and workspace must belong to your organization; the rule must grant `workspace:developer` or `workspace:inference`. Enabling a workspace does not enroll the target service account: token exchange requires its membership in that workspace.
  * 
  */
 @ResourceType(type="anthropic:identity:FederationRuleWorkspace")
 public class FederationRuleWorkspace extends com.pulumi.resources.CustomResource {
     /**
-     * When the binding was created, in RFC 3339 format.
+     * When the binding was created, in RFC 3339 format, when available.
      * 
      */
     @Export(name="createdAt", refs={String.class}, tree="[0]")
-    private Output<String> createdAt;
+    private Output</* @Nullable */ String> createdAt;
 
     /**
-     * @return When the binding was created, in RFC 3339 format.
+     * @return When the binding was created, in RFC 3339 format, when available.
      * 
      */
-    public Output<String> createdAt() {
-        return this.createdAt;
+    public Output<Optional<String>> createdAt() {
+        return Codegen.optional(this.createdAt);
     }
     /**
-     * The federation rule&#39;s ID.
+     * The federation rule&#39;s nonempty ID. Changing it replaces the binding.
      * 
      */
     @Export(name="federationRuleId", refs={String.class}, tree="[0]")
     private Output<String> federationRuleId;
 
     /**
-     * @return The federation rule&#39;s ID.
+     * @return The federation rule&#39;s nonempty ID. Changing it replaces the binding.
      * 
      */
     public Output<String> federationRuleId() {
         return this.federationRuleId;
     }
     /**
-     * The workspace&#39;s ID.
+     * The workspace&#39;s nonempty ID. Changing it replaces the binding.
      * 
      */
     @Export(name="workspaceId", refs={String.class}, tree="[0]")
     private Output<String> workspaceId;
 
     /**
-     * @return The workspace&#39;s ID.
+     * @return The workspace&#39;s nonempty ID. Changing it replaces the binding.
      * 
      */
     public Output<String> workspaceId() {
         return this.workspaceId;
     }
     /**
-     * The workspace&#39;s name when the binding was created.
+     * The workspace name reported when the binding is read. Not available immediately after enabling the binding.
      * 
      */
     @Export(name="workspaceName", refs={String.class}, tree="[0]")
-    private Output<String> workspaceName;
+    private Output</* @Nullable */ String> workspaceName;
 
     /**
-     * @return The workspace&#39;s name when the binding was created.
+     * @return The workspace name reported when the binding is read. Not available immediately after enabling the binding.
      * 
      */
-    public Output<String> workspaceName() {
-        return this.workspaceName;
+    public Output<Optional<String>> workspaceName() {
+        return Codegen.optional(this.workspaceName);
     }
 
     /**

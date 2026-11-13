@@ -11,26 +11,26 @@ import java.util.Objects;
 @CustomType
 public final class Schedule {
     /**
-     * @return A cron expression, such as `0 9 * * 1-5`.
+     * @return A cron expression, such as 0 9 * * 1-5.
      * 
      */
     private String expression;
     /**
-     * @return The IANA time zone the expression is evaluated in, such as `America/New_York`.
+     * @return The IANA time zone the expression is evaluated in, such as America/New_York.
      * 
      */
     private String timezone;
 
     private Schedule() {}
     /**
-     * @return A cron expression, such as `0 9 * * 1-5`.
+     * @return A cron expression, such as 0 9 * * 1-5.
      * 
      */
     public String expression() {
         return this.expression;
     }
     /**
-     * @return The IANA time zone the expression is evaluated in, such as `America/New_York`.
+     * @return The IANA time zone the expression is evaluated in, such as America/New_York.
      * 
      */
     public String timezone() {

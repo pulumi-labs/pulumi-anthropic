@@ -18,14 +18,14 @@ public final class ServiceAccountArgs extends com.pulumi.resources.ResourceArgs 
     public static final ServiceAccountArgs Empty = new ServiceAccountArgs();
 
     /**
-     * A description of the service account, up to 2,000 characters.
+     * A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
      * 
      */
     @Import(name="description")
     private @Nullable Output<String> description;
 
     /**
-     * @return A description of the service account, up to 2,000 characters.
+     * @return A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
      * 
      */
     public Optional<Output<String>> description() {
@@ -33,14 +33,14 @@ public final class ServiceAccountArgs extends com.pulumi.resources.ResourceArgs 
     }
 
     /**
-     * A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+     * A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
      * 
      */
     @Import(name="name", required=true)
     private Output<String> name;
 
     /**
-     * @return A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+     * @return A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
      * 
      */
     public Output<String> name() {
@@ -48,14 +48,14 @@ public final class ServiceAccountArgs extends com.pulumi.resources.ResourceArgs 
     }
 
     /**
-     * The service account&#39;s organization role. Defaults to `developer`.
+     * The service account&#39;s organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
      * 
      */
     @Import(name="organizationRole")
     private @Nullable Output<ServiceAccountRole> organizationRole;
 
     /**
-     * @return The service account&#39;s organization role. Defaults to `developer`.
+     * @return The service account&#39;s organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
      * 
      */
     public Optional<Output<ServiceAccountRole>> organizationRole() {
@@ -89,7 +89,7 @@ public final class ServiceAccountArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param description A description of the service account, up to 2,000 characters.
+         * @param description A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
          * 
          * @return builder
          * 
@@ -100,7 +100,7 @@ public final class ServiceAccountArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param description A description of the service account, up to 2,000 characters.
+         * @param description A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
          * 
          * @return builder
          * 
@@ -110,7 +110,7 @@ public final class ServiceAccountArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param name A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+         * @param name A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
          * 
          * @return builder
          * 
@@ -121,7 +121,7 @@ public final class ServiceAccountArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param name A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+         * @param name A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
          * 
          * @return builder
          * 
@@ -131,7 +131,7 @@ public final class ServiceAccountArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param organizationRole The service account&#39;s organization role. Defaults to `developer`.
+         * @param organizationRole The service account&#39;s organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
          * 
          * @return builder
          * 
@@ -142,7 +142,7 @@ public final class ServiceAccountArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param organizationRole The service account&#39;s organization role. Defaults to `developer`.
+         * @param organizationRole The service account&#39;s organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
          * 
          * @return builder
          * 

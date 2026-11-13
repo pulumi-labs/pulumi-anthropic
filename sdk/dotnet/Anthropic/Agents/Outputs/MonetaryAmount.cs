@@ -15,11 +15,11 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
     public sealed class MonetaryAmount
     {
         /// <summary>
-        /// The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+        /// The amount in the currency's minor units, as an integer string: 2500 is $25.00.
         /// </summary>
         public readonly string Amount;
         /// <summary>
-        /// The ISO 4217 currency code. Only `USD` is supported.
+        /// The ISO 4217 currency code. Only USD is supported.
         /// </summary>
         public readonly string Currency;
 

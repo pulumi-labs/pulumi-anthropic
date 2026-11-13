@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Inputs
 {
 
+    /// <summary>
+    /// A named remote MCP endpoint available to the agent.
+    /// </summary>
     public sealed class MCPServerArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>

@@ -85,4 +85,8 @@ Some lifecycle behavior follows from what the API allows:
 
 See [CLAUDE.md](CLAUDE.md) for the architecture and conventions. `make build test` builds
 the provider and runs its tests against an in-memory fake of the API; `make
-test_acceptance` runs the examples against the live API, given credentials.
+test_acceptance` runs the non-admin live acceptance tests in [`test/`](test/), given
+an `ANTHROPIC_API_KEY`.
+Runnable sample programs live in `examples/`. Explicitly opted-in live YAML engine
+scenarios live in `test/`; see its README for scope, credentials and setup inputs.
+For keyless GitHub Actions authentication, see [`examples/github-actions-oidc`](examples/github-actions-oidc).

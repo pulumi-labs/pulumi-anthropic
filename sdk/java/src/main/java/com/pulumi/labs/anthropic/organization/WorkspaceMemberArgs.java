@@ -16,14 +16,14 @@ public final class WorkspaceMemberArgs extends com.pulumi.resources.ResourceArgs
     public static final WorkspaceMemberArgs Empty = new WorkspaceMemberArgs();
 
     /**
-     * The user&#39;s ID.
+     * The user&#39;s ID. Changing this value replaces the membership.
      * 
      */
     @Import(name="userId", required=true)
     private Output<String> userId;
 
     /**
-     * @return The user&#39;s ID.
+     * @return The user&#39;s ID. Changing this value replaces the membership.
      * 
      */
     public Output<String> userId() {
@@ -31,14 +31,14 @@ public final class WorkspaceMemberArgs extends com.pulumi.resources.ResourceArgs
     }
 
     /**
-     * The workspace&#39;s ID.
+     * The workspace&#39;s ID. Changing this value replaces the membership.
      * 
      */
     @Import(name="workspaceId", required=true)
     private Output<String> workspaceId;
 
     /**
-     * @return The workspace&#39;s ID.
+     * @return The workspace&#39;s ID. Changing this value replaces the membership.
      * 
      */
     public Output<String> workspaceId() {
@@ -87,7 +87,7 @@ public final class WorkspaceMemberArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param userId The user&#39;s ID.
+         * @param userId The user&#39;s ID. Changing this value replaces the membership.
          * 
          * @return builder
          * 
@@ -98,7 +98,7 @@ public final class WorkspaceMemberArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param userId The user&#39;s ID.
+         * @param userId The user&#39;s ID. Changing this value replaces the membership.
          * 
          * @return builder
          * 
@@ -108,7 +108,7 @@ public final class WorkspaceMemberArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param workspaceId The workspace&#39;s ID.
+         * @param workspaceId The workspace&#39;s ID. Changing this value replaces the membership.
          * 
          * @return builder
          * 
@@ -119,7 +119,7 @@ public final class WorkspaceMemberArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param workspaceId The workspace&#39;s ID.
+         * @param workspaceId The workspace&#39;s ID. Changing this value replaces the membership.
          * 
          * @return builder
          * 

@@ -18,15 +18,15 @@ public final class ExternalKeyArgs extends com.pulumi.resources.ResourceArgs {
     public static final ExternalKeyArgs Empty = new ExternalKeyArgs();
 
     /**
-     * A display name for the key, 1 to 255 characters.
-     * 
+     * A display name for the key, 1 to 255 characters. Removing a configured name clears it.
+     *
      */
     @Import(name="displayName")
     private @Nullable Output<String> displayName;
 
     /**
-     * @return A display name for the key, 1 to 255 characters.
-     * 
+     * @return A display name for the key, 1 to 255 characters. Removing a configured name clears it.
+     *
      */
     public Optional<Output<String>> displayName() {
         return Optional.ofNullable(this.displayName);
@@ -34,32 +34,47 @@ public final class ExternalKeyArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The geography the key serves. The only accepted value is `us`.
-     * 
+     *
      */
     @Import(name="geo")
     private @Nullable Output<String> geo;
 
     /**
      * @return The geography the key serves. The only accepted value is `us`.
-     * 
+     *
      */
     public Optional<Output<String>> geo() {
         return Optional.ofNullable(this.geo);
     }
 
     /**
-     * Where the key is held.
-     * 
+     * Where the key is held. Changing any of these coordinates replaces the configuration.
+     *
      */
     @Import(name="providerConfig", required=true)
     private Output<ProviderConfigArgs> providerConfig;
 
     /**
-     * @return Where the key is held.
-     * 
+     * @return Where the key is held. Changing any of these coordinates replaces the configuration.
+     *
      */
     public Output<ProviderConfigArgs> providerConfig() {
         return this.providerConfig;
+    }
+
+    /**
+     * The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization&#39;s own key: an unbound key can be used by any workspace, including another customer&#39;s. Changing or removing the binding replaces the configuration.
+     *
+     */
+    @Import(name="userProfileId")
+    private @Nullable Output<String> userProfileId;
+
+    /**
+     * @return The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization&#39;s own key: an unbound key can be used by any workspace, including another customer&#39;s. Changing or removing the binding replaces the configuration.
+     *
+     */
+    public Optional<Output<String>> userProfileId() {
+        return Optional.ofNullable(this.userProfileId);
     }
 
     private ExternalKeyArgs() {}
@@ -68,6 +83,7 @@ public final class ExternalKeyArgs extends com.pulumi.resources.ResourceArgs {
         this.displayName = $.displayName;
         this.geo = $.geo;
         this.providerConfig = $.providerConfig;
+        this.userProfileId = $.userProfileId;
     }
 
     public static Builder builder() {
@@ -89,10 +105,10 @@ public final class ExternalKeyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param displayName A display name for the key, 1 to 255 characters.
-         * 
+         * @param displayName A display name for the key, 1 to 255 characters. Removing a configured name clears it.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder displayName(@Nullable Output<String> displayName) {
             $.displayName = displayName;
@@ -100,10 +116,10 @@ public final class ExternalKeyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param displayName A display name for the key, 1 to 255 characters.
-         * 
+         * @param displayName A display name for the key, 1 to 255 characters. Removing a configured name clears it.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder displayName(String displayName) {
             return displayName(Output.of(displayName));
@@ -111,9 +127,9 @@ public final class ExternalKeyArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param geo The geography the key serves. The only accepted value is `us`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder geo(@Nullable Output<String> geo) {
             $.geo = geo;
@@ -122,19 +138,19 @@ public final class ExternalKeyArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param geo The geography the key serves. The only accepted value is `us`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder geo(String geo) {
             return geo(Output.of(geo));
         }
 
         /**
-         * @param providerConfig Where the key is held.
-         * 
+         * @param providerConfig Where the key is held. Changing any of these coordinates replaces the configuration.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder providerConfig(Output<ProviderConfigArgs> providerConfig) {
             $.providerConfig = providerConfig;
@@ -142,13 +158,34 @@ public final class ExternalKeyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param providerConfig Where the key is held.
-         * 
+         * @param providerConfig Where the key is held. Changing any of these coordinates replaces the configuration.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder providerConfig(ProviderConfigArgs providerConfig) {
             return providerConfig(Output.of(providerConfig));
+        }
+
+        /**
+         * @param userProfileId The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization&#39;s own key: an unbound key can be used by any workspace, including another customer&#39;s. Changing or removing the binding replaces the configuration.
+         *
+         * @return builder
+         *
+         */
+        public Builder userProfileId(@Nullable Output<String> userProfileId) {
+            $.userProfileId = userProfileId;
+            return this;
+        }
+
+        /**
+         * @param userProfileId The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization&#39;s own key: an unbound key can be used by any workspace, including another customer&#39;s. Changing or removing the binding replaces the configuration.
+         *
+         * @return builder
+         *
+         */
+        public Builder userProfileId(String userProfileId) {
+            return userProfileId(Output.of(userProfileId));
         }
 
         public ExternalKeyArgs build() {

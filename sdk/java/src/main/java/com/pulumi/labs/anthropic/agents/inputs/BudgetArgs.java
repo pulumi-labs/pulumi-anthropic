@@ -15,14 +15,14 @@ public final class BudgetArgs extends com.pulumi.resources.ResourceArgs {
     public static final BudgetArgs Empty = new BudgetArgs();
 
     /**
-     * The most the deployment may spend, at list price.
+     * The most each future session may spend at public list prices, rather than negotiated prices.
      * 
      */
     @Import(name="maxListCost", required=true)
     private Output<MonetaryAmountArgs> maxListCost;
 
     /**
-     * @return The most the deployment may spend, at list price.
+     * @return The most each future session may spend at public list prices, rather than negotiated prices.
      * 
      */
     public Output<MonetaryAmountArgs> maxListCost() {
@@ -54,7 +54,7 @@ public final class BudgetArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param maxListCost The most the deployment may spend, at list price.
+         * @param maxListCost The most each future session may spend at public list prices, rather than negotiated prices.
          * 
          * @return builder
          * 
@@ -65,7 +65,7 @@ public final class BudgetArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param maxListCost The most the deployment may spend, at list price.
+         * @param maxListCost The most each future session may spend at public list prices, rather than negotiated prices.
          * 
          * @return builder
          * 

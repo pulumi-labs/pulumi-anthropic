@@ -33,18 +33,18 @@ public final class OAuthRefreshArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The OAuth refresh token.
+     * The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
      * 
      */
-    @Import(name="refreshToken", required=true)
-    private Output<String> refreshToken;
+    @Import(name="refreshToken")
+    private @Nullable Output<String> refreshToken;
 
     /**
-     * @return The OAuth refresh token.
+     * @return The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
      * 
      */
-    public Output<String> refreshToken() {
-        return this.refreshToken;
+    public Optional<Output<String>> refreshToken() {
+        return Optional.ofNullable(this.refreshToken);
     }
 
     /**
@@ -63,14 +63,14 @@ public final class OAuthRefreshArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The OAuth scope to request.
+     * The OAuth scope to request. Removing this setting clears the stored scope.
      * 
      */
     @Import(name="scope")
     private @Nullable Output<String> scope;
 
     /**
-     * @return The OAuth scope to request.
+     * @return The OAuth scope to request. Removing this setting clears the stored scope.
      * 
      */
     public Optional<Output<String>> scope() {
@@ -158,18 +158,18 @@ public final class OAuthRefreshArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param refreshToken The OAuth refresh token.
+         * @param refreshToken The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
          * 
          * @return builder
          * 
          */
-        public Builder refreshToken(Output<String> refreshToken) {
+        public Builder refreshToken(@Nullable Output<String> refreshToken) {
             $.refreshToken = refreshToken;
             return this;
         }
 
         /**
-         * @param refreshToken The OAuth refresh token.
+         * @param refreshToken The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
          * 
          * @return builder
          * 
@@ -200,7 +200,7 @@ public final class OAuthRefreshArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param scope The OAuth scope to request.
+         * @param scope The OAuth scope to request. Removing this setting clears the stored scope.
          * 
          * @return builder
          * 
@@ -211,7 +211,7 @@ public final class OAuthRefreshArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param scope The OAuth scope to request.
+         * @param scope The OAuth scope to request. Removing this setting clears the stored scope.
          * 
          * @return builder
          * 
@@ -265,9 +265,6 @@ public final class OAuthRefreshArgs extends com.pulumi.resources.ResourceArgs {
         public OAuthRefreshArgs build() {
             if ($.clientId == null) {
                 throw new MissingRequiredPropertyException("OAuthRefreshArgs", "clientId");
-            }
-            if ($.refreshToken == null) {
-                throw new MissingRequiredPropertyException("OAuthRefreshArgs", "refreshToken");
             }
             if ($.tokenEndpoint == null) {
                 throw new MissingRequiredPropertyException("OAuthRefreshArgs", "tokenEndpoint");

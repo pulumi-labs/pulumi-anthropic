@@ -11,29 +11,29 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Identity
 {
     /// <summary>
-    /// Grants a service account a role in a workspace. The resource's ID is `&lt;workspace-id&gt;/&lt;service-account-id&gt;`.
+    /// Grants a service account a role in a workspace. The resource ID is `&lt;workspace-id&gt;/&lt;service-account-id&gt;` and supports import of explicit grants. Changing either ID replaces the grant. Manage each pair with only one resource: creating a grant for an existing pair replaces its role, and deleting either duplicate removes the shared explicit grant.
     /// 
-    /// Every service account is implicitly a `workspace_user` of the organization's default workspace; that membership cannot be removed, so do not manage it with this resource.
+    /// Every service account has implicit `workspace_user` access to the organization's default workspace. Creating this resource there makes an explicit grant; deleting it restores implicit access rather than revoking all access. Implicit memberships cannot be imported. If an explicit grant becomes implicit, refresh reports the explicit grant as absent. Deleting this resource does not delete the service account or workspace.
     /// 
-    /// Managing service accounts requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+    /// Requires an OAuth token with `org:admin` (`anthropic:authToken`).
     /// </summary>
     [AnthropicResourceType("anthropic:identity:ServiceAccountWorkspace")]
     public partial class ServiceAccountWorkspace : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// The service account's ID.
+        /// The service account's nonempty ID. Changing it replaces the grant.
         /// </summary>
         [Output("serviceAccountId")]
         public Output<string> ServiceAccountId { get; private set; } = null!;
 
         /// <summary>
-        /// The workspace's ID.
+        /// The workspace's nonempty ID. Changing it replaces the grant.
         /// </summary>
         [Output("workspaceId")]
         public Output<string> WorkspaceId { get; private set; } = null!;
 
         /// <summary>
-        /// The service account's role in the workspace.
+        /// The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
         /// </summary>
         [Output("workspaceRole")]
         public Output<Pulumi.Labs.Anthropic.Identity.WorkspaceRole> WorkspaceRole { get; private set; } = null!;
@@ -90,19 +90,19 @@ namespace Pulumi.Labs.Anthropic.Identity
     public sealed class ServiceAccountWorkspaceArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The service account's ID.
+        /// The service account's nonempty ID. Changing it replaces the grant.
         /// </summary>
         [Input("serviceAccountId", required: true)]
         public Input<string> ServiceAccountId { get; set; } = null!;
 
         /// <summary>
-        /// The workspace's ID.
+        /// The workspace's nonempty ID. Changing it replaces the grant.
         /// </summary>
         [Input("workspaceId", required: true)]
         public Input<string> WorkspaceId { get; set; } = null!;
 
         /// <summary>
-        /// The service account's role in the workspace.
+        /// The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
         /// </summary>
         [Input("workspaceRole", required: true)]
         public Input<Pulumi.Labs.Anthropic.Identity.WorkspaceRole> WorkspaceRole { get; set; } = null!;

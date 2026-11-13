@@ -83,7 +83,7 @@ class Invite(pulumi.CustomResource):
                  role: pulumi.Input[Optional['OrganizationRole']] = None,
                  __props__=None):
         """
-        An invitation to join the organization. Invitations cannot be changed, so any change replaces the invitation, and they expire 21 days after they are sent. Once accepted, the person is a user of the organization; manage their role with `anthropic.organization.User`.
+        An invitation to join the organization. Invitations cannot be changed, so any change deletes the old pending invitation before sending a new one. Expiry is reported by expiresAt. Deleting this resource revokes pending invitations; accepted, expired and deleted invitations are only removed from Pulumi state. Deleting an invitation never removes an organization user. Once accepted, the person is a user of the organization; manage their role with `anthropic.organization.User`.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
@@ -98,7 +98,7 @@ class Invite(pulumi.CustomResource):
                  args: InviteArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        An invitation to join the organization. Invitations cannot be changed, so any change replaces the invitation, and they expire 21 days after they are sent. Once accepted, the person is a user of the organization; manage their role with `anthropic.organization.User`.
+        An invitation to join the organization. Invitations cannot be changed, so any change deletes the old pending invitation before sending a new one. Expiry is reported by expiresAt. Deleting this resource revokes pending invitations; accepted, expired and deleted invitations are only removed from Pulumi state. Deleting an invitation never removes an organization user. Once accepted, the person is a user of the organization; manage their role with `anthropic.organization.User`.
 
         :param str resource_name: The name of the resource.
         :param InviteArgs args: The arguments to use to populate this resource's properties.

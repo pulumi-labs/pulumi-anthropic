@@ -15,7 +15,7 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
     public sealed class Budget
     {
         /// <summary>
-        /// The most the deployment may spend, at list price.
+        /// The most each future session may spend at public list prices, rather than negotiated prices.
         /// </summary>
         public readonly Outputs.MonetaryAmount MaxListCost;
 

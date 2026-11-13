@@ -7,7 +7,7 @@ import * as utilities from "../utilities";
 /**
  * A custom Agent Skill: a directory of instructions, scripts, and resources, with a `SKILL.md` at its root, that Claude loads when relevant. Skills can be attached to Managed Agents and used from the Messages API.
  *
- * Skills are versioned. When the content of `source` changes, a new immutable version is uploaded and becomes `latestVersionId`; earlier versions are kept, so agents that pin one keep working. Deleting the resource deletes the skill and all of its versions.
+ * Content changes upload a new immutable version; earlier versions remain available to pinned agents. The skill name in SKILL.md is immutable; changing it requires replacing the resource. Deleting the resource deletes the skill and all of its versions. Imported skills require a local source archive before they can be updated; their files cannot be downloaded through this resource.
  */
 export class Skill extends pulumi.CustomResource {
     /**
@@ -51,15 +51,19 @@ export class Skill extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+     * A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
      */
     declare public readonly displayName: pulumi.Output<string | undefined>;
     /**
-     * The ID of the newest version (`skver_...`), which agents can pin in a skill reference's `version`.
+     * The version created by the most recent upload, which agents can pin in a skill reference's `version`. Refresh reports the skill's current newest version.
      */
     declare public /*out*/ readonly latestVersionId: pulumi.Output<string>;
     /**
-     * The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+     * The skill's immutable name, taken from the initial SKILL.md frontmatter or its enclosing directory. Changing this name in your source archive replaces the skill.
+     */
+    declare public /*out*/ readonly name: pulumi.Output<string>;
+    /**
+     * The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
      */
     declare public readonly source: pulumi.Output<pulumi.asset.Archive>;
     /**
@@ -85,11 +89,13 @@ export class Skill extends pulumi.CustomResource {
             resourceInputs["source"] = args?.source;
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["latestVersionId"] = undefined /*out*/;
+            resourceInputs["name"] = undefined /*out*/;
             resourceInputs["updatedAt"] = undefined /*out*/;
         } else {
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["displayName"] = undefined /*out*/;
             resourceInputs["latestVersionId"] = undefined /*out*/;
+            resourceInputs["name"] = undefined /*out*/;
             resourceInputs["source"] = undefined /*out*/;
             resourceInputs["updatedAt"] = undefined /*out*/;
         }
@@ -105,11 +111,11 @@ export class Skill extends pulumi.CustomResource {
  */
 export interface SkillArgs {
     /**
-     * A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+     * A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
      */
     displayName?: pulumi.Input<string | undefined>;
     /**
-     * The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+     * The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
      */
     source: pulumi.Input<pulumi.asset.Archive>;
 }

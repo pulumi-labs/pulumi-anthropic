@@ -1,0 +1,57 @@
+name: federation-rule-lifecycle
+runtime: yaml
+config:
+  firstIssuerId:
+    type: string
+  secondIssuerId:
+    type: string
+  seedAccountId:
+    type: string
+  seedWorkspaceId:
+    type: string
+  runName:
+    type: string
+  apiKey:
+    type: string
+    secret: true
+    default: ""
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  provider:
+    type: pulumi:providers:anthropic
+    defaultProvider: true
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+    options:
+      version: TEST_PROVIDER_VERSION
+  rule:
+    type: anthropic:identity:FederationRule
+    properties:
+      issuerId: ${firstIssuerId}
+      name: ${runName}-rule
+      workspaceId: ${seedWorkspaceId}
+      oauthScope: workspace:inference
+      target:
+        serviceAccountId: ${seedAccountId}
+      match:
+        subjectPrefix: exact-synthetic-subject
+        claims:
+          owner: synthetic
+outputs:
+  ruleId: ${rule.id}
+  name: ${rule.name}
+  issuerId: ${rule.issuerId}

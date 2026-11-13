@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 /**
  * A custom Agent Skill: a directory of instructions, scripts, and resources, with a `SKILL.md` at its root, that Claude loads when relevant. Skills can be attached to Managed Agents and used from the Messages API.
  * 
- * Skills are versioned. When the content of `source` changes, a new immutable version is uploaded and becomes `latestVersionId`; earlier versions are kept, so agents that pin one keep working. Deleting the resource deletes the skill and all of its versions.
+ * Content changes upload a new immutable version; earlier versions remain available to pinned agents. The skill name in SKILL.md is immutable; changing it requires replacing the resource. Deleting the resource deletes the skill and all of its versions. Imported skills require a local source archive before they can be updated; their files cannot be downloaded through this resource.
  * 
  */
 @ResourceType(type="anthropic:skills:Skill")
@@ -38,42 +38,56 @@ public class Skill extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+     * A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
      * 
      */
     @Export(name="displayName", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> displayName;
 
     /**
-     * @return A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+     * @return A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
      * 
      */
     public Output<Optional<String>> displayName() {
         return Codegen.optional(this.displayName);
     }
     /**
-     * The ID of the newest version (`skver_...`), which agents can pin in a skill reference&#39;s `version`.
+     * The version created by the most recent upload, which agents can pin in a skill reference&#39;s `version`. Refresh reports the skill&#39;s current newest version.
      * 
      */
     @Export(name="latestVersionId", refs={String.class}, tree="[0]")
     private Output<String> latestVersionId;
 
     /**
-     * @return The ID of the newest version (`skver_...`), which agents can pin in a skill reference&#39;s `version`.
+     * @return The version created by the most recent upload, which agents can pin in a skill reference&#39;s `version`. Refresh reports the skill&#39;s current newest version.
      * 
      */
     public Output<String> latestVersionId() {
         return this.latestVersionId;
     }
     /**
-     * The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+     * The skill&#39;s immutable name, taken from the initial SKILL.md frontmatter or its enclosing directory. Changing this name in your source archive replaces the skill.
+     *
+     */
+    @Export(name="name", refs={String.class}, tree="[0]")
+    private Output<String> name;
+
+    /**
+     * @return The skill&#39;s immutable name, taken from the initial SKILL.md frontmatter or its enclosing directory. Changing this name in your source archive replaces the skill.
+     *
+     */
+    public Output<String> name() {
+        return this.name;
+    }
+    /**
+     * The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
      * 
      */
     @Export(name="source", refs={Archive.class}, tree="[0]")
     private Output<Archive> source;
 
     /**
-     * @return The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+     * @return The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
      * 
      */
     public Output<Archive> source() {

@@ -11,7 +11,7 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
-// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
 func GetAdminKey(ctx *pulumi.Context) string {
 	v, err := config.Try(ctx, "anthropic:adminKey")
 	if err == nil {
@@ -24,7 +24,7 @@ func GetAdminKey(ctx *pulumi.Context) string {
 	return value
 }
 
-// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
 func GetApiKey(ctx *pulumi.Context) string {
 	v, err := config.Try(ctx, "anthropic:apiKey")
 	if err == nil {
@@ -37,7 +37,7 @@ func GetApiKey(ctx *pulumi.Context) string {
 	return value
 }
 
-// An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+// An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
 func GetAuthToken(ctx *pulumi.Context) string {
 	v, err := config.Try(ctx, "anthropic:authToken")
 	if err == nil {
@@ -63,7 +63,12 @@ func GetBaseUrl(ctx *pulumi.Context) string {
 	return value
 }
 
-// The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+// Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+func GetFederation(ctx *pulumi.Context) string {
+	return config.Get(ctx, "anthropic:federation")
+}
+
+// The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
 func GetWorkspaceId(ctx *pulumi.Context) string {
 	return config.Get(ctx, "anthropic:workspaceId")
 }

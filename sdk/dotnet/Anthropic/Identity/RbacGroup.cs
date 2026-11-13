@@ -13,7 +13,7 @@ namespace Pulumi.Labs.Anthropic.Identity
     /// <summary>
     /// A role-based access control group of users. Add users with `RbacGroupMember`. Roles are attached to groups in the organization's admin settings, and are reported by `roleIds`.
     /// 
-    /// RBAC groups are available to Claude Enterprise organizations. Groups provisioned by SCIM cannot be changed or deleted while SCIM provisioning is active.
+    /// RBAC groups are available to Claude Enterprise organizations. Groups provisioned by SCIM cannot be changed or deleted while SCIM provisioning is active. Destroying this resource permanently deletes the group; owner-access protections may prevent deletion.
     /// </summary>
     [AnthropicResourceType("anthropic:identity:RbacGroup")]
     public partial class RbacGroup : global::Pulumi.CustomResource
@@ -25,13 +25,13 @@ namespace Pulumi.Labs.Anthropic.Identity
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// The group's name, 1 to 255 characters. Names need not be unique.
+        /// The group's name. Names need not be unique and can be changed without replacing the group.
         /// </summary>
         [Output("name")]
         public Output<string> Name { get; private set; } = null!;
 
         /// <summary>
-        /// The IDs of the roles attached to the group.
+        /// The IDs of the roles attached to the group. An empty list means no roles are attached. If this value is absent, role information is temporarily unavailable; refresh again rather than treating it as an empty list.
         /// </summary>
         [Output("roleIds")]
         public Output<ImmutableArray<string>> RoleIds { get; private set; } = null!;
@@ -95,7 +95,7 @@ namespace Pulumi.Labs.Anthropic.Identity
     public sealed class RbacGroupArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The group's name, 1 to 255 characters. Names need not be unique.
+        /// The group's name. Names need not be unique and can be changed without replacing the group.
         /// </summary>
         [Input("name", required: true)]
         public Input<string> Name { get; set; } = null!;

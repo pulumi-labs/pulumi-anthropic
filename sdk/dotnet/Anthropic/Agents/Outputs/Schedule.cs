@@ -15,11 +15,11 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
     public sealed class Schedule
     {
         /// <summary>
-        /// A cron expression, such as `0 9 * * 1-5`.
+        /// A cron expression, such as 0 9 * * 1-5.
         /// </summary>
         public readonly string Expression;
         /// <summary>
-        /// The IANA time zone the expression is evaluated in, such as `America/New_York`.
+        /// The IANA time zone the expression is evaluated in, such as America/New_York.
         /// </summary>
         public readonly string Timezone;
 

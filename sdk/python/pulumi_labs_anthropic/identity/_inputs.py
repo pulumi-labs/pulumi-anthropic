@@ -25,6 +25,9 @@ __all__ = [
 ]
 
 class FederationMatchArgsDict(TypedDict):
+    """
+    Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
+    """
     audience: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
     The required `aud` claim.
@@ -39,7 +42,7 @@ class FederationMatchArgsDict(TypedDict):
     """
     subject_prefix: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+    Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
     """
 
 @pulumi.input_type
@@ -50,10 +53,12 @@ class FederationMatchArgs:
                  condition: pulumi.Input[Optional[_builtins.str]] = None,
                  subject_prefix: pulumi.Input[Optional[_builtins.str]] = None):
         """
+        Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
+
         :param pulumi.Input[_builtins.str] audience: The required `aud` claim.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] claims: Claims the token must carry, with exactly these values.
         :param pulumi.Input[_builtins.str] condition: A CEL expression over the token's claims that must evaluate to true, up to 4,096 characters.
-        :param pulumi.Input[_builtins.str] subject_prefix: A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+        :param pulumi.Input[_builtins.str] subject_prefix: Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
         """
         if audience is not None:
             pulumi.set(__self__, "audience", audience)
@@ -104,7 +109,7 @@ class FederationMatchArgs:
     @pulumi.getter(name="subjectPrefix")
     def subject_prefix(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+        Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
         """
         return pulumi.get(self, "subject_prefix")
 
@@ -114,6 +119,9 @@ class FederationMatchArgs:
 
 
 class FederationTargetArgsDict(TypedDict):
+    """
+    The service account that tokens issued by a federation rule act as.
+    """
     service_account_id: pulumi.Input[_builtins.str]
     """
     The service account's ID.
@@ -124,6 +132,8 @@ class FederationTargetArgs:
     def __init__(__self__, *,
                  service_account_id: pulumi.Input[_builtins.str]):
         """
+        The service account that tokens issued by a federation rule act as.
+
         :param pulumi.Input[_builtins.str] service_account_id: The service account's ID.
         """
         pulumi.set(__self__, "service_account_id", service_account_id)
@@ -142,6 +152,9 @@ class FederationTargetArgs:
 
 
 class JwksArgsDict(TypedDict):
+    """
+    The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
+    """
     type: pulumi.Input['JwksType']
     """
     The source of the signing keys.
@@ -152,15 +165,15 @@ class JwksArgsDict(TypedDict):
     """
     discovery_base: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+    The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
     """
     keys: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input[Mapping[str, Any]]]]]]
     """
-    The signing keys, as JSON Web Keys. Required for `inline`.
+    A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
     """
     url: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    The JWKS URL. Required for `explicit_url`.
+    The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
     """
 
 @pulumi.input_type
@@ -172,11 +185,13 @@ class JwksArgs:
                  keys: pulumi.Input[Optional[Sequence[pulumi.Input[Mapping[str, Any]]]]] = None,
                  url: pulumi.Input[Optional[_builtins.str]] = None):
         """
+        The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
+
         :param pulumi.Input['JwksType'] type: The source of the signing keys.
         :param pulumi.Input[_builtins.str] ca_cert_pem: A PEM-encoded CA certificate to trust when fetching the keys, up to 8,192 characters. For `discovery` and `explicit_url`.
-        :param pulumi.Input[_builtins.str] discovery_base: The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
-        :param pulumi.Input[Sequence[pulumi.Input[Mapping[str, Any]]]] keys: The signing keys, as JSON Web Keys. Required for `inline`.
-        :param pulumi.Input[_builtins.str] url: The JWKS URL. Required for `explicit_url`.
+        :param pulumi.Input[_builtins.str] discovery_base: The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
+        :param pulumi.Input[Sequence[pulumi.Input[Mapping[str, Any]]]] keys: A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
+        :param pulumi.Input[_builtins.str] url: The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
         """
         pulumi.set(__self__, "type", type)
         if ca_cert_pem is not None:
@@ -216,7 +231,7 @@ class JwksArgs:
     @pulumi.getter(name="discoveryBase")
     def discovery_base(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+        The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
         """
         return pulumi.get(self, "discovery_base")
 
@@ -228,7 +243,7 @@ class JwksArgs:
     @pulumi.getter
     def keys(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[Mapping[str, Any]]]]]:
         """
-        The signing keys, as JSON Web Keys. Required for `inline`.
+        A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
         """
         return pulumi.get(self, "keys")
 
@@ -240,7 +255,7 @@ class JwksArgs:
     @pulumi.getter
     def url(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The JWKS URL. Required for `explicit_url`.
+        The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
         """
         return pulumi.get(self, "url")
 

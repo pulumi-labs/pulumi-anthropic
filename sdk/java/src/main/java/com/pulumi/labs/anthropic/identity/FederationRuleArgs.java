@@ -21,14 +21,14 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
     public static final FederationRuleArgs Empty = new FederationRuleArgs();
 
     /**
-     * Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+     * Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
      * 
      */
     @Import(name="appliesToAllWorkspaces")
     private @Nullable Output<Boolean> appliesToAllWorkspaces;
 
     /**
-     * @return Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+     * @return Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
      * 
      */
     public Optional<Output<Boolean>> appliesToAllWorkspaces() {
@@ -36,14 +36,14 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
     }
 
     /**
-     * A description of the rule, up to 2,000 characters.
+     * A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
      * 
      */
     @Import(name="description")
     private @Nullable Output<String> description;
 
     /**
-     * @return A description of the rule, up to 2,000 characters.
+     * @return A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
      * 
      */
     public Optional<Output<String>> description() {
@@ -81,14 +81,14 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
     }
 
     /**
-     * A lowercase slug that uniquely names the rule in the organization.
+     * A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
      * 
      */
     @Import(name="name", required=true)
     private Output<String> name;
 
     /**
-     * @return A lowercase slug that uniquely names the rule in the organization.
+     * @return A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
      * 
      */
     public Output<String> name() {
@@ -126,14 +126,14 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
     }
 
     /**
-     * The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+     * The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
      * 
      */
     @Import(name="tokenLifetimeSeconds")
     private @Nullable Output<Integer> tokenLifetimeSeconds;
 
     /**
-     * @return The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+     * @return The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
      * 
      */
     public Optional<Output<Integer>> tokenLifetimeSeconds() {
@@ -188,7 +188,7 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param appliesToAllWorkspaces Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+         * @param appliesToAllWorkspaces Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
          * 
          * @return builder
          * 
@@ -199,7 +199,7 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param appliesToAllWorkspaces Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+         * @param appliesToAllWorkspaces Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
          * 
          * @return builder
          * 
@@ -209,7 +209,7 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param description A description of the rule, up to 2,000 characters.
+         * @param description A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
          * 
          * @return builder
          * 
@@ -220,7 +220,7 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param description A description of the rule, up to 2,000 characters.
+         * @param description A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
          * 
          * @return builder
          * 
@@ -272,7 +272,7 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param name A lowercase slug that uniquely names the rule in the organization.
+         * @param name A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
          * 
          * @return builder
          * 
@@ -283,7 +283,7 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param name A lowercase slug that uniquely names the rule in the organization.
+         * @param name A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
          * 
          * @return builder
          * 
@@ -335,7 +335,7 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param tokenLifetimeSeconds The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+         * @param tokenLifetimeSeconds The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
          * 
          * @return builder
          * 
@@ -346,7 +346,7 @@ public final class FederationRuleArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param tokenLifetimeSeconds The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+         * @param tokenLifetimeSeconds The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
          * 
          * @return builder
          * 

@@ -31,10 +31,10 @@ class EnvironmentArgs:
         The set of arguments for constructing a Environment resource.
 
         :param pulumi.Input[_builtins.str] name: The environment's name, 1 to 256 characters.
-        :param pulumi.Input['EnvironmentConfigArgs'] config: Where and how sessions run. Defaults to a cloud sandbox.
-        :param pulumi.Input[_builtins.str] description: A description of the environment, up to 1,024 characters.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
-        :param pulumi.Input['EnvironmentScope'] scope: Who can use the environment. API organizations accept only `organization`.
+        :param pulumi.Input['EnvironmentConfigArgs'] config: Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
+        :param pulumi.Input[_builtins.str] description: A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
+        :param pulumi.Input['EnvironmentScope'] scope: Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
         """
         pulumi.set(__self__, "name", name)
         if config is not None:
@@ -62,7 +62,7 @@ class EnvironmentArgs:
     @pulumi.getter
     def config(self) -> pulumi.Input[Optional['EnvironmentConfigArgs']]:
         """
-        Where and how sessions run. Defaults to a cloud sandbox.
+        Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
         """
         return pulumi.get(self, "config")
 
@@ -74,7 +74,7 @@ class EnvironmentArgs:
     @pulumi.getter
     def description(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        A description of the environment, up to 1,024 characters.
+        A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
         """
         return pulumi.get(self, "description")
 
@@ -86,7 +86,7 @@ class EnvironmentArgs:
     @pulumi.getter
     def metadata(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Arbitrary key-value pairs.
+        Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
         """
         return pulumi.get(self, "metadata")
 
@@ -98,7 +98,7 @@ class EnvironmentArgs:
     @pulumi.getter
     def scope(self) -> pulumi.Input[Optional['EnvironmentScope']]:
         """
-        Who can use the environment. API organizations accept only `organization`.
+        Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
         """
         return pulumi.get(self, "scope")
 
@@ -122,15 +122,15 @@ class Environment(pulumi.CustomResource):
         """
         A Claude Managed Agents environment: where sessions run, either an Anthropic-managed cloud sandbox or a sandbox you host yourself.
 
-        Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource deletes the environment. The API refuses to delete an environment that sessions still reference, in which case it is archived instead: it becomes read-only, running sessions continue, and new sessions cannot use it.
+        Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource permanently deletes the environment; it does not archive it.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Union['EnvironmentConfigArgs', 'EnvironmentConfigArgsDict', 'outputs.EnvironmentConfig']] config: Where and how sessions run. Defaults to a cloud sandbox.
-        :param pulumi.Input[_builtins.str] description: A description of the environment, up to 1,024 characters.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
+        :param pulumi.Input[Union['EnvironmentConfigArgs', 'EnvironmentConfigArgsDict', 'outputs.EnvironmentConfig']] config: Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
+        :param pulumi.Input[_builtins.str] description: A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
         :param pulumi.Input[_builtins.str] name: The environment's name, 1 to 256 characters.
-        :param pulumi.Input['EnvironmentScope'] scope: Who can use the environment. API organizations accept only `organization`.
+        :param pulumi.Input['EnvironmentScope'] scope: Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
         """
         ...
     @overload
@@ -141,7 +141,7 @@ class Environment(pulumi.CustomResource):
         """
         A Claude Managed Agents environment: where sessions run, either an Anthropic-managed cloud sandbox or a sandbox you host yourself.
 
-        Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource deletes the environment. The API refuses to delete an environment that sessions still reference, in which case it is archived instead: it becomes read-only, running sessions continue, and new sessions cannot use it.
+        Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource permanently deletes the environment; it does not archive it.
 
         :param str resource_name: The name of the resource.
         :param EnvironmentArgs args: The arguments to use to populate this resource's properties.
@@ -224,7 +224,7 @@ class Environment(pulumi.CustomResource):
     @pulumi.getter
     def config(self) -> pulumi.Output[Optional['outputs.EnvironmentConfig']]:
         """
-        Where and how sessions run. Defaults to a cloud sandbox.
+        Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
         """
         return pulumi.get(self, "config")
 
@@ -240,7 +240,7 @@ class Environment(pulumi.CustomResource):
     @pulumi.getter
     def description(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        A description of the environment, up to 1,024 characters.
+        A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
         """
         return pulumi.get(self, "description")
 
@@ -248,7 +248,7 @@ class Environment(pulumi.CustomResource):
     @pulumi.getter
     def metadata(self) -> pulumi.Output[Optional[Mapping[str, _builtins.str]]]:
         """
-        Arbitrary key-value pairs.
+        Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
         """
         return pulumi.get(self, "metadata")
 
@@ -264,7 +264,7 @@ class Environment(pulumi.CustomResource):
     @pulumi.getter
     def scope(self) -> pulumi.Output[Optional['EnvironmentScope']]:
         """
-        Who can use the environment. API organizations accept only `organization`.
+        Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
         """
         return pulumi.get(self, "scope")
 

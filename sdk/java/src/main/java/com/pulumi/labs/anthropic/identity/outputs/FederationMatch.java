@@ -28,7 +28,7 @@ public final class FederationMatch {
      */
     private @Nullable String condition;
     /**
-     * @return A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+     * @return Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
      * 
      */
     private @Nullable String subjectPrefix;
@@ -56,7 +56,7 @@ public final class FederationMatch {
         return Optional.ofNullable(this.condition);
     }
     /**
-     * @return A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+     * @return Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
      * 
      */
     public Optional<String> subjectPrefix() {

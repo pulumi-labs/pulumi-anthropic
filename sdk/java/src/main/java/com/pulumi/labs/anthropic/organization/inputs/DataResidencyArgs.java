@@ -18,14 +18,14 @@ public final class DataResidencyArgs extends com.pulumi.resources.ResourceArgs {
     public static final DataResidencyArgs Empty = new DataResidencyArgs();
 
     /**
-     * The geographies inference may run in. Omit to allow any geography.
+     * The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
      * 
      */
     @Import(name="allowedInferenceGeos")
     private @Nullable Output<List<InferenceGeo>> allowedInferenceGeos;
 
     /**
-     * @return The geographies inference may run in. Omit to allow any geography.
+     * @return The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
      * 
      */
     public Optional<Output<List<InferenceGeo>>> allowedInferenceGeos() {
@@ -33,14 +33,14 @@ public final class DataResidencyArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The geography inference runs in when a request doesn&#39;t choose one.
+     * The geography inference runs in when a request doesn&#39;t choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
      * 
      */
     @Import(name="defaultInferenceGeo")
     private @Nullable Output<InferenceGeo> defaultInferenceGeo;
 
     /**
-     * @return The geography inference runs in when a request doesn&#39;t choose one.
+     * @return The geography inference runs in when a request doesn&#39;t choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
      * 
      */
     public Optional<Output<InferenceGeo>> defaultInferenceGeo() {
@@ -48,14 +48,14 @@ public final class DataResidencyArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace.
+     * Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
      * 
      */
     @Import(name="workspaceGeo")
     private @Nullable Output<WorkspaceGeo> workspaceGeo;
 
     /**
-     * @return Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace.
+     * @return Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
      * 
      */
     public Optional<Output<WorkspaceGeo>> workspaceGeo() {
@@ -89,7 +89,7 @@ public final class DataResidencyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param allowedInferenceGeos The geographies inference may run in. Omit to allow any geography.
+         * @param allowedInferenceGeos The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
          * 
          * @return builder
          * 
@@ -100,7 +100,7 @@ public final class DataResidencyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param allowedInferenceGeos The geographies inference may run in. Omit to allow any geography.
+         * @param allowedInferenceGeos The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
          * 
          * @return builder
          * 
@@ -110,7 +110,7 @@ public final class DataResidencyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param allowedInferenceGeos The geographies inference may run in. Omit to allow any geography.
+         * @param allowedInferenceGeos The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
          * 
          * @return builder
          * 
@@ -120,7 +120,7 @@ public final class DataResidencyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param defaultInferenceGeo The geography inference runs in when a request doesn&#39;t choose one.
+         * @param defaultInferenceGeo The geography inference runs in when a request doesn&#39;t choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
          * 
          * @return builder
          * 
@@ -131,7 +131,7 @@ public final class DataResidencyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param defaultInferenceGeo The geography inference runs in when a request doesn&#39;t choose one.
+         * @param defaultInferenceGeo The geography inference runs in when a request doesn&#39;t choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
          * 
          * @return builder
          * 
@@ -141,7 +141,7 @@ public final class DataResidencyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param workspaceGeo Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace.
+         * @param workspaceGeo Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
          * 
          * @return builder
          * 
@@ -152,7 +152,7 @@ public final class DataResidencyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param workspaceGeo Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace.
+         * @param workspaceGeo Where the workspace&#39;s data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
          * 
          * @return builder
          * 

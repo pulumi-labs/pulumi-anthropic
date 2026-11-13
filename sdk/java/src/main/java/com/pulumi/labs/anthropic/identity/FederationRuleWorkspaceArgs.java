@@ -15,14 +15,14 @@ public final class FederationRuleWorkspaceArgs extends com.pulumi.resources.Reso
     public static final FederationRuleWorkspaceArgs Empty = new FederationRuleWorkspaceArgs();
 
     /**
-     * The federation rule&#39;s ID.
+     * The federation rule&#39;s nonempty ID. Changing it replaces the binding.
      * 
      */
     @Import(name="federationRuleId", required=true)
     private Output<String> federationRuleId;
 
     /**
-     * @return The federation rule&#39;s ID.
+     * @return The federation rule&#39;s nonempty ID. Changing it replaces the binding.
      * 
      */
     public Output<String> federationRuleId() {
@@ -30,14 +30,14 @@ public final class FederationRuleWorkspaceArgs extends com.pulumi.resources.Reso
     }
 
     /**
-     * The workspace&#39;s ID.
+     * The workspace&#39;s nonempty ID. Changing it replaces the binding.
      * 
      */
     @Import(name="workspaceId", required=true)
     private Output<String> workspaceId;
 
     /**
-     * @return The workspace&#39;s ID.
+     * @return The workspace&#39;s nonempty ID. Changing it replaces the binding.
      * 
      */
     public Output<String> workspaceId() {
@@ -70,7 +70,7 @@ public final class FederationRuleWorkspaceArgs extends com.pulumi.resources.Reso
         }
 
         /**
-         * @param federationRuleId The federation rule&#39;s ID.
+         * @param federationRuleId The federation rule&#39;s nonempty ID. Changing it replaces the binding.
          * 
          * @return builder
          * 
@@ -81,7 +81,7 @@ public final class FederationRuleWorkspaceArgs extends com.pulumi.resources.Reso
         }
 
         /**
-         * @param federationRuleId The federation rule&#39;s ID.
+         * @param federationRuleId The federation rule&#39;s nonempty ID. Changing it replaces the binding.
          * 
          * @return builder
          * 
@@ -91,7 +91,7 @@ public final class FederationRuleWorkspaceArgs extends com.pulumi.resources.Reso
         }
 
         /**
-         * @param workspaceId The workspace&#39;s ID.
+         * @param workspaceId The workspace&#39;s nonempty ID. Changing it replaces the binding.
          * 
          * @return builder
          * 
@@ -102,7 +102,7 @@ public final class FederationRuleWorkspaceArgs extends com.pulumi.resources.Reso
         }
 
         /**
-         * @param workspaceId The workspace&#39;s ID.
+         * @param workspaceId The workspace&#39;s nonempty ID. Changing it replaces the binding.
          * 
          * @return builder
          * 

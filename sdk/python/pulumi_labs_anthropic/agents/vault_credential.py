@@ -31,7 +31,7 @@ class VaultCredentialArgs:
 
         :param pulumi.Input['CredentialAuthArgs'] auth: The credential itself.
         :param pulumi.Input[_builtins.str] vault_id: The vault holding the credential.
-        :param pulumi.Input[_builtins.str] display_name: The credential's display name.
+        :param pulumi.Input[_builtins.str] display_name: The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
         """
         pulumi.set(__self__, "auth", auth)
@@ -69,7 +69,7 @@ class VaultCredentialArgs:
     @pulumi.getter(name="displayName")
     def display_name(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The credential's display name.
+        The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
         """
         return pulumi.get(self, "display_name")
 
@@ -104,12 +104,12 @@ class VaultCredential(pulumi.CustomResource):
         """
         A credential in a Claude Managed Agents vault: an OAuth grant or bearer token for an MCP server, or a secret injected into outbound requests as an environment variable.
 
-        Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `<vaultId>/<credentialId>`.
+        Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `<vaultId>/<credentialId>`. Deletion permanently removes the credential, not archives it. Running sessions periodically re-resolve credentials; immediate revocation is not guaranteed.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[Union['CredentialAuthArgs', 'CredentialAuthArgsDict', 'outputs.CredentialAuth']] auth: The credential itself.
-        :param pulumi.Input[_builtins.str] display_name: The credential's display name.
+        :param pulumi.Input[_builtins.str] display_name: The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
         :param pulumi.Input[_builtins.str] vault_id: The vault holding the credential.
         """
@@ -122,7 +122,7 @@ class VaultCredential(pulumi.CustomResource):
         """
         A credential in a Claude Managed Agents vault: an OAuth grant or bearer token for an MCP server, or a secret injected into outbound requests as an environment variable.
 
-        Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `<vaultId>/<credentialId>`.
+        Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `<vaultId>/<credentialId>`. Deletion permanently removes the credential, not archives it. Running sessions periodically re-resolve credentials; immediate revocation is not guaranteed.
 
         :param str resource_name: The name of the resource.
         :param VaultCredentialArgs args: The arguments to use to populate this resource's properties.
@@ -162,7 +162,7 @@ class VaultCredential(pulumi.CustomResource):
             __props__.__dict__["vault_id"] = vault_id
             __props__.__dict__["created_at"] = None
             __props__.__dict__["updated_at"] = None
-        replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["auth.mcpServerUrl", "auth.refresh.clientId", "auth.refresh.resource", "auth.refresh.tokenEndpoint", "auth.secretName", "auth.type", "vaultId"])
+        replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["auth.mcpServerUrl", "auth.refresh.clientId", "auth.refresh.resource", "auth.refresh.tokenEndpoint", "auth.refresh.tokenEndpointAuth.type", "auth.secretName", "auth.type", "vaultId"])
         opts = pulumi.ResourceOptions.merge(opts, replace_on_changes)
         super(VaultCredential, __self__).__init__(
             'anthropic:agents:VaultCredential',
@@ -220,7 +220,7 @@ class VaultCredential(pulumi.CustomResource):
     @pulumi.getter(name="displayName")
     def display_name(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        The credential's display name.
+        The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
         """
         return pulumi.get(self, "display_name")
 

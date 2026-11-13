@@ -20,7 +20,7 @@ namespace Pulumi.Labs.Anthropic.Agents.Inputs
         public Input<string> Id { get; set; } = null!;
 
         /// <summary>
-        /// The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+        /// The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
         /// </summary>
         [Input("version")]
         public Input<int>? Version { get; set; }

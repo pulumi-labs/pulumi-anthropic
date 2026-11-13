@@ -14,7 +14,7 @@ import (
 
 // A credential in a Claude Managed Agents vault: an OAuth grant or bearer token for an MCP server, or a secret injected into outbound requests as an environment variable.
 //
-// Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `<vaultId>/<credentialId>`.
+// Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `<vaultId>/<credentialId>`. Deletion permanently removes the credential, not archives it. Running sessions periodically re-resolve credentials; immediate revocation is not guaranteed.
 type VaultCredential struct {
 	pulumi.CustomResourceState
 
@@ -22,7 +22,7 @@ type VaultCredential struct {
 	Auth CredentialAuthOutput `pulumi:"auth"`
 	// When the credential was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// The credential's display name.
+	// The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
 	DisplayName pulumi.StringPtrOutput `pulumi:"displayName"`
 	// Arbitrary key-value pairs.
 	Metadata pulumi.StringMapOutput `pulumi:"metadata"`
@@ -96,7 +96,7 @@ func VaultCredentialExists(ctx *pulumi.Context,
 type vaultCredentialArgs struct {
 	// The credential itself.
 	Auth CredentialAuth `pulumi:"auth"`
-	// The credential's display name.
+	// The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
 	DisplayName *string `pulumi:"displayName"`
 	// Arbitrary key-value pairs.
 	Metadata map[string]string `pulumi:"metadata"`
@@ -108,7 +108,7 @@ type vaultCredentialArgs struct {
 type VaultCredentialArgs struct {
 	// The credential itself.
 	Auth CredentialAuthInput
-	// The credential's display name.
+	// The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
 	DisplayName pulumi.StringPtrInput
 	// Arbitrary key-value pairs.
 	Metadata pulumi.StringMapInput
@@ -213,7 +213,7 @@ func (o VaultCredentialOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *VaultCredential) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// The credential's display name.
+// The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
 func (o VaultCredentialOutput) DisplayName() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *VaultCredential) pulumi.StringPtrOutput { return v.DisplayName }).(pulumi.StringPtrOutput)
 }

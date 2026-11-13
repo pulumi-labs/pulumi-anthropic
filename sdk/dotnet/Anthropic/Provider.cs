@@ -10,23 +10,26 @@ using Pulumi;
 
 namespace Pulumi.Labs.Anthropic
 {
+    /// <summary>
+    /// Authentication and organization/workspace settings for the Anthropic provider.
+    /// </summary>
     [AnthropicResourceType("pulumi:providers:anthropic")]
     public partial class Provider : global::Pulumi.ProviderResource
     {
         /// <summary>
-        /// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+        /// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
         /// </summary>
         [Output("adminKey")]
         public Output<string?> AdminKey { get; private set; } = null!;
 
         /// <summary>
-        /// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+        /// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
         /// </summary>
         [Output("apiKey")]
         public Output<string?> ApiKey { get; private set; } = null!;
 
         /// <summary>
-        /// An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+        /// An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
         /// </summary>
         [Output("authToken")]
         public Output<string?> AuthToken { get; private set; } = null!;
@@ -38,7 +41,7 @@ namespace Pulumi.Labs.Anthropic
         public Output<string?> BaseUrl { get; private set; } = null!;
 
         /// <summary>
-        /// The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+        /// The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
         /// </summary>
         [Output("workspaceId")]
         public Output<string?> WorkspaceId { get; private set; } = null!;
@@ -82,7 +85,7 @@ namespace Pulumi.Labs.Anthropic
         private Input<string>? _adminKey;
 
         /// <summary>
-        /// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+        /// An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
         /// </summary>
         public Input<string>? AdminKey
         {
@@ -98,7 +101,7 @@ namespace Pulumi.Labs.Anthropic
         private Input<string>? _apiKey;
 
         /// <summary>
-        /// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+        /// An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
         /// </summary>
         public Input<string>? ApiKey
         {
@@ -114,7 +117,7 @@ namespace Pulumi.Labs.Anthropic
         private Input<string>? _authToken;
 
         /// <summary>
-        /// An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+        /// An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
         /// </summary>
         public Input<string>? AuthToken
         {
@@ -133,7 +136,13 @@ namespace Pulumi.Labs.Anthropic
         public Input<string>? BaseUrl { get; set; }
 
         /// <summary>
-        /// The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+        /// Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+        /// </summary>
+        [Input("federation", json: true)]
+        public Input<Inputs.FederationArgs>? Federation { get; set; }
+
+        /// <summary>
+        /// The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
         /// </summary>
         [Input("workspaceId")]
         public Input<string>? WorkspaceId { get; set; }

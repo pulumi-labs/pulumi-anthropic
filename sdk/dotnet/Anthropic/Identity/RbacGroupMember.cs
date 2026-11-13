@@ -13,7 +13,7 @@ namespace Pulumi.Labs.Anthropic.Identity
     /// <summary>
     /// Adds a user to an RBAC group. The resource's ID is `&lt;rbac-group-id&gt;/&lt;user-id&gt;`.
     /// 
-    /// RBAC groups are available to Claude Enterprise organizations.
+    /// RBAC groups are available to Claude Enterprise organizations. Deleting this resource removes only the membership, not the user or group. Membership of SCIM-provisioned groups cannot be changed while SCIM provisioning is active in the tenant. Owner-access protections can prevent adding or removing members.
     /// </summary>
     [AnthropicResourceType("anthropic:identity:RbacGroupMember")]
     public partial class RbacGroupMember : global::Pulumi.CustomResource
@@ -31,13 +31,13 @@ namespace Pulumi.Labs.Anthropic.Identity
         public Output<string> Email { get; private set; } = null!;
 
         /// <summary>
-        /// The group's ID.
+        /// The group's ID. Changing this value replaces the membership.
         /// </summary>
         [Output("rbacGroupId")]
         public Output<string> RbacGroupId { get; private set; } = null!;
 
         /// <summary>
-        /// The user's ID.
+        /// The user's ID. Changing this value replaces the membership.
         /// </summary>
         [Output("userId")]
         public Output<string> UserId { get; private set; } = null!;
@@ -94,13 +94,13 @@ namespace Pulumi.Labs.Anthropic.Identity
     public sealed class RbacGroupMemberArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The group's ID.
+        /// The group's ID. Changing this value replaces the membership.
         /// </summary>
         [Input("rbacGroupId", required: true)]
         public Input<string> RbacGroupId { get; set; } = null!;
 
         /// <summary>
-        /// The user's ID.
+        /// The user's ID. Changing this value replaces the membership.
         /// </summary>
         [Input("userId", required: true)]
         public Input<string> UserId { get; set; } = null!;

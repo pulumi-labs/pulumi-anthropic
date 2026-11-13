@@ -30,11 +30,11 @@ class FederationIssuerArgs:
         """
         The set of arguments for constructing a FederationIssuer resource.
 
-        :param pulumi.Input[_builtins.str] issuer_url: The issuer URL, which must match the `iss` claim of accepted tokens.
-        :param pulumi.Input[_builtins.str] name: A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
-        :param pulumi.Input[_builtins.bool] check_jti: Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
-        :param pulumi.Input['JwksArgs'] jwks: Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL.
-        :param pulumi.Input[_builtins.int] max_jwt_lifetime_seconds: The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+        :param pulumi.Input[_builtins.str] issuer_url: The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
+        :param pulumi.Input[_builtins.str] name: A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
+        :param pulumi.Input[_builtins.bool] check_jti: Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
+        :param pulumi.Input['JwksArgs'] jwks: Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
+        :param pulumi.Input[_builtins.int] max_jwt_lifetime_seconds: The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
         """
         pulumi.set(__self__, "issuer_url", issuer_url)
         pulumi.set(__self__, "name", name)
@@ -49,7 +49,7 @@ class FederationIssuerArgs:
     @pulumi.getter(name="issuerUrl")
     def issuer_url(self) -> pulumi.Input[_builtins.str]:
         """
-        The issuer URL, which must match the `iss` claim of accepted tokens.
+        The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
         """
         return pulumi.get(self, "issuer_url")
 
@@ -61,7 +61,7 @@ class FederationIssuerArgs:
     @pulumi.getter
     def name(self) -> pulumi.Input[_builtins.str]:
         """
-        A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+        A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
         """
         return pulumi.get(self, "name")
 
@@ -73,7 +73,7 @@ class FederationIssuerArgs:
     @pulumi.getter(name="checkJti")
     def check_jti(self) -> pulumi.Input[Optional[_builtins.bool]]:
         """
-        Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
+        Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
         """
         return pulumi.get(self, "check_jti")
 
@@ -85,7 +85,7 @@ class FederationIssuerArgs:
     @pulumi.getter
     def jwks(self) -> pulumi.Input[Optional['JwksArgs']]:
         """
-        Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL.
+        Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
         """
         return pulumi.get(self, "jwks")
 
@@ -97,7 +97,7 @@ class FederationIssuerArgs:
     @pulumi.getter(name="maxJwtLifetimeSeconds")
     def max_jwt_lifetime_seconds(self) -> pulumi.Input[Optional[_builtins.int]]:
         """
-        The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+        The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
         """
         return pulumi.get(self, "max_jwt_lifetime_seconds")
 
@@ -121,17 +121,19 @@ class FederationIssuer(pulumi.CustomResource):
         """
         A workload identity federation issuer: an OIDC identity provider, such as GitHub Actions, a Kubernetes cluster, or a cloud's workload identity service, whose signed tokens workloads exchange for short-lived Anthropic access tokens. Which tokens are accepted, and which service account they act as, is decided by `FederationRule`s.
 
-        Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+        Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. Issuers backing rules with scopes other than `workspace:developer` or `workspace:inference` must be updated in the Console. Creation registers trust configuration; it does not wait for signing-key polling or verify token exchange.
+
+        Optional settings omitted from the start use platform defaults at creation; later changes to those settings outside this resource are preserved until you configure them. Import by issuer ID recovers the current settings.
 
         The API cannot delete issuers, so deleting this resource archives the issuer. Archiving is refused while a live rule references the issuer.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.bool] check_jti: Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
-        :param pulumi.Input[_builtins.str] issuer_url: The issuer URL, which must match the `iss` claim of accepted tokens.
-        :param pulumi.Input[Union['JwksArgs', 'JwksArgsDict', 'outputs.Jwks']] jwks: Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL.
-        :param pulumi.Input[_builtins.int] max_jwt_lifetime_seconds: The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
-        :param pulumi.Input[_builtins.str] name: A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+        :param pulumi.Input[_builtins.bool] check_jti: Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
+        :param pulumi.Input[_builtins.str] issuer_url: The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
+        :param pulumi.Input[Union['JwksArgs', 'JwksArgsDict', 'outputs.Jwks']] jwks: Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
+        :param pulumi.Input[_builtins.int] max_jwt_lifetime_seconds: The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
+        :param pulumi.Input[_builtins.str] name: A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
         """
         ...
     @overload
@@ -142,7 +144,9 @@ class FederationIssuer(pulumi.CustomResource):
         """
         A workload identity federation issuer: an OIDC identity provider, such as GitHub Actions, a Kubernetes cluster, or a cloud's workload identity service, whose signed tokens workloads exchange for short-lived Anthropic access tokens. Which tokens are accepted, and which service account they act as, is decided by `FederationRule`s.
 
-        Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+        Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. Issuers backing rules with scopes other than `workspace:developer` or `workspace:inference` must be updated in the Console. Creation registers trust configuration; it does not wait for signing-key polling or verify token exchange.
+
+        Optional settings omitted from the start use platform defaults at creation; later changes to those settings outside this resource are preserved until you configure them. Import by issuer ID recovers the current settings.
 
         The API cannot delete issuers, so deleting this resource archives the issuer. Archiving is refused while a live rule references the issuer.
 
@@ -185,6 +189,7 @@ class FederationIssuer(pulumi.CustomResource):
                 raise TypeError("Missing required property 'name'")
             __props__.__dict__["name"] = name
             __props__.__dict__["created_at"] = None
+            __props__.__dict__["jwks_polling_disabled_at"] = None
             __props__.__dict__["poll_status"] = None
             __props__.__dict__["updated_at"] = None
         super(FederationIssuer, __self__).__init__(
@@ -213,6 +218,7 @@ class FederationIssuer(pulumi.CustomResource):
         __props__.__dict__["created_at"] = None
         __props__.__dict__["issuer_url"] = None
         __props__.__dict__["jwks"] = None
+        __props__.__dict__["jwks_polling_disabled_at"] = None
         __props__.__dict__["max_jwt_lifetime_seconds"] = None
         __props__.__dict__["name"] = None
         __props__.__dict__["poll_status"] = None
@@ -229,7 +235,7 @@ class FederationIssuer(pulumi.CustomResource):
     @pulumi.getter(name="checkJti")
     def check_jti(self) -> pulumi.Output[Optional[_builtins.bool]]:
         """
-        Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`.
+        Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`.
         """
         return pulumi.get(self, "check_jti")
 
@@ -245,7 +251,7 @@ class FederationIssuer(pulumi.CustomResource):
     @pulumi.getter(name="issuerUrl")
     def issuer_url(self) -> pulumi.Output[_builtins.str]:
         """
-        The issuer URL, which must match the `iss` claim of accepted tokens.
+        The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment.
         """
         return pulumi.get(self, "issuer_url")
 
@@ -253,15 +259,23 @@ class FederationIssuer(pulumi.CustomResource):
     @pulumi.getter
     def jwks(self) -> pulumi.Output[Optional['outputs.Jwks']]:
         """
-        Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL.
+        Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward.
         """
         return pulumi.get(self, "jwks")
+
+    @_builtins.property
+    @pulumi.getter(name="jwksPollingDisabledAt")
+    def jwks_polling_disabled_at(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        When signing-key polling was automatically paused after repeated failures, in RFC 3339 format. After repairing the key endpoint, resume polling outside this resource using the Console or the issuer update API; this resource does not automatically resume it.
+        """
+        return pulumi.get(self, "jwks_polling_disabled_at")
 
     @_builtins.property
     @pulumi.getter(name="maxJwtLifetimeSeconds")
     def max_jwt_lifetime_seconds(self) -> pulumi.Output[Optional[_builtins.int]]:
         """
-        The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600.
+        The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600.
         """
         return pulumi.get(self, "max_jwt_lifetime_seconds")
 
@@ -269,7 +283,7 @@ class FederationIssuer(pulumi.CustomResource):
     @pulumi.getter
     def name(self) -> pulumi.Output[_builtins.str]:
         """
-        A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters.
+        A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer.
         """
         return pulumi.get(self, "name")
 
@@ -277,7 +291,7 @@ class FederationIssuer(pulumi.CustomResource):
     @pulumi.getter(name="pollStatus")
     def poll_status(self) -> pulumi.Output[Optional['outputs.PollStatus']]:
         """
-        The health of the platform's polling of the issuer's signing keys.
+        The health of signing-key polling, when available. Usually absent for inline keys or before polling starts.
         """
         return pulumi.get(self, "poll_status")
 

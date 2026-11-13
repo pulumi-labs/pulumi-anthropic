@@ -11,26 +11,26 @@ import java.util.Objects;
 @CustomType
 public final class MonetaryAmount {
     /**
-     * @return The amount in the currency&#39;s minor units, as an integer string: `2500` is $25.00.
+     * @return The amount in the currency&#39;s minor units, as an integer string: 2500 is $25.00.
      * 
      */
     private String amount;
     /**
-     * @return The ISO 4217 currency code. Only `USD` is supported.
+     * @return The ISO 4217 currency code. Only USD is supported.
      * 
      */
     private String currency;
 
     private MonetaryAmount() {}
     /**
-     * @return The amount in the currency&#39;s minor units, as an integer string: `2500` is $25.00.
+     * @return The amount in the currency&#39;s minor units, as an integer string: 2500 is $25.00.
      * 
      */
     public String amount() {
         return this.amount;
     }
     /**
-     * @return The ISO 4217 currency code. Only `USD` is supported.
+     * @return The ISO 4217 currency code. Only USD is supported.
      * 
      */
     public String currency() {

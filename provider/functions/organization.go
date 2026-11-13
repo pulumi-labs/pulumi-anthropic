@@ -19,7 +19,7 @@ import (
 
 	"github.com/pulumi/pulumi-go-provider/infer"
 
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
 )
 
 // GetOrganization reads the organization the Admin credential belongs to.
@@ -41,23 +41,18 @@ func (r *GetOrganizationResult) Annotate(a infer.Annotator) {
 	a.Describe(&r.Name, "The organization's name.")
 }
 
-// organization is the organization as the API returns it. Its id cannot be a function
-// output's name, which Pulumi reserves.
-type organization struct {
-	ID   string `pulumi:"id"`
-	Name string `pulumi:"name"`
-}
-
 func (*GetOrganization) Invoke(
 	ctx context.Context, _ infer.FunctionRequest[GetOrganizationArgs],
 ) (infer.FunctionResponse[GetOrganizationResult], error) {
-	var raw []byte
-	if err := organizationCollection.Get(ctx, "me", &raw); err != nil {
+	client, err := config.ClientFor(ctx, config.Admin)
+	if err != nil {
 		return infer.FunctionResponse[GetOrganizationResult]{}, err
 	}
-	var org organization
-	err := rest.Decode(raw, &org)
+	org, err := client.Organization.Get(ctx)
+	if err != nil {
+		return infer.FunctionResponse[GetOrganizationResult]{}, err
+	}
 	return infer.FunctionResponse[GetOrganizationResult]{
 		Output: GetOrganizationResult{OrganizationID: org.ID, Name: org.Name},
-	}, err
+	}, nil
 }

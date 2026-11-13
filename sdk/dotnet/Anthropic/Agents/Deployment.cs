@@ -11,11 +11,7 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents
 {
     /// <summary>
-    /// A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, run on a cron schedule or on demand.
-    /// 
-    /// A deployment runs one version of its agent. Set `agent.version` to the agent's `version` output to roll the deployment forward with every change to the agent, or to a fixed number to hold it back: updating the agent creates a new version, and deployments move to it one at a time as their `agent.version` changes.
-    /// 
-    /// The API cannot delete deployments, so deleting this resource archives the deployment, which stops its schedule and cannot be undone.
+    /// A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, on demand or on a cron schedule. Set agent.version to pin a version; otherwise the latest version is pinned whenever configuration is applied. This resource does not start on-demand sessions or manage pausing. Deleting it archives the deployment permanently and stops its schedule.
     /// </summary>
     [AnthropicResourceType("anthropic:agents:Deployment")]
     public partial class Deployment : global::Pulumi.CustomResource
@@ -27,7 +23,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<Outputs.AgentReference> Agent { get; private set; } = null!;
 
         /// <summary>
-        /// A spending limit for the deployment.
+        /// A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
         /// </summary>
         [Output("budget")]
         public Output<Outputs.Budget?> Budget { get; private set; } = null!;
@@ -39,7 +35,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// A description of the deployment.
+        /// A description of the deployment. Removing a configured description clears it.
         /// </summary>
         [Output("description")]
         public Output<string?> Description { get; private set; } = null!;
@@ -51,13 +47,13 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> EnvironmentId { get; private set; } = null!;
 
         /// <summary>
-        /// The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+        /// The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
         /// </summary>
         [Output("initialEvents")]
         public Output<ImmutableArray<ImmutableDictionary<string, object>>> InitialEvents { get; private set; } = null!;
 
         /// <summary>
-        /// Arbitrary key-value pairs.
+        /// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
         /// </summary>
         [Output("metadata")]
         public Output<ImmutableDictionary<string, string>?> Metadata { get; private set; } = null!;
@@ -69,25 +65,19 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> Name { get; private set; } = null!;
 
         /// <summary>
-        /// Whether the deployment is paused. Omit to leave pausing to other tools.
-        /// </summary>
-        [Output("paused")]
-        public Output<bool?> Paused { get; private set; } = null!;
-
-        /// <summary>
-        /// Repositories, files, and memory stores mounted into each session, up to 500.
+        /// Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
         /// </summary>
         [Output("resources")]
         public Output<ImmutableArray<Outputs.DeploymentResource>> Resources { get; private set; } = null!;
 
         /// <summary>
-        /// When to run. Omit to run only on demand.
+        /// When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
         /// </summary>
         [Output("schedule")]
         public Output<Outputs.Schedule?> Schedule { get; private set; } = null!;
 
         /// <summary>
-        /// Whether the deployment is `active` or `paused`. The platform also pauses a deployment when it cannot run, for example because its agent was archived.
+        /// Whether the deployment is active or paused, as observed on the platform. The platform may pause deployments when dependencies cannot run. This resource does not change pause status.
         /// </summary>
         [Output("status")]
         public Output<string> Status { get; private set; } = null!;
@@ -99,7 +89,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> UpdatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// Vaults whose credentials sessions can use, up to 50.
+        /// Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
         /// </summary>
         [Output("vaultIds")]
         public Output<ImmutableArray<string>> VaultIds { get; private set; } = null!;
@@ -157,13 +147,13 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Input<Inputs.AgentReferenceArgs> Agent { get; set; } = null!;
 
         /// <summary>
-        /// A spending limit for the deployment.
+        /// A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
         /// </summary>
         [Input("budget")]
         public Input<Inputs.BudgetArgs>? Budget { get; set; }
 
         /// <summary>
-        /// A description of the deployment.
+        /// A description of the deployment. Removing a configured description clears it.
         /// </summary>
         [Input("description")]
         public Input<string>? Description { get; set; }
@@ -178,7 +168,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         private InputList<ImmutableDictionary<string, object>>? _initialEvents;
 
         /// <summary>
-        /// The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+        /// The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
         /// </summary>
         public InputList<ImmutableDictionary<string, object>> InitialEvents
         {
@@ -190,7 +180,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         private InputMap<string>? _metadata;
 
         /// <summary>
-        /// Arbitrary key-value pairs.
+        /// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
         /// </summary>
         public InputMap<string> Metadata
         {
@@ -204,17 +194,11 @@ namespace Pulumi.Labs.Anthropic.Agents
         [Input("name", required: true)]
         public Input<string> Name { get; set; } = null!;
 
-        /// <summary>
-        /// Whether the deployment is paused. Omit to leave pausing to other tools.
-        /// </summary>
-        [Input("paused")]
-        public Input<bool>? Paused { get; set; }
-
         [Input("resources")]
         private InputList<Inputs.DeploymentResourceArgs>? _resources;
 
         /// <summary>
-        /// Repositories, files, and memory stores mounted into each session, up to 500.
+        /// Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
         /// </summary>
         public InputList<Inputs.DeploymentResourceArgs> Resources
         {
@@ -223,7 +207,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         }
 
         /// <summary>
-        /// When to run. Omit to run only on demand.
+        /// When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
         /// </summary>
         [Input("schedule")]
         public Input<Inputs.ScheduleArgs>? Schedule { get; set; }
@@ -232,7 +216,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         private InputList<string>? _vaultIds;
 
         /// <summary>
-        /// Vaults whose credentials sessions can use, up to 50.
+        /// Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
         /// </summary>
         public InputList<string> VaultIds
         {

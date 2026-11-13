@@ -6,6 +6,7 @@ package com.pulumi.labs.anthropic.agents;
 import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
+import com.pulumi.labs.anthropic.agents.inputs.ExecutionIdentityArgs;
 import com.pulumi.labs.anthropic.agents.inputs.MCPServerArgs;
 import com.pulumi.labs.anthropic.agents.inputs.ModelArgs;
 import com.pulumi.labs.anthropic.agents.inputs.MultiagentArgs;
@@ -24,45 +25,60 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
     public static final AgentArgs Empty = new AgentArgs();
 
     /**
-     * A description of the agent, up to 2,048 characters.
-     * 
+     * A description of the agent, up to 2,048 characters. Removing a configured description clears it.
+     *
      */
     @Import(name="description")
     private @Nullable Output<String> description;
 
     /**
-     * @return A description of the agent, up to 2,048 characters.
-     * 
+     * @return A description of the agent, up to 2,048 characters. Removing a configured description clears it.
+     *
      */
     public Optional<Output<String>> description() {
         return Optional.ofNullable(this.description);
     }
 
     /**
+     * Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+     *
+     */
+    @Import(name="executionIdentity")
+    private @Nullable Output<ExecutionIdentityArgs> executionIdentity;
+
+    /**
+     * @return Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+     *
+     */
+    public Optional<Output<ExecutionIdentityArgs>> executionIdentity() {
+        return Optional.ofNullable(this.executionIdentity);
+    }
+
+    /**
      * The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
-     * 
+     *
      */
     @Import(name="mcpServers")
     private @Nullable Output<List<MCPServerArgs>> mcpServers;
 
     /**
      * @return The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
-     * 
+     *
      */
     public Optional<Output<List<MCPServerArgs>>> mcpServers() {
         return Optional.ofNullable(this.mcpServers);
     }
 
     /**
-     * Arbitrary key-value pairs, up to 16.
-     * 
+     * Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
+     *
      */
     @Import(name="metadata")
     private @Nullable Output<Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs, up to 16.
-     * 
+     * @return Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
+     *
      */
     public Optional<Output<Map<String,String>>> metadata() {
         return Optional.ofNullable(this.metadata);
@@ -70,29 +86,29 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The model the agent runs on.
-     * 
+     *
      */
     @Import(name="model", required=true)
     private Output<ModelArgs> model;
 
     /**
      * @return The model the agent runs on.
-     * 
+     *
      */
     public Output<ModelArgs> model() {
         return this.model;
     }
 
     /**
-     * Makes the agent a coordinator that delegates to other agents.
-     * 
+     * Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
+     *
      */
     @Import(name="multiagent")
     private @Nullable Output<MultiagentArgs> multiagent;
 
     /**
-     * @return Makes the agent a coordinator that delegates to other agents.
-     * 
+     * @return Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
+     *
      */
     public Optional<Output<MultiagentArgs>> multiagent() {
         return Optional.ofNullable(this.multiagent);
@@ -100,14 +116,14 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The agent&#39;s name, 1 to 256 characters.
-     * 
+     *
      */
     @Import(name="name", required=true)
     private Output<String> name;
 
     /**
      * @return The agent&#39;s name, 1 to 256 characters.
-     * 
+     *
      */
     public Output<String> name() {
         return this.name;
@@ -115,44 +131,44 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The skills available to the agent.
-     * 
+     *
      */
     @Import(name="skills")
     private @Nullable Output<List<SkillRefArgs>> skills;
 
     /**
      * @return The skills available to the agent.
-     * 
+     *
      */
     public Optional<Output<List<SkillRefArgs>>> skills() {
         return Optional.ofNullable(this.skills);
     }
 
     /**
-     * The system prompt, up to 100,000 characters.
-     * 
+     * The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
+     *
      */
     @Import(name="system")
     private @Nullable Output<String> system;
 
     /**
-     * @return The system prompt, up to 100,000 characters.
-     * 
+     * @return The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
+     *
      */
     public Optional<Output<String>> system() {
         return Optional.ofNullable(this.system);
     }
 
     /**
-     * The tools the agent can use, up to 128.
-     * 
+     * The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
+     *
      */
     @Import(name="tools")
     private @Nullable Output<List<ToolArgs>> tools;
 
     /**
-     * @return The tools the agent can use, up to 128.
-     * 
+     * @return The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
+     *
      */
     public Optional<Output<List<ToolArgs>>> tools() {
         return Optional.ofNullable(this.tools);
@@ -162,6 +178,7 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
     private AgentArgs(AgentArgs $) {
         this.description = $.description;
+        this.executionIdentity = $.executionIdentity;
         this.mcpServers = $.mcpServers;
         this.metadata = $.metadata;
         this.model = $.model;
@@ -191,10 +208,10 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param description A description of the agent, up to 2,048 characters.
-         * 
+         * @param description A description of the agent, up to 2,048 characters. Removing a configured description clears it.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder description(@Nullable Output<String> description) {
             $.description = description;
@@ -202,20 +219,41 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param description A description of the agent, up to 2,048 characters.
-         * 
+         * @param description A description of the agent, up to 2,048 characters. Removing a configured description clears it.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder description(String description) {
             return description(Output.of(description));
         }
 
         /**
-         * @param mcpServers The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
-         * 
+         * @param executionIdentity Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+         *
          * @return builder
-         * 
+         *
+         */
+        public Builder executionIdentity(@Nullable Output<ExecutionIdentityArgs> executionIdentity) {
+            $.executionIdentity = executionIdentity;
+            return this;
+        }
+
+        /**
+         * @param executionIdentity Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+         *
+         * @return builder
+         *
+         */
+        public Builder executionIdentity(ExecutionIdentityArgs executionIdentity) {
+            return executionIdentity(Output.of(executionIdentity));
+        }
+
+        /**
+         * @param mcpServers The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
+         *
+         * @return builder
+         *
          */
         public Builder mcpServers(@Nullable Output<List<MCPServerArgs>> mcpServers) {
             $.mcpServers = mcpServers;
@@ -224,9 +262,9 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param mcpServers The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder mcpServers(List<MCPServerArgs> mcpServers) {
             return mcpServers(Output.of(mcpServers));
@@ -234,19 +272,19 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param mcpServers The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder mcpServers(MCPServerArgs... mcpServers) {
             return mcpServers(List.of(mcpServers));
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs, up to 16.
-         * 
+         * @param metadata Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder metadata(@Nullable Output<Map<String,String>> metadata) {
             $.metadata = metadata;
@@ -254,10 +292,10 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs, up to 16.
-         * 
+         * @param metadata Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder metadata(Map<String,String> metadata) {
             return metadata(Output.of(metadata));
@@ -265,9 +303,9 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param model The model the agent runs on.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder model(Output<ModelArgs> model) {
             $.model = model;
@@ -276,19 +314,19 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param model The model the agent runs on.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder model(ModelArgs model) {
             return model(Output.of(model));
         }
 
         /**
-         * @param multiagent Makes the agent a coordinator that delegates to other agents.
-         * 
+         * @param multiagent Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder multiagent(@Nullable Output<MultiagentArgs> multiagent) {
             $.multiagent = multiagent;
@@ -296,10 +334,10 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param multiagent Makes the agent a coordinator that delegates to other agents.
-         * 
+         * @param multiagent Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder multiagent(MultiagentArgs multiagent) {
             return multiagent(Output.of(multiagent));
@@ -307,9 +345,9 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param name The agent&#39;s name, 1 to 256 characters.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder name(Output<String> name) {
             $.name = name;
@@ -318,9 +356,9 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param name The agent&#39;s name, 1 to 256 characters.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder name(String name) {
             return name(Output.of(name));
@@ -328,9 +366,9 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param skills The skills available to the agent.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder skills(@Nullable Output<List<SkillRefArgs>> skills) {
             $.skills = skills;
@@ -339,9 +377,9 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param skills The skills available to the agent.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder skills(List<SkillRefArgs> skills) {
             return skills(Output.of(skills));
@@ -349,19 +387,19 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param skills The skills available to the agent.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder skills(SkillRefArgs... skills) {
             return skills(List.of(skills));
         }
 
         /**
-         * @param system The system prompt, up to 100,000 characters.
-         * 
+         * @param system The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder system(@Nullable Output<String> system) {
             $.system = system;
@@ -369,20 +407,20 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param system The system prompt, up to 100,000 characters.
-         * 
+         * @param system The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder system(String system) {
             return system(Output.of(system));
         }
 
         /**
-         * @param tools The tools the agent can use, up to 128.
-         * 
+         * @param tools The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder tools(@Nullable Output<List<ToolArgs>> tools) {
             $.tools = tools;
@@ -390,20 +428,20 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param tools The tools the agent can use, up to 128.
-         * 
+         * @param tools The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder tools(List<ToolArgs> tools) {
             return tools(Output.of(tools));
         }
 
         /**
-         * @param tools The tools the agent can use, up to 128.
-         * 
+         * @param tools The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder tools(ToolArgs... tools) {
             return tools(List.of(tools));

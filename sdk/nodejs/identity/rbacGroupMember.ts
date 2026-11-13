@@ -7,7 +7,7 @@ import * as utilities from "../utilities";
 /**
  * Adds a user to an RBAC group. The resource's ID is `<rbac-group-id>/<user-id>`.
  *
- * RBAC groups are available to Claude Enterprise organizations.
+ * RBAC groups are available to Claude Enterprise organizations. Deleting this resource removes only the membership, not the user or group. Membership of SCIM-provisioned groups cannot be changed while SCIM provisioning is active in the tenant. Owner-access protections can prevent adding or removing members.
  */
 export class RbacGroupMember extends pulumi.CustomResource {
     /**
@@ -55,11 +55,11 @@ export class RbacGroupMember extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly email: pulumi.Output<string>;
     /**
-     * The group's ID.
+     * The group's ID. Changing this value replaces the membership.
      */
     declare public readonly rbacGroupId: pulumi.Output<string>;
     /**
-     * The user's ID.
+     * The user's ID. Changing this value replaces the membership.
      */
     declare public readonly userId: pulumi.Output<string>;
 
@@ -102,11 +102,11 @@ export class RbacGroupMember extends pulumi.CustomResource {
  */
 export interface RbacGroupMemberArgs {
     /**
-     * The group's ID.
+     * The group's ID. Changing this value replaces the membership.
      */
     rbacGroupId: pulumi.Input<string>;
     /**
-     * The user's ID.
+     * The user's ID. Changing this value replaces the membership.
      */
     userId: pulumi.Input<string>;
 }

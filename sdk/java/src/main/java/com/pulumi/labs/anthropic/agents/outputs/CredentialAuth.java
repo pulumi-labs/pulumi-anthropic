@@ -22,7 +22,7 @@ public final class CredentialAuth {
      */
     private @Nullable String accessToken;
     /**
-     * @return When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+     * @return When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
      * 
      */
     private @Nullable String expiresAt;
@@ -76,7 +76,7 @@ public final class CredentialAuth {
         return Optional.ofNullable(this.accessToken);
     }
     /**
-     * @return When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+     * @return When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
      * 
      */
     public Optional<String> expiresAt() {

@@ -29,11 +29,11 @@ class UserProfileArgs:
         """
         The set of arguments for constructing a UserProfile resource.
 
-        :param pulumi.Input['AccessType'] access_type: How your platform uses the API on the entity's behalf. Defaults to `application`.
-        :param pulumi.Input[_builtins.str] external_id: Your platform's own identifier for the entity, up to 255 characters.
-        :param pulumi.Input[_builtins.str] external_user_onboarded_at: When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs, up to 16.
-        :param pulumi.Input[_builtins.str] name: The entity's name, 1 to 255 characters.
+        :param pulumi.Input['AccessType'] access_type: How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
+        :param pulumi.Input[_builtins.str] external_id: Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
+        :param pulumi.Input[_builtins.str] external_user_onboarded_at: When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
+        :param pulumi.Input[_builtins.str] name: The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
         """
         if access_type is not None:
             pulumi.set(__self__, "access_type", access_type)
@@ -50,7 +50,7 @@ class UserProfileArgs:
     @pulumi.getter(name="accessType")
     def access_type(self) -> pulumi.Input[Optional['AccessType']]:
         """
-        How your platform uses the API on the entity's behalf. Defaults to `application`.
+        How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
         """
         return pulumi.get(self, "access_type")
 
@@ -62,7 +62,7 @@ class UserProfileArgs:
     @pulumi.getter(name="externalId")
     def external_id(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Your platform's own identifier for the entity, up to 255 characters.
+        Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
         """
         return pulumi.get(self, "external_id")
 
@@ -74,7 +74,7 @@ class UserProfileArgs:
     @pulumi.getter(name="externalUserOnboardedAt")
     def external_user_onboarded_at(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+        When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
         """
         return pulumi.get(self, "external_user_onboarded_at")
 
@@ -86,7 +86,7 @@ class UserProfileArgs:
     @pulumi.getter
     def metadata(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Arbitrary key-value pairs, up to 16.
+        Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
         """
         return pulumi.get(self, "metadata")
 
@@ -98,7 +98,7 @@ class UserProfileArgs:
     @pulumi.getter
     def name(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The entity's name, 1 to 255 characters.
+        The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
         """
         return pulumi.get(self, "name")
 
@@ -122,15 +122,15 @@ class UserProfile(pulumi.CustomResource):
         """
         A user profile: an entity your platform serves through the Anthropic API, such as an end user of your product or a company you resell Claude access to. Send its ID in the `anthropic-user-profile-id` header of Messages, Message Batches, and token counting requests to attribute them to the entity.
 
-        The API cannot delete user profiles, so deleting this resource only removes it from the stack; the profile remains.
+        Deleting this resource deletes the profile. Anthropic keeps the trust and safety records attached to the profile's ID.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input['AccessType'] access_type: How your platform uses the API on the entity's behalf. Defaults to `application`.
-        :param pulumi.Input[_builtins.str] external_id: Your platform's own identifier for the entity, up to 255 characters.
-        :param pulumi.Input[_builtins.str] external_user_onboarded_at: When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs, up to 16.
-        :param pulumi.Input[_builtins.str] name: The entity's name, 1 to 255 characters.
+        :param pulumi.Input['AccessType'] access_type: How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
+        :param pulumi.Input[_builtins.str] external_id: Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
+        :param pulumi.Input[_builtins.str] external_user_onboarded_at: When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
+        :param pulumi.Input[_builtins.str] name: The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
         """
         ...
     @overload
@@ -141,7 +141,7 @@ class UserProfile(pulumi.CustomResource):
         """
         A user profile: an entity your platform serves through the Anthropic API, such as an end user of your product or a company you resell Claude access to. Send its ID in the `anthropic-user-profile-id` header of Messages, Message Batches, and token counting requests to attribute them to the entity.
 
-        The API cannot delete user profiles, so deleting this resource only removes it from the stack; the profile remains.
+        Deleting this resource deletes the profile. Anthropic keeps the trust and safety records attached to the profile's ID.
 
         :param str resource_name: The name of the resource.
         :param UserProfileArgs args: The arguments to use to populate this resource's properties.
@@ -222,7 +222,7 @@ class UserProfile(pulumi.CustomResource):
     @pulumi.getter(name="accessType")
     def access_type(self) -> pulumi.Output[Optional['AccessType']]:
         """
-        How your platform uses the API on the entity's behalf. Defaults to `application`.
+        How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
         """
         return pulumi.get(self, "access_type")
 
@@ -238,7 +238,7 @@ class UserProfile(pulumi.CustomResource):
     @pulumi.getter(name="externalId")
     def external_id(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        Your platform's own identifier for the entity, up to 255 characters.
+        Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
         """
         return pulumi.get(self, "external_id")
 
@@ -246,7 +246,7 @@ class UserProfile(pulumi.CustomResource):
     @pulumi.getter(name="externalUserOnboardedAt")
     def external_user_onboarded_at(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+        When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
         """
         return pulumi.get(self, "external_user_onboarded_at")
 
@@ -254,7 +254,7 @@ class UserProfile(pulumi.CustomResource):
     @pulumi.getter
     def metadata(self) -> pulumi.Output[Optional[Mapping[str, _builtins.str]]]:
         """
-        Arbitrary key-value pairs, up to 16.
+        Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
         """
         return pulumi.get(self, "metadata")
 
@@ -262,7 +262,7 @@ class UserProfile(pulumi.CustomResource):
     @pulumi.getter
     def name(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        The entity's name, 1 to 255 characters.
+        The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
         """
         return pulumi.get(self, "name")
 

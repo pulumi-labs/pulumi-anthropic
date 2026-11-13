@@ -8,6 +8,8 @@ import com.pulumi.core.annotations.Import;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.String;
 import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 
 public final class TunnelCertificateArgs extends com.pulumi.resources.ResourceArgs {
@@ -15,29 +17,29 @@ public final class TunnelCertificateArgs extends com.pulumi.resources.ResourceAr
     public static final TunnelCertificateArgs Empty = new TunnelCertificateArgs();
 
     /**
-     * A single PEM-encoded CA certificate, up to 8,192 characters.
+     * A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
      * 
      */
-    @Import(name="caCertificatePem", required=true)
-    private Output<String> caCertificatePem;
+    @Import(name="caCertificatePem")
+    private @Nullable Output<String> caCertificatePem;
 
     /**
-     * @return A single PEM-encoded CA certificate, up to 8,192 characters.
+     * @return A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
      * 
      */
-    public Output<String> caCertificatePem() {
-        return this.caCertificatePem;
+    public Optional<Output<String>> caCertificatePem() {
+        return Optional.ofNullable(this.caCertificatePem);
     }
 
     /**
-     * The tunnel that trusts the certificate.
+     * The tunnel that trusts the certificate. Changing it replaces the certificate.
      * 
      */
     @Import(name="tunnelId", required=true)
     private Output<String> tunnelId;
 
     /**
-     * @return The tunnel that trusts the certificate.
+     * @return The tunnel that trusts the certificate. Changing it replaces the certificate.
      * 
      */
     public Output<String> tunnelId() {
@@ -70,18 +72,18 @@ public final class TunnelCertificateArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param caCertificatePem A single PEM-encoded CA certificate, up to 8,192 characters.
+         * @param caCertificatePem A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
          * 
          * @return builder
          * 
          */
-        public Builder caCertificatePem(Output<String> caCertificatePem) {
+        public Builder caCertificatePem(@Nullable Output<String> caCertificatePem) {
             $.caCertificatePem = caCertificatePem;
             return this;
         }
 
         /**
-         * @param caCertificatePem A single PEM-encoded CA certificate, up to 8,192 characters.
+         * @param caCertificatePem A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
          * 
          * @return builder
          * 
@@ -91,7 +93,7 @@ public final class TunnelCertificateArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param tunnelId The tunnel that trusts the certificate.
+         * @param tunnelId The tunnel that trusts the certificate. Changing it replaces the certificate.
          * 
          * @return builder
          * 
@@ -102,7 +104,7 @@ public final class TunnelCertificateArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param tunnelId The tunnel that trusts the certificate.
+         * @param tunnelId The tunnel that trusts the certificate. Changing it replaces the certificate.
          * 
          * @return builder
          * 
@@ -112,9 +114,6 @@ public final class TunnelCertificateArgs extends com.pulumi.resources.ResourceAr
         }
 
         public TunnelCertificateArgs build() {
-            if ($.caCertificatePem == null) {
-                throw new MissingRequiredPropertyException("TunnelCertificateArgs", "caCertificatePem");
-            }
             if ($.tunnelId == null) {
                 throw new MissingRequiredPropertyException("TunnelCertificateArgs", "tunnelId");
             }

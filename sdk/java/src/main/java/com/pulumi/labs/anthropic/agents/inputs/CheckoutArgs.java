@@ -18,14 +18,14 @@ public final class CheckoutArgs extends com.pulumi.resources.ResourceArgs {
     public static final CheckoutArgs Empty = new CheckoutArgs();
 
     /**
-     * The branch. Required for `branch`.
+     * The branch. Required for branch.
      * 
      */
     @Import(name="name")
     private @Nullable Output<String> name;
 
     /**
-     * @return The branch. Required for `branch`.
+     * @return The branch. Required for branch.
      * 
      */
     public Optional<Output<String>> name() {
@@ -33,14 +33,14 @@ public final class CheckoutArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The commit SHA. Required for `commit`.
+     * The commit SHA. Required for commit.
      * 
      */
     @Import(name="sha")
     private @Nullable Output<String> sha;
 
     /**
-     * @return The commit SHA. Required for `commit`.
+     * @return The commit SHA. Required for commit.
      * 
      */
     public Optional<Output<String>> sha() {
@@ -89,7 +89,7 @@ public final class CheckoutArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The branch. Required for `branch`.
+         * @param name The branch. Required for branch.
          * 
          * @return builder
          * 
@@ -100,7 +100,7 @@ public final class CheckoutArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The branch. Required for `branch`.
+         * @param name The branch. Required for branch.
          * 
          * @return builder
          * 
@@ -110,7 +110,7 @@ public final class CheckoutArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param sha The commit SHA. Required for `commit`.
+         * @param sha The commit SHA. Required for commit.
          * 
          * @return builder
          * 
@@ -121,7 +121,7 @@ public final class CheckoutArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param sha The commit SHA. Required for `commit`.
+         * @param sha The commit SHA. Required for commit.
          * 
          * @return builder
          * 

@@ -12,21 +12,19 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// A Claude Managed Agents memory store: persistent memory that agents read and write across sessions, attached to sessions or deployments as a resource. The memories themselves are data that agents write at runtime, so they are not managed here.
-//
-// Deleting this resource deletes the store along with all of its memories and their versions.
+// A workspace-scoped persistent memory store. Runtime memories and versions are not managed here. Deleting this resource permanently deletes the store and all its memories and versions. Externally archived stores are treated as absent.
 type MemoryStore struct {
 	pulumi.CustomResourceState
 
-	// When the store was created, in RFC 3339 format.
+	// When the memory store was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// What the store holds, up to 1,024 characters. It is shown to the agent.
+	// Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
 	Description pulumi.StringPtrOutput `pulumi:"description"`
-	// Arbitrary key-value pairs.
+	// At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
 	Metadata pulumi.StringMapOutput `pulumi:"metadata"`
-	// The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+	// A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
 	Name pulumi.StringOutput `pulumi:"name"`
-	// When the store was last updated, in RFC 3339 format.
+	// When the memory store's configuration was last changed, in RFC 3339 format.
 	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
 }
 
@@ -79,21 +77,21 @@ func MemoryStoreExists(ctx *pulumi.Context,
 }
 
 type memoryStoreArgs struct {
-	// What the store holds, up to 1,024 characters. It is shown to the agent.
+	// Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
 	Description *string `pulumi:"description"`
-	// Arbitrary key-value pairs.
+	// At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
 	Metadata map[string]string `pulumi:"metadata"`
-	// The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+	// A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
 	Name string `pulumi:"name"`
 }
 
 // The set of arguments for constructing a MemoryStore resource.
 type MemoryStoreArgs struct {
-	// What the store holds, up to 1,024 characters. It is shown to the agent.
+	// Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
 	Description pulumi.StringPtrInput
-	// Arbitrary key-value pairs.
+	// At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
 	Metadata pulumi.StringMapInput
-	// The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+	// A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
 	Name pulumi.StringInput
 }
 
@@ -184,27 +182,27 @@ func (o MemoryStoreOutput) ToMemoryStoreOutputWithContext(ctx context.Context) M
 	return o
 }
 
-// When the store was created, in RFC 3339 format.
+// When the memory store was created, in RFC 3339 format.
 func (o MemoryStoreOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *MemoryStore) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// What the store holds, up to 1,024 characters. It is shown to the agent.
+// Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
 func (o MemoryStoreOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *MemoryStore) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-// Arbitrary key-value pairs.
+// At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
 func (o MemoryStoreOutput) Metadata() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *MemoryStore) pulumi.StringMapOutput { return v.Metadata }).(pulumi.StringMapOutput)
 }
 
-// The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+// A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
 func (o MemoryStoreOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *MemoryStore) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-// When the store was last updated, in RFC 3339 format.
+// When the memory store's configuration was last changed, in RFC 3339 format.
 func (o MemoryStoreOutput) UpdatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *MemoryStore) pulumi.StringOutput { return v.UpdatedAt }).(pulumi.StringOutput)
 }

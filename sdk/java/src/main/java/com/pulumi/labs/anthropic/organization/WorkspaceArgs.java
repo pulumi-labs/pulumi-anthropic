@@ -19,14 +19,14 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
     public static final WorkspaceArgs Empty = new WorkspaceArgs();
 
     /**
-     * Where the workspace&#39;s data is stored and where inference may run.
+     * Where the workspace&#39;s data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
      * 
      */
     @Import(name="dataResidency")
     private @Nullable Output<DataResidencyArgs> dataResidency;
 
     /**
-     * @return Where the workspace&#39;s data is stored and where inference may run.
+     * @return Where the workspace&#39;s data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
      * 
      */
     public Optional<Output<DataResidencyArgs>> dataResidency() {
@@ -34,14 +34,14 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The color the Console shows the workspace in, as `#RRGGBB`.
+     * The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
      * 
      */
     @Import(name="displayColor")
     private @Nullable Output<String> displayColor;
 
     /**
-     * @return The color the Console shows the workspace in, as `#RRGGBB`.
+     * @return The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
      * 
      */
     public Optional<Output<String>> displayColor() {
@@ -64,14 +64,14 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The workspace&#39;s name, 1 to 40 characters.
+     * The workspace&#39;s nonempty name.
      * 
      */
     @Import(name="name", required=true)
     private Output<String> name;
 
     /**
-     * @return The workspace&#39;s name, 1 to 40 characters.
+     * @return The workspace&#39;s nonempty name.
      * 
      */
     public Output<String> name() {
@@ -79,18 +79,33 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Tags for the workspace. Keys may not start with `anthropic`.
+     * Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
      * 
      */
     @Import(name="tags")
     private @Nullable Output<Map<String,String>> tags;
 
     /**
-     * @return Tags for the workspace. Keys may not start with `anthropic`.
+     * @return Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
      * 
      */
     public Optional<Output<Map<String,String>>> tags() {
         return Optional.ofNullable(this.tags);
+    }
+
+    /**
+     * The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+     *
+     */
+    @Import(name="userProfileId")
+    private @Nullable Output<String> userProfileId;
+
+    /**
+     * @return The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+     *
+     */
+    public Optional<Output<String>> userProfileId() {
+        return Optional.ofNullable(this.userProfileId);
     }
 
     private WorkspaceArgs() {}
@@ -101,6 +116,7 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
         this.externalKeyId = $.externalKeyId;
         this.name = $.name;
         this.tags = $.tags;
+        this.userProfileId = $.userProfileId;
     }
 
     public static Builder builder() {
@@ -122,7 +138,7 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param dataResidency Where the workspace&#39;s data is stored and where inference may run.
+         * @param dataResidency Where the workspace&#39;s data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
          * 
          * @return builder
          * 
@@ -133,7 +149,7 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param dataResidency Where the workspace&#39;s data is stored and where inference may run.
+         * @param dataResidency Where the workspace&#39;s data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
          * 
          * @return builder
          * 
@@ -143,7 +159,7 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param displayColor The color the Console shows the workspace in, as `#RRGGBB`.
+         * @param displayColor The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
          * 
          * @return builder
          * 
@@ -154,7 +170,7 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param displayColor The color the Console shows the workspace in, as `#RRGGBB`.
+         * @param displayColor The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
          * 
          * @return builder
          * 
@@ -185,7 +201,7 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The workspace&#39;s name, 1 to 40 characters.
+         * @param name The workspace&#39;s nonempty name.
          * 
          * @return builder
          * 
@@ -196,7 +212,7 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The workspace&#39;s name, 1 to 40 characters.
+         * @param name The workspace&#39;s nonempty name.
          * 
          * @return builder
          * 
@@ -206,7 +222,7 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param tags Tags for the workspace. Keys may not start with `anthropic`.
+         * @param tags Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
          * 
          * @return builder
          * 
@@ -217,13 +233,34 @@ public final class WorkspaceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param tags Tags for the workspace. Keys may not start with `anthropic`.
+         * @param tags Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
          * 
          * @return builder
          * 
          */
         public Builder tags(Map<String,String> tags) {
             return tags(Output.of(tags));
+        }
+
+        /**
+         * @param userProfileId The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+         *
+         * @return builder
+         *
+         */
+        public Builder userProfileId(@Nullable Output<String> userProfileId) {
+            $.userProfileId = userProfileId;
+            return this;
+        }
+
+        /**
+         * @param userProfileId The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+         *
+         * @return builder
+         *
+         */
+        public Builder userProfileId(String userProfileId) {
+            return userProfileId(Output.of(userProfileId));
         }
 
         public WorkspaceArgs build() {

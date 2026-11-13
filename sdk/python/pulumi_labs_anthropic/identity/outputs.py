@@ -24,6 +24,9 @@ __all__ = [
 
 @pulumi.output_type
 class FederationMatch(dict):
+    """
+    Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
+    """
     @staticmethod
     def __key_warning(key: str):
         suggest = None
@@ -47,10 +50,12 @@ class FederationMatch(dict):
                  condition: Optional[_builtins.str] = None,
                  subject_prefix: Optional[_builtins.str] = None):
         """
+        Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
+
         :param _builtins.str audience: The required `aud` claim.
         :param Mapping[str, _builtins.str] claims: Claims the token must carry, with exactly these values.
         :param _builtins.str condition: A CEL expression over the token's claims that must evaluate to true, up to 4,096 characters.
-        :param _builtins.str subject_prefix: A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+        :param _builtins.str subject_prefix: Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
         """
         if audience is not None:
             pulumi.set(__self__, "audience", audience)
@@ -89,13 +94,16 @@ class FederationMatch(dict):
     @pulumi.getter(name="subjectPrefix")
     def subject_prefix(self) -> Optional[_builtins.str]:
         """
-        A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+        Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
         """
         return pulumi.get(self, "subject_prefix")
 
 
 @pulumi.output_type
 class FederationTarget(dict):
+    """
+    The service account that tokens issued by a federation rule act as.
+    """
     @staticmethod
     def __key_warning(key: str):
         suggest = None
@@ -116,6 +124,8 @@ class FederationTarget(dict):
     def __init__(__self__, *,
                  service_account_id: _builtins.str):
         """
+        The service account that tokens issued by a federation rule act as.
+
         :param _builtins.str service_account_id: The service account's ID.
         """
         pulumi.set(__self__, "service_account_id", service_account_id)
@@ -131,6 +141,9 @@ class FederationTarget(dict):
 
 @pulumi.output_type
 class Jwks(dict):
+    """
+    The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
+    """
     @staticmethod
     def __key_warning(key: str):
         suggest = None
@@ -157,11 +170,13 @@ class Jwks(dict):
                  keys: Optional[Sequence[Mapping[str, Any]]] = None,
                  url: Optional[_builtins.str] = None):
         """
+        The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
+
         :param 'JwksType' type: The source of the signing keys.
         :param _builtins.str ca_cert_pem: A PEM-encoded CA certificate to trust when fetching the keys, up to 8,192 characters. For `discovery` and `explicit_url`.
-        :param _builtins.str discovery_base: The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
-        :param Sequence[Mapping[str, Any]] keys: The signing keys, as JSON Web Keys. Required for `inline`.
-        :param _builtins.str url: The JWKS URL. Required for `explicit_url`.
+        :param _builtins.str discovery_base: The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
+        :param Sequence[Mapping[str, Any]] keys: A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
+        :param _builtins.str url: The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
         """
         pulumi.set(__self__, "type", type)
         if ca_cert_pem is not None:
@@ -193,7 +208,7 @@ class Jwks(dict):
     @pulumi.getter(name="discoveryBase")
     def discovery_base(self) -> Optional[_builtins.str]:
         """
-        The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+        The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
         """
         return pulumi.get(self, "discovery_base")
 
@@ -201,7 +216,7 @@ class Jwks(dict):
     @pulumi.getter
     def keys(self) -> Optional[Sequence[Mapping[str, Any]]]:
         """
-        The signing keys, as JSON Web Keys. Required for `inline`.
+        A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
         """
         return pulumi.get(self, "keys")
 
@@ -209,13 +224,16 @@ class Jwks(dict):
     @pulumi.getter
     def url(self) -> Optional[_builtins.str]:
         """
-        The JWKS URL. Required for `explicit_url`.
+        The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
         """
         return pulumi.get(self, "url")
 
 
 @pulumi.output_type
 class PollStatus(dict):
+    """
+    The health and schedule of automatic signing-key polling, when available.
+    """
     @staticmethod
     def __key_warning(key: str):
         suggest = None
@@ -242,6 +260,8 @@ class PollStatus(dict):
                  last_fetched_at: Optional[_builtins.str] = None,
                  next_poll_at: Optional[_builtins.str] = None):
         """
+        The health and schedule of automatic signing-key polling, when available.
+
         :param _builtins.int consecutive_failures: How many polls in a row have failed.
         :param _builtins.str last_fetched_at: When the keys were last fetched, in RFC 3339 format.
         :param _builtins.str next_poll_at: When the keys will next be fetched, in RFC 3339 format.

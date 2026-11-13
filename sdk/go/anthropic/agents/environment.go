@@ -14,21 +14,21 @@ import (
 
 // A Claude Managed Agents environment: where sessions run, either an Anthropic-managed cloud sandbox or a sandbox you host yourself.
 //
-// Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource deletes the environment. The API refuses to delete an environment that sessions still reference, in which case it is archived instead: it becomes read-only, running sessions continue, and new sessions cannot use it.
+// Environments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource permanently deletes the environment; it does not archive it.
 type Environment struct {
 	pulumi.CustomResourceState
 
-	// Where and how sessions run. Defaults to a cloud sandbox.
+	// Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
 	Config EnvironmentConfigPtrOutput `pulumi:"config"`
 	// When the environment was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// A description of the environment, up to 1,024 characters.
+	// A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
 	Description pulumi.StringPtrOutput `pulumi:"description"`
-	// Arbitrary key-value pairs.
+	// Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
 	Metadata pulumi.StringMapOutput `pulumi:"metadata"`
 	// The environment's name, 1 to 256 characters.
 	Name pulumi.StringOutput `pulumi:"name"`
-	// Who can use the environment. API organizations accept only `organization`.
+	// Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
 	Scope EnvironmentScopePtrOutput `pulumi:"scope"`
 	// When the environment was last updated, in RFC 3339 format.
 	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
@@ -87,29 +87,29 @@ func EnvironmentExists(ctx *pulumi.Context,
 }
 
 type environmentArgs struct {
-	// Where and how sessions run. Defaults to a cloud sandbox.
+	// Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
 	Config *EnvironmentConfig `pulumi:"config"`
-	// A description of the environment, up to 1,024 characters.
+	// A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
 	Description *string `pulumi:"description"`
-	// Arbitrary key-value pairs.
+	// Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
 	Metadata map[string]string `pulumi:"metadata"`
 	// The environment's name, 1 to 256 characters.
 	Name string `pulumi:"name"`
-	// Who can use the environment. API organizations accept only `organization`.
+	// Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
 	Scope *EnvironmentScope `pulumi:"scope"`
 }
 
 // The set of arguments for constructing a Environment resource.
 type EnvironmentArgs struct {
-	// Where and how sessions run. Defaults to a cloud sandbox.
+	// Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
 	Config EnvironmentConfigPtrInput
-	// A description of the environment, up to 1,024 characters.
+	// A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
 	Description pulumi.StringPtrInput
-	// Arbitrary key-value pairs.
+	// Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
 	Metadata pulumi.StringMapInput
 	// The environment's name, 1 to 256 characters.
 	Name pulumi.StringInput
-	// Who can use the environment. API organizations accept only `organization`.
+	// Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
 	Scope EnvironmentScopePtrInput
 }
 
@@ -200,7 +200,7 @@ func (o EnvironmentOutput) ToEnvironmentOutputWithContext(ctx context.Context) E
 	return o
 }
 
-// Where and how sessions run. Defaults to a cloud sandbox.
+// Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
 func (o EnvironmentOutput) Config() EnvironmentConfigPtrOutput {
 	return o.ApplyT(func(v *Environment) EnvironmentConfigPtrOutput { return v.Config }).(EnvironmentConfigPtrOutput)
 }
@@ -210,12 +210,12 @@ func (o EnvironmentOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *Environment) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// A description of the environment, up to 1,024 characters.
+// A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
 func (o EnvironmentOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Environment) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-// Arbitrary key-value pairs.
+// Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
 func (o EnvironmentOutput) Metadata() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *Environment) pulumi.StringMapOutput { return v.Metadata }).(pulumi.StringMapOutput)
 }
@@ -225,7 +225,7 @@ func (o EnvironmentOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *Environment) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-// Who can use the environment. API organizations accept only `organization`.
+// Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
 func (o EnvironmentOutput) Scope() EnvironmentScopePtrOutput {
 	return o.ApplyT(func(v *Environment) EnvironmentScopePtrOutput { return v.Scope }).(EnvironmentScopePtrOutput)
 }

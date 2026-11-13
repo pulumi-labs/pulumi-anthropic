@@ -17,9 +17,11 @@ package functions
 import (
 	"context"
 
+	anthropic "github.com/anthropics/anthropic-sdk-go/v2"
+	"github.com/anthropics/anthropic-sdk-go/v2/packages/param"
 	"github.com/pulumi/pulumi-go-provider/infer"
 
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
 )
 
 // GetRateLimits reads the rate limits of the organization or of one workspace.
@@ -27,8 +29,8 @@ type GetRateLimits struct{}
 
 func (f *GetRateLimits) Annotate(a infer.Annotator) {
 	a.Describe(f, "Reads the rate limits that apply to the organization or, given a "+
-		"`workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be "+
-		"managed through the API.")
+		"`workspaceId`, to one workspace. Workspace results include inherited organization limits. "+
+		"This lookup does not change limits; the platform also offers a workspace limit update API.")
 }
 
 type GetRateLimitsArgs struct {
@@ -90,27 +92,60 @@ func (v *RateLimitValue) Annotate(a infer.Annotator) {
 	a.Describe(&v.OrgLimit, "For a workspace, the organization-wide limit that caps this one.")
 }
 
-// workspaceRateLimit is a workspace rate limit as the API returns it: it names the
-// limit's ID rate_limit_id rather than id.
-type workspaceRateLimit struct {
-	RateLimit
-	RateLimitID string `pulumi:"rateLimitId"`
-}
-
 func (*GetRateLimits) Invoke(
 	ctx context.Context, req infer.FunctionRequest[GetRateLimitsArgs],
 ) (infer.FunctionResponse[GetRateLimitsResult], error) {
+	client, err := config.ClientFor(ctx, config.Admin)
+	if err != nil {
+		return infer.FunctionResponse[GetRateLimitsResult]{}, err
+	}
 	limits := []RateLimit{}
-	var err error
 	if req.Input.WorkspaceID == nil {
-		limits, err = rest.List[RateLimit](ctx, rateLimitCollection)
+		pages := client.Organization.RateLimits.ListAutoPaging(ctx, anthropic.OrganizationRateLimitListParams{})
+		for pages.Next() {
+			item := pages.Current()
+			mapped := RateLimit{
+				ID: item.ID, GroupType: item.Group.Type,
+				Group:  RateLimitGroup{ID: item.Group.ID, Type: item.Group.Type},
+				Models: append([]string{}, item.Models...), Limits: []RateLimitValue{},
+			}
+			if item.Group.JSON.DisplayName.Valid() {
+				mapped.Group.DisplayName = &item.Group.DisplayName
+			}
+			for _, value := range item.Limits {
+				mapped.Limits = append(mapped.Limits, RateLimitValue{Type: value.Type, Value: int(value.Value)})
+			}
+			limits = append(limits, mapped)
+		}
+		if err := pages.Err(); err != nil {
+			return infer.FunctionResponse[GetRateLimitsResult]{}, err
+		}
 	} else {
-		var wsLimits []workspaceRateLimit
-		wsLimits, err = rest.List[workspaceRateLimit](ctx, workspaceCollection.Sub(*req.Input.WorkspaceID, "rate_limits"))
-		for _, l := range wsLimits {
-			l.ID = l.RateLimitID
-			limits = append(limits, l.RateLimit)
+		pages := client.Organization.Workspaces.RateLimits.ListAutoPaging(ctx, *req.Input.WorkspaceID,
+			anthropic.OrganizationWorkspaceRateLimitListParams{IncludeInherited: param.NewOpt(true)})
+		for pages.Next() {
+			item := pages.Current()
+			mapped := RateLimit{
+				ID: item.RateLimitID, GroupType: item.Group.Type,
+				Group:  RateLimitGroup{ID: item.Group.ID, Type: item.Group.Type},
+				Models: append([]string{}, item.Models...), Limits: []RateLimitValue{},
+			}
+			if item.Group.JSON.DisplayName.Valid() {
+				mapped.Group.DisplayName = &item.Group.DisplayName
+			}
+			for _, value := range item.Limits {
+				entry := RateLimitValue{Type: value.Type, Value: int(value.Value)}
+				if value.JSON.OrgLimit.Valid() {
+					orgLimit := int(value.OrgLimit)
+					entry.OrgLimit = &orgLimit
+				}
+				mapped.Limits = append(mapped.Limits, entry)
+			}
+			limits = append(limits, mapped)
+		}
+		if err := pages.Err(); err != nil {
+			return infer.FunctionResponse[GetRateLimitsResult]{}, err
 		}
 	}
-	return infer.FunctionResponse[GetRateLimitsResult]{Output: GetRateLimitsResult{RateLimits: limits}}, err
+	return infer.FunctionResponse[GetRateLimitsResult]{Output: GetRateLimitsResult{RateLimits: limits}}, nil
 }

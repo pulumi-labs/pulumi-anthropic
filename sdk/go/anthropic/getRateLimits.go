@@ -11,7 +11,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+// Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
 func GetRateLimits(ctx *pulumi.Context, args *GetRateLimitsArgs, opts ...pulumi.InvokeOption) (*GetRateLimitsResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv GetRateLimitsResult

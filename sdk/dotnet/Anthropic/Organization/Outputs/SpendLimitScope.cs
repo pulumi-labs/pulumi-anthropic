@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Organization.Outputs
 {
 
+    /// <summary>
+    /// The user, workspace, or organization whose spending is capped. Specify only the ID matching the scope type.
+    /// </summary>
     [OutputType]
     public sealed class SpendLimitScope
     {

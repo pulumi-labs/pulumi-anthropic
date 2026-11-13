@@ -19,14 +19,14 @@ public final class EnvironmentConfigArgs extends com.pulumi.resources.ResourceAr
     public static final EnvironmentConfigArgs Empty = new EnvironmentConfigArgs();
 
     /**
-     * The sandbox&#39;s network access. Applies to `cloud`.
+     * The sandbox&#39;s network access. Applies to `cloud`. Removing this configuration replaces the environment.
      * 
      */
     @Import(name="networking")
     private @Nullable Output<EnvironmentNetworkingArgs> networking;
 
     /**
-     * @return The sandbox&#39;s network access. Applies to `cloud`.
+     * @return The sandbox&#39;s network access. Applies to `cloud`. Removing this configuration replaces the environment.
      * 
      */
     public Optional<Output<EnvironmentNetworkingArgs>> networking() {
@@ -34,14 +34,14 @@ public final class EnvironmentConfigArgs extends com.pulumi.resources.ResourceAr
     }
 
     /**
-     * Packages installed in the sandbox. Applies to `cloud`.
+     * Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
      * 
      */
     @Import(name="packages")
     private @Nullable Output<PackagesArgs> packages;
 
     /**
-     * @return Packages installed in the sandbox. Applies to `cloud`.
+     * @return Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
      * 
      */
     public Optional<Output<PackagesArgs>> packages() {
@@ -90,7 +90,7 @@ public final class EnvironmentConfigArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param networking The sandbox&#39;s network access. Applies to `cloud`.
+         * @param networking The sandbox&#39;s network access. Applies to `cloud`. Removing this configuration replaces the environment.
          * 
          * @return builder
          * 
@@ -101,7 +101,7 @@ public final class EnvironmentConfigArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param networking The sandbox&#39;s network access. Applies to `cloud`.
+         * @param networking The sandbox&#39;s network access. Applies to `cloud`. Removing this configuration replaces the environment.
          * 
          * @return builder
          * 
@@ -111,7 +111,7 @@ public final class EnvironmentConfigArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param packages Packages installed in the sandbox. Applies to `cloud`.
+         * @param packages Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
          * 
          * @return builder
          * 
@@ -122,7 +122,7 @@ public final class EnvironmentConfigArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param packages Packages installed in the sandbox. Applies to `cloud`.
+         * @param packages Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
          * 
          * @return builder
          * 
