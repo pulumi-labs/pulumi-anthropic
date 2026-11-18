@@ -54,7 +54,7 @@ printf '{"value":"synthetic-github-token-%s"}' "$n"
 func TestGitHubOIDCTokenScripts(t *testing.T) {
 	for _, source := range []struct{ name, path string }{
 		{"CI", "../.github/scripts/get-anthropic-oidc-token.sh"},
-		{"example", "../examples/github-actions-oidc/get-github-oidc-token.sh"},
+		{"example", "../examples/github-actions-wif/workload/get-github-oidc-token.sh"},
 	} {
 		t.Run(source.name, func(t *testing.T) {
 			t.Run("fresh assertions", func(t *testing.T) { testGitHubOIDCFreshAssertions(t, source.path) })

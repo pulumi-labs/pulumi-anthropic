@@ -1,0 +1,69 @@
+name: github-actions-wif-configure
+runtime: yaml
+description: Configure Anthropic workload identity federation for a GitHub Actions workload.
+
+config:
+  organizationId:
+    type: string
+  workspaceId:
+    type: string
+  githubSubject:
+    type: string
+  namePrefix:
+    type: string
+    default: github-actions-wif
+  issuerName:
+    type: string
+    default: github-actions
+
+resources:
+  github:
+    type: anthropic:identity:FederationIssuer
+    properties:
+      name: ${issuerName}
+      issuerUrl: https://token.actions.githubusercontent.com
+      checkJti: true
+      jwks:
+        type: discovery
+    options:
+      # The issuer can be shared by other workloads and is retained on destroy.
+      retainOnDelete: true
+
+  deployer:
+    type: anthropic:identity:ServiceAccount
+    properties:
+      name: ${namePrefix}-deployer
+      description: GitHub Actions workload using short-lived federated credentials.
+      organizationRole: developer
+
+  deployerAccess:
+    type: anthropic:identity:ServiceAccountWorkspace
+    properties:
+      workspaceId: ${workspaceId}
+      serviceAccountId: ${deployer.id}
+      workspaceRole: workspace_developer
+
+  workload:
+    type: anthropic:identity:FederationRule
+    properties:
+      name: ${namePrefix}-workload
+      description: Accept the configured GitHub Actions subject in the target workspace.
+      issuerId: ${github.id}
+      workspaceId: ${workspaceId}
+      oauthScope: workspace:developer
+      target:
+        serviceAccountId: ${deployer.id}
+      match:
+        audience: https://api.anthropic.com
+        subjectPrefix: ${githubSubject}
+      tokenLifetimeSeconds: 900
+    options:
+      dependsOn:
+        - ${deployerAccess}
+
+outputs:
+  organizationId: ${organizationId}
+  workspaceId: ${workspaceId}
+  issuerId: ${github.id}
+  federationRuleId: ${workload.id}
+  serviceAccountId: ${deployer.id}

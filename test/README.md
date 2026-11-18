@@ -40,7 +40,9 @@ Admin and OAuth-only identity scenarios and the OrgBootstrap/WorkloadIdentity sa
 are manual-only. CI receives no stored Anthropic API key, Admin API key or OAuth token;
 short-lived OAuth access tokens are obtained through federation. Fork pull requests do
 not run live tests. Offline CI compiles every scenario and runs the helper tests without
-live opt-in.
+live opt-in. It also previews both GitHub Actions WIF example programs using synthetic
+configuration and a local backend. These preview-only checks require the project's
+Pulumi CLI and YAML runtime, never run `up`, and reject any API request.
 
 CI selects its organization, workspace, service account and federation rules using
 GitHub repository variables:

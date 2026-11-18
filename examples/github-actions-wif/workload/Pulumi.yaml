@@ -1,4 +1,4 @@
-name: github-actions-oidc
+name: github-actions-wif
 runtime: yaml
 description: Use fresh GitHub Actions OIDC assertions to manage an Anthropic workspace without stored Anthropic credentials.
 

@@ -1,5 +1,5 @@
-# Copy this file to .github/workflows/anthropic-oidc-example.yml to enable it.
-name: Anthropic GitHub OIDC example
+# Copy this file to .github/workflows/anthropic-wif-example.yml to enable it.
+name: Anthropic GitHub WIF example
 on:
   workflow_dispatch:
     inputs:
@@ -17,16 +17,16 @@ jobs:
       contents: read
       id-token: write
     concurrency:
-      group: anthropic-oidc-example
+      group: anthropic-wif-example
       cancel-in-progress: false
     env:
       # Authentication to Pulumi Cloud is separate from authentication to Anthropic.
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      PULUMI_STACK: ${{ vars.ANTHROPIC_OIDC_EXAMPLE_STACK }}
-      ANTHROPIC_ORGANIZATION_ID: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-      ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
-      ANTHROPIC_FEDERATION_RULE_ID: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID_MAIN }}
-      ANTHROPIC_SERVICE_ACCOUNT_ID: ${{ vars.ANTHROPIC_FEDERATION_SERVICE_ACCOUNT_ID }}
+      PULUMI_STACK: ${{ vars.ANTHROPIC_WIF_EXAMPLE_STACK }}
+      ANTHROPIC_ORGANIZATION_ID: ${{ vars.ANTHROPIC_WIF_EXAMPLE_ORGANIZATION_ID }}
+      ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WIF_EXAMPLE_WORKSPACE_ID }}
+      ANTHROPIC_FEDERATION_RULE_ID: ${{ vars.ANTHROPIC_WIF_EXAMPLE_FEDERATION_RULE_ID }}
+      ANTHROPIC_SERVICE_ACCOUNT_ID: ${{ vars.ANTHROPIC_WIF_EXAMPLE_SERVICE_ACCOUNT_ID }}
       # API keys take precedence over federation; do not inject them into this job.
       ANTHROPIC_API_KEY: ""
       ANTHROPIC_ADMIN_KEY: ""
@@ -43,15 +43,15 @@ jobs:
       - name: Build and install the provider from this repository
         run: make install
       - name: Configure and run the example
-        working-directory: examples/github-actions-oidc
+        working-directory: examples/github-actions-wif/workload
         shell: bash
         run: |
           set -euo pipefail
-          : "${PULUMI_STACK:?Set ANTHROPIC_OIDC_EXAMPLE_STACK}"
-          : "${ANTHROPIC_ORGANIZATION_ID:?Set ANTHROPIC_ORGANIZATION_ID}"
-          : "${ANTHROPIC_WORKSPACE_ID:?Set ANTHROPIC_WORKSPACE_ID}"
-          : "${ANTHROPIC_FEDERATION_RULE_ID:?Set ANTHROPIC_FEDERATION_RULE_ID_MAIN}"
-          : "${ANTHROPIC_SERVICE_ACCOUNT_ID:?Set ANTHROPIC_FEDERATION_SERVICE_ACCOUNT_ID}"
+          : "${PULUMI_STACK:?Set ANTHROPIC_WIF_EXAMPLE_STACK}"
+          : "${ANTHROPIC_ORGANIZATION_ID:?Set ANTHROPIC_WIF_EXAMPLE_ORGANIZATION_ID}"
+          : "${ANTHROPIC_WORKSPACE_ID:?Set ANTHROPIC_WIF_EXAMPLE_WORKSPACE_ID}"
+          : "${ANTHROPIC_FEDERATION_RULE_ID:?Set ANTHROPIC_WIF_EXAMPLE_FEDERATION_RULE_ID}"
+          : "${ANTHROPIC_SERVICE_ACCOUNT_ID:?Set ANTHROPIC_WIF_EXAMPLE_SERVICE_ACCOUNT_ID}"
           pulumi stack select "${PULUMI_STACK}" --non-interactive
           pulumi config set organizationId "${ANTHROPIC_ORGANIZATION_ID}"
           pulumi config set workspaceId "${ANTHROPIC_WORKSPACE_ID}"

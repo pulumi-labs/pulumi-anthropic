@@ -89,4 +89,4 @@ test_acceptance` runs the non-admin live acceptance tests in [`test/`](test/), g
 an `ANTHROPIC_API_KEY`.
 Runnable sample programs live in `examples/`. Explicitly opted-in live YAML engine
 scenarios live in `test/`; see its README for scope, credentials and setup inputs.
-For keyless GitHub Actions authentication, see [`examples/github-actions-oidc`](examples/github-actions-oidc).
+For keyless GitHub Actions authentication, see [`examples/github-actions-wif`](examples/github-actions-wif).
