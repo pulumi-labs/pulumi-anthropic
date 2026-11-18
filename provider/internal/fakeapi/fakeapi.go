@@ -17,7 +17,7 @@
 // every request so tests can assert on exactly what the provider sent.
 //
 // The fake is a proxy for the real API, not a substitute: behavior that only the real
-// API can confirm is covered by the acceptance tests under examples/.
+// API can confirm is covered by the acceptance tests under test/.
 package fakeapi
 
 import (

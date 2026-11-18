@@ -15,78 +15,76 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * A Claude Managed Agents memory store: persistent memory that agents read and write across sessions, attached to sessions or deployments as a resource. The memories themselves are data that agents write at runtime, so they are not managed here.
- * 
- * Deleting this resource deletes the store along with all of its memories and their versions.
+ * A workspace-scoped persistent memory store. Runtime memories and versions are not managed here. Deleting this resource permanently deletes the store and all its memories and versions. Externally archived stores are treated as absent.
  * 
  */
 @ResourceType(type="anthropic:agents:MemoryStore")
 public class MemoryStore extends com.pulumi.resources.CustomResource {
     /**
-     * When the store was created, in RFC 3339 format.
+     * When the memory store was created, in RFC 3339 format.
      * 
      */
     @Export(name="createdAt", refs={String.class}, tree="[0]")
     private Output<String> createdAt;
 
     /**
-     * @return When the store was created, in RFC 3339 format.
+     * @return When the memory store was created, in RFC 3339 format.
      * 
      */
     public Output<String> createdAt() {
         return this.createdAt;
     }
     /**
-     * What the store holds, up to 1,024 characters. It is shown to the agent.
+     * Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
      * 
      */
     @Export(name="description", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> description;
 
     /**
-     * @return What the store holds, up to 1,024 characters. It is shown to the agent.
+     * @return Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
      * 
      */
     public Output<Optional<String>> description() {
         return Codegen.optional(this.description);
     }
     /**
-     * Arbitrary key-value pairs.
+     * At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
      * 
      */
     @Export(name="metadata", refs={Map.class,String.class}, tree="[0,1,1]")
     private Output</* @Nullable */ Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs.
+     * @return At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
      * 
      */
     public Output<Optional<Map<String,String>>> metadata() {
         return Codegen.optional(this.metadata);
     }
     /**
-     * The store&#39;s name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+     * A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
      * 
      */
     @Export(name="name", refs={String.class}, tree="[0]")
     private Output<String> name;
 
     /**
-     * @return The store&#39;s name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+     * @return A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
      * 
      */
     public Output<String> name() {
         return this.name;
     }
     /**
-     * When the store was last updated, in RFC 3339 format.
+     * When the memory store&#39;s configuration was last changed, in RFC 3339 format.
      * 
      */
     @Export(name="updatedAt", refs={String.class}, tree="[0]")
     private Output<String> updatedAt;
 
     /**
-     * @return When the store was last updated, in RFC 3339 format.
+     * @return When the memory store&#39;s configuration was last changed, in RFC 3339 format.
      * 
      */
     public Output<String> updatedAt() {

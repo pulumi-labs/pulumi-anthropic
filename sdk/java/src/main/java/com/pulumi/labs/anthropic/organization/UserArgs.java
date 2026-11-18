@@ -16,14 +16,14 @@ public final class UserArgs extends com.pulumi.resources.ResourceArgs {
     public static final UserArgs Empty = new UserArgs();
 
     /**
-     * The user&#39;s organization role. The `admin` role cannot be granted through the API.
+     * The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
      * 
      */
     @Import(name="role", required=true)
     private Output<OrganizationRole> role;
 
     /**
-     * @return The user&#39;s organization role. The `admin` role cannot be granted through the API.
+     * @return The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
      * 
      */
     public Output<OrganizationRole> role() {
@@ -31,14 +31,14 @@ public final class UserArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The ID of the existing user to manage.
+     * The existing user&#39;s ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
      * 
      */
     @Import(name="userId", required=true)
     private Output<String> userId;
 
     /**
-     * @return The ID of the existing user to manage.
+     * @return The existing user&#39;s ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
      * 
      */
     public Output<String> userId() {
@@ -71,7 +71,7 @@ public final class UserArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param role The user&#39;s organization role. The `admin` role cannot be granted through the API.
+         * @param role The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
          * 
          * @return builder
          * 
@@ -82,7 +82,7 @@ public final class UserArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param role The user&#39;s organization role. The `admin` role cannot be granted through the API.
+         * @param role The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
          * 
          * @return builder
          * 
@@ -92,7 +92,7 @@ public final class UserArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param userId The ID of the existing user to manage.
+         * @param userId The existing user&#39;s ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
          * 
          * @return builder
          * 
@@ -103,7 +103,7 @@ public final class UserArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param userId The ID of the existing user to manage.
+         * @param userId The existing user&#39;s ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
          * 
          * @return builder
          * 

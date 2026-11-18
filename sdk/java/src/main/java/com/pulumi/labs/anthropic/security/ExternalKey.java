@@ -17,97 +17,111 @@ import javax.annotation.Nullable;
 
 /**
  * A customer-managed encryption key (CMEK) held in AWS KMS, Google Cloud KMS, or Azure Key Vault. A workspace encrypts its data with the key once the workspace&#39;s `externalKeyId` refers to it.
- * 
- * Creating the key validates it with a round trip to the KMS, and fails, leaving nothing behind, if Anthropic cannot use it. The key&#39;s provider configuration and geography cannot change once a workspace uses the key, so changing either replaces the key.
- * 
- * Deleting the key is refused while a workspace uses it.
- * 
+ *
+ * Creating the key validates it with a round trip to the KMS. Failed validation attempts to delete the configuration. If deletion also fails, the configuration may remain and require manual cleanup. Changing the provider configuration, geography or customer binding replaces the configuration.
+ *
+ * Deleting this resource deletes only the configuration, never the underlying cloud key. Deletion is refused while a live or archived workspace uses it.
+ *
  */
 @ResourceType(type="anthropic:security:ExternalKey")
 public class ExternalKey extends com.pulumi.resources.CustomResource {
     /**
      * Whether a workspace uses the key: `attached` or `unattached`.
-     * 
+     *
      */
     @Export(name="attachment", refs={String.class}, tree="[0]")
     private Output<String> attachment;
 
     /**
      * @return Whether a workspace uses the key: `attached` or `unattached`.
-     * 
+     *
      */
     public Output<String> attachment() {
         return this.attachment;
     }
     /**
      * When the key was created, in RFC 3339 format.
-     * 
+     *
      */
     @Export(name="createdAt", refs={String.class}, tree="[0]")
     private Output<String> createdAt;
 
     /**
      * @return When the key was created, in RFC 3339 format.
-     * 
+     *
      */
     public Output<String> createdAt() {
         return this.createdAt;
     }
     /**
-     * A display name for the key, 1 to 255 characters.
-     * 
+     * A display name for the key, 1 to 255 characters. Removing a configured name clears it.
+     *
      */
     @Export(name="displayName", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> displayName;
 
     /**
-     * @return A display name for the key, 1 to 255 characters.
-     * 
+     * @return A display name for the key, 1 to 255 characters. Removing a configured name clears it.
+     *
      */
     public Output<Optional<String>> displayName() {
         return Codegen.optional(this.displayName);
     }
     /**
      * The geography the key serves. The only accepted value is `us`.
-     * 
+     *
      */
     @Export(name="geo", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> geo;
 
     /**
      * @return The geography the key serves. The only accepted value is `us`.
-     * 
+     *
      */
     public Output<Optional<String>> geo() {
         return Codegen.optional(this.geo);
     }
     /**
-     * Where the key is held.
-     * 
+     * Where the key is held. Changing any of these coordinates replaces the configuration.
+     *
      */
     @Export(name="providerConfig", refs={ProviderConfig.class}, tree="[0]")
     private Output<ProviderConfig> providerConfig;
 
     /**
-     * @return Where the key is held.
-     * 
+     * @return Where the key is held. Changing any of these coordinates replaces the configuration.
+     *
      */
     public Output<ProviderConfig> providerConfig() {
         return this.providerConfig;
     }
     /**
      * When the key was last updated, in RFC 3339 format.
-     * 
+     *
      */
     @Export(name="updatedAt", refs={String.class}, tree="[0]")
     private Output<String> updatedAt;
 
     /**
      * @return When the key was last updated, in RFC 3339 format.
-     * 
+     *
      */
     public Output<String> updatedAt() {
         return this.updatedAt;
+    }
+    /**
+     * The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization&#39;s own key: an unbound key can be used by any workspace, including another customer&#39;s. Changing or removing the binding replaces the configuration.
+     *
+     */
+    @Export(name="userProfileId", refs={String.class}, tree="[0]")
+    private Output</* @Nullable */ String> userProfileId;
+
+    /**
+     * @return The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization&#39;s own key: an unbound key can be used by any workspace, including another customer&#39;s. Changing or removing the binding replaces the configuration.
+     *
+     */
+    public Output<Optional<String>> userProfileId() {
+        return Codegen.optional(this.userProfileId);
     }
 
     /**
@@ -152,7 +166,8 @@ public class ExternalKey extends com.pulumi.resources.CustomResource {
             .pluginDownloadURL("github://api.github.com/pulumi-labs/pulumi-anthropic")
             .replaceOnChanges(List.of(
                 "geo",
-                "providerConfig"
+                "providerConfig",
+                "userProfileId"
             ))
             .build();
         return com.pulumi.resources.CustomResourceOptions.merge(defaultOptions, options, id);

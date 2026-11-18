@@ -33,14 +33,14 @@ public final class TokenEndpointAuthArgs extends com.pulumi.resources.ResourceAr
     }
 
     /**
-     * The authentication method.
+     * The authentication method. Changing it replaces the credential.
      * 
      */
     @Import(name="type", required=true)
     private Output<TokenEndpointAuthType> type;
 
     /**
-     * @return The authentication method.
+     * @return The authentication method. Changing it replaces the credential.
      * 
      */
     public Output<TokenEndpointAuthType> type() {
@@ -94,7 +94,7 @@ public final class TokenEndpointAuthArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param type The authentication method.
+         * @param type The authentication method. Changing it replaces the credential.
          * 
          * @return builder
          * 
@@ -105,7 +105,7 @@ public final class TokenEndpointAuthArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param type The authentication method.
+         * @param type The authentication method. Changing it replaces the credential.
          * 
          * @return builder
          * 

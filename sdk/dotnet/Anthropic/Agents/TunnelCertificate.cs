@@ -11,18 +11,18 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents
 {
     /// <summary>
-    /// A CA certificate for an MCP tunnel, used to verify the certificates of MCP servers behind the tunnel. A tunnel holds at most two active certificates, which allows rotation.
+    /// A CA certificate trusted by an MCP tunnel when connecting to MCP servers. A tunnel holds at most two active certificates. Replacement creates the new certificate before archiving the old one, so rotation requires a free certificate slot. Deleting the last active certificate stops MCP traffic until another is registered.
     /// 
-    /// Certificates cannot be updated, so any change replaces the certificate. Deleting this resource archives the certificate. Its ID is `&lt;tunnelId&gt;/&lt;certificateId&gt;`.
+    /// Certificates cannot be updated; changing either input replaces the certificate. Deletion archives it. Import uses `&lt;tunnelId&gt;/&lt;certificateId&gt;` and cannot recover the original PEM; supplying a PEM after import replaces the certificate.
     /// </summary>
     [AnthropicResourceType("anthropic:agents:TunnelCertificate")]
     public partial class TunnelCertificate : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// A single PEM-encoded CA certificate, up to 8,192 characters.
+        /// A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
         /// </summary>
         [Output("caCertificatePem")]
-        public Output<string> CaCertificatePem { get; private set; } = null!;
+        public Output<string?> CaCertificatePem { get; private set; } = null!;
 
         /// <summary>
         /// When the certificate was added, in RFC 3339 format.
@@ -31,19 +31,25 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// When the certificate expires, in RFC 3339 format.
+        /// When the certificate expires, in RFC 3339 format. Absent when the certificate does not expire.
         /// </summary>
         [Output("expiresAt")]
-        public Output<string> ExpiresAt { get; private set; } = null!;
+        public Output<string?> ExpiresAt { get; private set; } = null!;
 
         /// <summary>
-        /// The certificate's SHA-256 fingerprint.
+        /// The lowercase hexadecimal SHA-256 fingerprint of the certificate's DER encoding.
         /// </summary>
         [Output("fingerprint")]
         public Output<string> Fingerprint { get; private set; } = null!;
 
         /// <summary>
-        /// The tunnel that trusts the certificate.
+        /// Whether the confirmed certificate registration is active or archived. Unavailable when the registration's identity or trust status cannot be confirmed. Active registration does not verify MCP server reachability.
+        /// </summary>
+        [Output("status")]
+        public Output<Pulumi.Labs.Anthropic.Agents.TunnelCertificateStatus?> Status { get; private set; } = null!;
+
+        /// <summary>
+        /// The tunnel that trusts the certificate. Changing it replaces the certificate.
         /// </summary>
         [Output("tunnelId")]
         public Output<string> TunnelId { get; private set; } = null!;
@@ -100,13 +106,13 @@ namespace Pulumi.Labs.Anthropic.Agents
     public sealed class TunnelCertificateArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// A single PEM-encoded CA certificate, up to 8,192 characters.
+        /// A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
         /// </summary>
-        [Input("caCertificatePem", required: true)]
-        public Input<string> CaCertificatePem { get; set; } = null!;
+        [Input("caCertificatePem")]
+        public Input<string>? CaCertificatePem { get; set; }
 
         /// <summary>
-        /// The tunnel that trusts the certificate.
+        /// The tunnel that trusts the certificate. Changing it replaces the certificate.
         /// </summary>
         [Input("tunnelId", required: true)]
         public Input<string> TunnelId { get; set; } = null!;

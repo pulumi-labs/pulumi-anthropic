@@ -35,12 +35,12 @@ class FederationRuleArgs:
 
         :param pulumi.Input[_builtins.str] issuer_id: The ID of the issuer whose tokens the rule accepts. Changing it replaces the rule.
         :param pulumi.Input['FederationMatchArgs'] match: The conditions a token must satisfy. At least one of `subjectPrefix`, `claims`, or `condition` is required.
-        :param pulumi.Input[_builtins.str] name: A lowercase slug that uniquely names the rule in the organization.
+        :param pulumi.Input[_builtins.str] name: A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
         :param pulumi.Input[_builtins.str] oauth_scope: The space-separated OAuth scopes of the access tokens the rule issues, such as `workspace:developer`.
         :param pulumi.Input['FederationTargetArgs'] target: The service account the rule's access tokens act as.
-        :param pulumi.Input[_builtins.bool] applies_to_all_workspaces: Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
-        :param pulumi.Input[_builtins.str] description: A description of the rule, up to 2,000 characters.
-        :param pulumi.Input[_builtins.int] token_lifetime_seconds: The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+        :param pulumi.Input[_builtins.bool] applies_to_all_workspaces: Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
+        :param pulumi.Input[_builtins.str] description: A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
+        :param pulumi.Input[_builtins.int] token_lifetime_seconds: The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
         :param pulumi.Input[_builtins.str] workspace_id: The workspace the rule is created in, required unless `appliesToAllWorkspaces` is set. Changing it replaces the rule; to bind the rule to further workspaces, use `FederationRuleWorkspace`.
         """
         pulumi.set(__self__, "issuer_id", issuer_id)
@@ -85,7 +85,7 @@ class FederationRuleArgs:
     @pulumi.getter
     def name(self) -> pulumi.Input[_builtins.str]:
         """
-        A lowercase slug that uniquely names the rule in the organization.
+        A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
         """
         return pulumi.get(self, "name")
 
@@ -121,7 +121,7 @@ class FederationRuleArgs:
     @pulumi.getter(name="appliesToAllWorkspaces")
     def applies_to_all_workspaces(self) -> pulumi.Input[Optional[_builtins.bool]]:
         """
-        Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+        Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
         """
         return pulumi.get(self, "applies_to_all_workspaces")
 
@@ -133,7 +133,7 @@ class FederationRuleArgs:
     @pulumi.getter
     def description(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        A description of the rule, up to 2,000 characters.
+        A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
         """
         return pulumi.get(self, "description")
 
@@ -145,7 +145,7 @@ class FederationRuleArgs:
     @pulumi.getter(name="tokenLifetimeSeconds")
     def token_lifetime_seconds(self) -> pulumi.Input[Optional[_builtins.int]]:
         """
-        The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+        The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
         """
         return pulumi.get(self, "token_lifetime_seconds")
 
@@ -187,20 +187,20 @@ class FederationRule(pulumi.CustomResource):
 
         A rule applies either to all workspaces (`appliesToAllWorkspaces`) or to the workspace it is created in (`workspaceId`); bind it to further workspaces with `FederationRuleWorkspace`.
 
-        Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+        Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. OAuth callers can configure only `workspace:developer` or `workspace:inference` scopes; higher-privilege rules require the Console. Creating a rule does not verify token exchange.
 
-        The API cannot delete rules, so deleting this resource archives the rule.
+        Deleting this resource archives the rule, preventing new exchanges but not revoking tokens already issued. Changing the issuer or creation workspace replaces the rule by archiving it before creating its replacement; this interrupts new exchanges. Optional settings omitted from the start remain unconfigured, preserving later external changes. Import by rule ID recovers current settings but cannot recover the original creation workspace; configure workspace bindings separately with FederationRuleWorkspace.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.bool] applies_to_all_workspaces: Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
-        :param pulumi.Input[_builtins.str] description: A description of the rule, up to 2,000 characters.
+        :param pulumi.Input[_builtins.bool] applies_to_all_workspaces: Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
+        :param pulumi.Input[_builtins.str] description: A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
         :param pulumi.Input[_builtins.str] issuer_id: The ID of the issuer whose tokens the rule accepts. Changing it replaces the rule.
         :param pulumi.Input[Union['FederationMatchArgs', 'FederationMatchArgsDict', 'outputs.FederationMatch']] match: The conditions a token must satisfy. At least one of `subjectPrefix`, `claims`, or `condition` is required.
-        :param pulumi.Input[_builtins.str] name: A lowercase slug that uniquely names the rule in the organization.
+        :param pulumi.Input[_builtins.str] name: A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
         :param pulumi.Input[_builtins.str] oauth_scope: The space-separated OAuth scopes of the access tokens the rule issues, such as `workspace:developer`.
         :param pulumi.Input[Union['FederationTargetArgs', 'FederationTargetArgsDict', 'outputs.FederationTarget']] target: The service account the rule's access tokens act as.
-        :param pulumi.Input[_builtins.int] token_lifetime_seconds: The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+        :param pulumi.Input[_builtins.int] token_lifetime_seconds: The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
         :param pulumi.Input[_builtins.str] workspace_id: The workspace the rule is created in, required unless `appliesToAllWorkspaces` is set. Changing it replaces the rule; to bind the rule to further workspaces, use `FederationRuleWorkspace`.
         """
         ...
@@ -214,9 +214,9 @@ class FederationRule(pulumi.CustomResource):
 
         A rule applies either to all workspaces (`appliesToAllWorkspaces`) or to the workspace it is created in (`workspaceId`); bind it to further workspaces with `FederationRuleWorkspace`.
 
-        Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+        Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. OAuth callers can configure only `workspace:developer` or `workspace:inference` scopes; higher-privilege rules require the Console. Creating a rule does not verify token exchange.
 
-        The API cannot delete rules, so deleting this resource archives the rule.
+        Deleting this resource archives the rule, preventing new exchanges but not revoking tokens already issued. Changing the issuer or creation workspace replaces the rule by archiving it before creating its replacement; this interrupts new exchanges. Optional settings omitted from the start remain unconfigured, preserving later external changes. Import by rule ID recovers current settings but cannot recover the original creation workspace; configure workspace bindings separately with FederationRuleWorkspace.
 
         :param str resource_name: The name of the resource.
         :param FederationRuleArgs args: The arguments to use to populate this resource's properties.
@@ -323,7 +323,7 @@ class FederationRule(pulumi.CustomResource):
     @pulumi.getter(name="appliesToAllWorkspaces")
     def applies_to_all_workspaces(self) -> pulumi.Output[Optional[_builtins.bool]]:
         """
-        Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+        Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
         """
         return pulumi.get(self, "applies_to_all_workspaces")
 
@@ -339,7 +339,7 @@ class FederationRule(pulumi.CustomResource):
     @pulumi.getter
     def description(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        A description of the rule, up to 2,000 characters.
+        A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
         """
         return pulumi.get(self, "description")
 
@@ -371,7 +371,7 @@ class FederationRule(pulumi.CustomResource):
     @pulumi.getter
     def name(self) -> pulumi.Output[_builtins.str]:
         """
-        A lowercase slug that uniquely names the rule in the organization.
+        A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
         """
         return pulumi.get(self, "name")
 
@@ -395,7 +395,7 @@ class FederationRule(pulumi.CustomResource):
     @pulumi.getter(name="tokenLifetimeSeconds")
     def token_lifetime_seconds(self) -> pulumi.Output[Optional[_builtins.int]]:
         """
-        The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+        The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
         """
         return pulumi.get(self, "token_lifetime_seconds")
 

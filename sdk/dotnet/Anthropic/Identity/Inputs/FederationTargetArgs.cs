@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Identity.Inputs
 {
 
+    /// <summary>
+    /// The service account that tokens issued by a federation rule act as.
+    /// </summary>
     public sealed class FederationTargetArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>

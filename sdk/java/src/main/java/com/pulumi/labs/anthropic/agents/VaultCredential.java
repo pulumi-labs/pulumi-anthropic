@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 /**
  * A credential in a Claude Managed Agents vault: an OAuth grant or bearer token for an MCP server, or a secret injected into outbound requests as an environment variable.
  * 
- * Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential&#39;s type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `&lt;vaultId&gt;/&lt;credentialId&gt;`.
+ * Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential&#39;s type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `&lt;vaultId&gt;/&lt;credentialId&gt;`. Deletion permanently removes the credential, not archives it. Running sessions periodically re-resolve credentials; immediate revocation is not guaranteed.
  * 
  */
 @ResourceType(type="anthropic:agents:VaultCredential")
@@ -53,14 +53,14 @@ public class VaultCredential extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * The credential&#39;s display name.
+     * The credential&#39;s display name, 1–255 characters. Removing a name you previously configured replaces the credential.
      * 
      */
     @Export(name="displayName", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> displayName;
 
     /**
-     * @return The credential&#39;s display name.
+     * @return The credential&#39;s display name, 1–255 characters. Removing a name you previously configured replaces the credential.
      * 
      */
     public Output<Optional<String>> displayName() {

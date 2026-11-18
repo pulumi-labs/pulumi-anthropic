@@ -14,13 +14,13 @@ namespace Pulumi.Labs.Anthropic.Agents.Inputs
     public sealed class EnvironmentConfigArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The sandbox's network access. Applies to `cloud`.
+        /// The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
         /// </summary>
         [Input("networking")]
         public Input<Inputs.EnvironmentNetworkingArgs>? Networking { get; set; }
 
         /// <summary>
-        /// Packages installed in the sandbox. Applies to `cloud`.
+        /// Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
         /// </summary>
         [Input("packages")]
         public Input<Inputs.PackagesArgs>? Packages { get; set; }

@@ -4,26 +4,78 @@
 package com.pulumi.labs.anthropic.agents.outputs;
 
 import com.pulumi.core.annotations.CustomType;
-import com.pulumi.exceptions.MissingRequiredPropertyException;
+import com.pulumi.labs.anthropic.agents.outputs.AgentAdvisor;
+import com.pulumi.labs.anthropic.agents.outputs.AgentDelegation;
 import com.pulumi.labs.anthropic.agents.outputs.RosterEntry;
+import java.lang.String;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 @CustomType
 public final class Multiagent {
     /**
-     * @return The agents the coordinator can delegate to, between 1 and 20.
-     * 
+     * @return Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+     *
      */
-    private List<RosterEntry> agents;
+    private @Nullable AgentAdvisor advisor;
+    /**
+     * @return The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
+     *
+     */
+    private @Nullable List<RosterEntry> agents;
+    /**
+     * @return Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+     *
+     */
+    private @Nullable AgentDelegation subagents;
+    /**
+     * @return Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+     *
+     */
+    private @Nullable String type;
+    /**
+     * @return Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+     *
+     */
+    private @Nullable AgentDelegation workflows;
 
     private Multiagent() {}
     /**
-     * @return The agents the coordinator can delegate to, between 1 and 20.
-     * 
+     * @return Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+     *
+     */
+    public Optional<AgentAdvisor> advisor() {
+        return Optional.ofNullable(this.advisor);
+    }
+    /**
+     * @return The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
+     *
      */
     public List<RosterEntry> agents() {
-        return this.agents;
+        return this.agents == null ? List.of() : this.agents;
+    }
+    /**
+     * @return Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+     *
+     */
+    public Optional<AgentDelegation> subagents() {
+        return Optional.ofNullable(this.subagents);
+    }
+    /**
+     * @return Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+     *
+     */
+    public Optional<String> type() {
+        return Optional.ofNullable(this.type);
+    }
+    /**
+     * @return Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+     *
+     */
+    public Optional<AgentDelegation> workflows() {
+        return Optional.ofNullable(this.workflows);
     }
 
     public static Builder builder() {
@@ -35,27 +87,61 @@ public final class Multiagent {
     }
     @CustomType.Builder
     public static final class Builder {
-        private List<RosterEntry> agents;
+        private @Nullable AgentAdvisor advisor;
+        private @Nullable List<RosterEntry> agents;
+        private @Nullable AgentDelegation subagents;
+        private @Nullable String type;
+        private @Nullable AgentDelegation workflows;
         public Builder() {}
         public Builder(Multiagent defaults) {
-    	      Objects.requireNonNull(defaults);
-    	      this.agents = defaults.agents;
+              Objects.requireNonNull(defaults);
+              this.advisor = defaults.advisor;
+              this.agents = defaults.agents;
+              this.subagents = defaults.subagents;
+              this.type = defaults.type;
+              this.workflows = defaults.workflows;
         }
 
         @CustomType.Setter
-        public Builder agents(List<RosterEntry> agents) {
-            if (agents == null) {
-              throw new MissingRequiredPropertyException("Multiagent", "agents");
-            }
+        public Builder advisor(@Nullable AgentAdvisor advisor) {
+
+            this.advisor = advisor;
+            return this;
+        }
+        @CustomType.Setter
+        public Builder agents(@Nullable List<RosterEntry> agents) {
+
             this.agents = agents;
             return this;
         }
         public Builder agents(RosterEntry... agents) {
             return agents(List.of(agents));
         }
+        @CustomType.Setter
+        public Builder subagents(@Nullable AgentDelegation subagents) {
+
+            this.subagents = subagents;
+            return this;
+        }
+        @CustomType.Setter
+        public Builder type(@Nullable String type) {
+
+            this.type = type;
+            return this;
+        }
+        @CustomType.Setter
+        public Builder workflows(@Nullable AgentDelegation workflows) {
+
+            this.workflows = workflows;
+            return this;
+        }
         public Multiagent build() {
             final var _resultValue = new Multiagent();
+            _resultValue.advisor = advisor;
             _resultValue.agents = agents;
+            _resultValue.subagents = subagents;
+            _resultValue.type = type;
+            _resultValue.workflows = workflows;
             return _resultValue;
         }
     }

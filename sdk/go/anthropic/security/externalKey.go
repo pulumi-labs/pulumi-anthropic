@@ -14,9 +14,9 @@ import (
 
 // A customer-managed encryption key (CMEK) held in AWS KMS, Google Cloud KMS, or Azure Key Vault. A workspace encrypts its data with the key once the workspace's `externalKeyId` refers to it.
 //
-// Creating the key validates it with a round trip to the KMS, and fails, leaving nothing behind, if Anthropic cannot use it. The key's provider configuration and geography cannot change once a workspace uses the key, so changing either replaces the key.
+// Creating the key validates it with a round trip to the KMS. Failed validation attempts to delete the configuration. If deletion also fails, the configuration may remain and require manual cleanup. Changing the provider configuration, geography or customer binding replaces the configuration.
 //
-// Deleting the key is refused while a workspace uses it.
+// Deleting this resource deletes only the configuration, never the underlying cloud key. Deletion is refused while a live or archived workspace uses it.
 type ExternalKey struct {
 	pulumi.CustomResourceState
 
@@ -24,14 +24,16 @@ type ExternalKey struct {
 	Attachment pulumi.StringOutput `pulumi:"attachment"`
 	// When the key was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// A display name for the key, 1 to 255 characters.
+	// A display name for the key, 1 to 255 characters. Removing a configured name clears it.
 	DisplayName pulumi.StringPtrOutput `pulumi:"displayName"`
 	// The geography the key serves. The only accepted value is `us`.
 	Geo pulumi.StringPtrOutput `pulumi:"geo"`
-	// Where the key is held.
+	// Where the key is held. Changing any of these coordinates replaces the configuration.
 	ProviderConfig ProviderConfigOutput `pulumi:"providerConfig"`
 	// When the key was last updated, in RFC 3339 format.
 	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
+	// The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
+	UserProfileId pulumi.StringPtrOutput `pulumi:"userProfileId"`
 }
 
 // NewExternalKey registers a new resource with the given unique name, arguments, and options.
@@ -47,6 +49,7 @@ func NewExternalKey(ctx *pulumi.Context,
 	replaceOnChanges := pulumi.ReplaceOnChanges([]string{
 		"geo",
 		"providerConfig",
+		"userProfileId",
 	})
 	opts = append(opts, replaceOnChanges)
 	opts = internal.PkgResourceDefaultOpts(opts)
@@ -88,22 +91,26 @@ func ExternalKeyExists(ctx *pulumi.Context,
 }
 
 type externalKeyArgs struct {
-	// A display name for the key, 1 to 255 characters.
+	// A display name for the key, 1 to 255 characters. Removing a configured name clears it.
 	DisplayName *string `pulumi:"displayName"`
 	// The geography the key serves. The only accepted value is `us`.
 	Geo *string `pulumi:"geo"`
-	// Where the key is held.
+	// Where the key is held. Changing any of these coordinates replaces the configuration.
 	ProviderConfig ProviderConfig `pulumi:"providerConfig"`
+	// The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
+	UserProfileId *string `pulumi:"userProfileId"`
 }
 
 // The set of arguments for constructing a ExternalKey resource.
 type ExternalKeyArgs struct {
-	// A display name for the key, 1 to 255 characters.
+	// A display name for the key, 1 to 255 characters. Removing a configured name clears it.
 	DisplayName pulumi.StringPtrInput
 	// The geography the key serves. The only accepted value is `us`.
 	Geo pulumi.StringPtrInput
-	// Where the key is held.
+	// Where the key is held. Changing any of these coordinates replaces the configuration.
 	ProviderConfig ProviderConfigInput
+	// The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
+	UserProfileId pulumi.StringPtrInput
 }
 
 func (ExternalKeyArgs) ElementType() reflect.Type {
@@ -203,7 +210,7 @@ func (o ExternalKeyOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *ExternalKey) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// A display name for the key, 1 to 255 characters.
+// A display name for the key, 1 to 255 characters. Removing a configured name clears it.
 func (o ExternalKeyOutput) DisplayName() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *ExternalKey) pulumi.StringPtrOutput { return v.DisplayName }).(pulumi.StringPtrOutput)
 }
@@ -213,7 +220,7 @@ func (o ExternalKeyOutput) Geo() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *ExternalKey) pulumi.StringPtrOutput { return v.Geo }).(pulumi.StringPtrOutput)
 }
 
-// Where the key is held.
+// Where the key is held. Changing any of these coordinates replaces the configuration.
 func (o ExternalKeyOutput) ProviderConfig() ProviderConfigOutput {
 	return o.ApplyT(func(v *ExternalKey) ProviderConfigOutput { return v.ProviderConfig }).(ProviderConfigOutput)
 }
@@ -221,6 +228,11 @@ func (o ExternalKeyOutput) ProviderConfig() ProviderConfigOutput {
 // When the key was last updated, in RFC 3339 format.
 func (o ExternalKeyOutput) UpdatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *ExternalKey) pulumi.StringOutput { return v.UpdatedAt }).(pulumi.StringOutput)
+}
+
+// The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
+func (o ExternalKeyOutput) UserProfileId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ExternalKey) pulumi.StringPtrOutput { return v.UserProfileId }).(pulumi.StringPtrOutput)
 }
 
 type ExternalKeyArrayOutput struct{ *pulumi.OutputState }

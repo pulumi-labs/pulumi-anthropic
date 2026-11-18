@@ -12,9 +12,9 @@ import * as utilities from "../utilities";
  *
  * A rule applies either to all workspaces (`appliesToAllWorkspaces`) or to the workspace it is created in (`workspaceId`); bind it to further workspaces with `FederationRuleWorkspace`.
  *
- * Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+ * Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. OAuth callers can configure only `workspace:developer` or `workspace:inference` scopes; higher-privilege rules require the Console. Creating a rule does not verify token exchange.
  *
- * The API cannot delete rules, so deleting this resource archives the rule.
+ * Deleting this resource archives the rule, preventing new exchanges but not revoking tokens already issued. Changing the issuer or creation workspace replaces the rule by archiving it before creating its replacement; this interrupts new exchanges. Optional settings omitted from the start remain unconfigured, preserving later external changes. Import by rule ID recovers current settings but cannot recover the original creation workspace; configure workspace bindings separately with FederationRuleWorkspace.
  */
 export class FederationRule extends pulumi.CustomResource {
     /**
@@ -54,7 +54,7 @@ export class FederationRule extends pulumi.CustomResource {
     }
 
     /**
-     * Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+     * Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
      */
     declare public readonly appliesToAllWorkspaces: pulumi.Output<boolean | undefined>;
     /**
@@ -62,7 +62,7 @@ export class FederationRule extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * A description of the rule, up to 2,000 characters.
+     * A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
      */
     declare public readonly description: pulumi.Output<string | undefined>;
     /**
@@ -78,7 +78,7 @@ export class FederationRule extends pulumi.CustomResource {
      */
     declare public readonly match: pulumi.Output<outputs.identity.FederationMatch>;
     /**
-     * A lowercase slug that uniquely names the rule in the organization.
+     * A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
      */
     declare public readonly name: pulumi.Output<string>;
     /**
@@ -90,7 +90,7 @@ export class FederationRule extends pulumi.CustomResource {
      */
     declare public readonly target: pulumi.Output<outputs.identity.FederationTarget>;
     /**
-     * The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+     * The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
      */
     declare public readonly tokenLifetimeSeconds: pulumi.Output<number | undefined>;
     /**
@@ -172,11 +172,11 @@ export class FederationRule extends pulumi.CustomResource {
  */
 export interface FederationRuleArgs {
     /**
-     * Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+     * Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
      */
     appliesToAllWorkspaces?: pulumi.Input<boolean | undefined>;
     /**
-     * A description of the rule, up to 2,000 characters.
+     * A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
      */
     description?: pulumi.Input<string | undefined>;
     /**
@@ -188,7 +188,7 @@ export interface FederationRuleArgs {
      */
     match: pulumi.Input<inputs.identity.FederationMatchArgs>;
     /**
-     * A lowercase slug that uniquely names the rule in the organization.
+     * A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
      */
     name: pulumi.Input<string>;
     /**
@@ -200,7 +200,7 @@ export interface FederationRuleArgs {
      */
     target: pulumi.Input<inputs.identity.FederationTargetArgs>;
     /**
-     * The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+     * The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
      */
     tokenLifetimeSeconds?: pulumi.Input<number | undefined>;
     /**

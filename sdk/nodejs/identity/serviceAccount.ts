@@ -56,15 +56,15 @@ export class ServiceAccount extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * A description of the service account, up to 2,000 characters.
+     * A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
      */
     declare public readonly description: pulumi.Output<string | undefined>;
     /**
-     * A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+     * A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
      */
     declare public readonly name: pulumi.Output<string>;
     /**
-     * The service account's organization role. Defaults to `developer`.
+     * The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
      */
     declare public readonly organizationRole: pulumi.Output<enums.identity.ServiceAccountRole | undefined>;
     /**
@@ -110,15 +110,15 @@ export class ServiceAccount extends pulumi.CustomResource {
  */
 export interface ServiceAccountArgs {
     /**
-     * A description of the service account, up to 2,000 characters.
+     * A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
      */
     description?: pulumi.Input<string | undefined>;
     /**
-     * A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+     * A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
      */
     name: pulumi.Input<string>;
     /**
-     * The service account's organization role. Defaults to `developer`.
+     * The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
      */
     organizationRole?: pulumi.Input<enums.identity.ServiceAccountRole | undefined>;
 }

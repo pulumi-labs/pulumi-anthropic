@@ -12,41 +12,35 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, run on a cron schedule or on demand.
-//
-// A deployment runs one version of its agent. Set `agent.version` to the agent's `version` output to roll the deployment forward with every change to the agent, or to a fixed number to hold it back: updating the agent creates a new version, and deployments move to it one at a time as their `agent.version` changes.
-//
-// The API cannot delete deployments, so deleting this resource archives the deployment, which stops its schedule and cannot be undone.
+// A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, on demand or on a cron schedule. Set agent.version to pin a version; otherwise the latest version is pinned whenever configuration is applied. This resource does not start on-demand sessions or manage pausing. Deleting it archives the deployment permanently and stops its schedule.
 type Deployment struct {
 	pulumi.CustomResourceState
 
 	// The agent to run, and optionally the version to pin.
 	Agent AgentReferenceOutput `pulumi:"agent"`
-	// A spending limit for the deployment.
+	// A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
 	Budget BudgetPtrOutput `pulumi:"budget"`
 	// When the deployment was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// A description of the deployment.
+	// A description of the deployment. Removing a configured description clears it.
 	Description pulumi.StringPtrOutput `pulumi:"description"`
 	// The environment sessions run in.
 	EnvironmentId pulumi.StringOutput `pulumi:"environmentId"`
-	// The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+	// The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
 	InitialEvents pulumi.MapArrayOutput `pulumi:"initialEvents"`
-	// Arbitrary key-value pairs.
+	// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
 	Metadata pulumi.StringMapOutput `pulumi:"metadata"`
 	// The deployment's name.
 	Name pulumi.StringOutput `pulumi:"name"`
-	// Whether the deployment is paused. Omit to leave pausing to other tools.
-	Paused pulumi.BoolPtrOutput `pulumi:"paused"`
-	// Repositories, files, and memory stores mounted into each session, up to 500.
+	// Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
 	Resources DeploymentResourceArrayOutput `pulumi:"resources"`
-	// When to run. Omit to run only on demand.
+	// When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
 	Schedule SchedulePtrOutput `pulumi:"schedule"`
-	// Whether the deployment is `active` or `paused`. The platform also pauses a deployment when it cannot run, for example because its agent was archived.
+	// Whether the deployment is active or paused, as observed on the platform. The platform may pause deployments when dependencies cannot run. This resource does not change pause status.
 	Status pulumi.StringOutput `pulumi:"status"`
 	// When the deployment was last updated, in RFC 3339 format.
 	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
-	// Vaults whose credentials sessions can use, up to 50.
+	// Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
 	VaultIds pulumi.StringArrayOutput `pulumi:"vaultIds"`
 }
 
@@ -110,25 +104,23 @@ func DeploymentExists(ctx *pulumi.Context,
 type deploymentArgs struct {
 	// The agent to run, and optionally the version to pin.
 	Agent AgentReference `pulumi:"agent"`
-	// A spending limit for the deployment.
+	// A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
 	Budget *Budget `pulumi:"budget"`
-	// A description of the deployment.
+	// A description of the deployment. Removing a configured description clears it.
 	Description *string `pulumi:"description"`
 	// The environment sessions run in.
 	EnvironmentId string `pulumi:"environmentId"`
-	// The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+	// The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
 	InitialEvents []map[string]interface{} `pulumi:"initialEvents"`
-	// Arbitrary key-value pairs.
+	// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
 	Metadata map[string]string `pulumi:"metadata"`
 	// The deployment's name.
 	Name string `pulumi:"name"`
-	// Whether the deployment is paused. Omit to leave pausing to other tools.
-	Paused *bool `pulumi:"paused"`
-	// Repositories, files, and memory stores mounted into each session, up to 500.
+	// Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
 	Resources []DeploymentResource `pulumi:"resources"`
-	// When to run. Omit to run only on demand.
+	// When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
 	Schedule *Schedule `pulumi:"schedule"`
-	// Vaults whose credentials sessions can use, up to 50.
+	// Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
 	VaultIds []string `pulumi:"vaultIds"`
 }
 
@@ -136,25 +128,23 @@ type deploymentArgs struct {
 type DeploymentArgs struct {
 	// The agent to run, and optionally the version to pin.
 	Agent AgentReferenceInput
-	// A spending limit for the deployment.
+	// A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
 	Budget BudgetPtrInput
-	// A description of the deployment.
+	// A description of the deployment. Removing a configured description clears it.
 	Description pulumi.StringPtrInput
 	// The environment sessions run in.
 	EnvironmentId pulumi.StringInput
-	// The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+	// The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
 	InitialEvents pulumi.MapArrayInput
-	// Arbitrary key-value pairs.
+	// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
 	Metadata pulumi.StringMapInput
 	// The deployment's name.
 	Name pulumi.StringInput
-	// Whether the deployment is paused. Omit to leave pausing to other tools.
-	Paused pulumi.BoolPtrInput
-	// Repositories, files, and memory stores mounted into each session, up to 500.
+	// Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
 	Resources DeploymentResourceArrayInput
-	// When to run. Omit to run only on demand.
+	// When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
 	Schedule SchedulePtrInput
-	// Vaults whose credentials sessions can use, up to 50.
+	// Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
 	VaultIds pulumi.StringArrayInput
 }
 
@@ -250,7 +240,7 @@ func (o DeploymentOutput) Agent() AgentReferenceOutput {
 	return o.ApplyT(func(v *Deployment) AgentReferenceOutput { return v.Agent }).(AgentReferenceOutput)
 }
 
-// A spending limit for the deployment.
+// A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
 func (o DeploymentOutput) Budget() BudgetPtrOutput {
 	return o.ApplyT(func(v *Deployment) BudgetPtrOutput { return v.Budget }).(BudgetPtrOutput)
 }
@@ -260,7 +250,7 @@ func (o DeploymentOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *Deployment) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// A description of the deployment.
+// A description of the deployment. Removing a configured description clears it.
 func (o DeploymentOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Deployment) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
 }
@@ -270,12 +260,12 @@ func (o DeploymentOutput) EnvironmentId() pulumi.StringOutput {
 	return o.ApplyT(func(v *Deployment) pulumi.StringOutput { return v.EnvironmentId }).(pulumi.StringOutput)
 }
 
-// The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+// The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
 func (o DeploymentOutput) InitialEvents() pulumi.MapArrayOutput {
 	return o.ApplyT(func(v *Deployment) pulumi.MapArrayOutput { return v.InitialEvents }).(pulumi.MapArrayOutput)
 }
 
-// Arbitrary key-value pairs.
+// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
 func (o DeploymentOutput) Metadata() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *Deployment) pulumi.StringMapOutput { return v.Metadata }).(pulumi.StringMapOutput)
 }
@@ -285,22 +275,17 @@ func (o DeploymentOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *Deployment) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-// Whether the deployment is paused. Omit to leave pausing to other tools.
-func (o DeploymentOutput) Paused() pulumi.BoolPtrOutput {
-	return o.ApplyT(func(v *Deployment) pulumi.BoolPtrOutput { return v.Paused }).(pulumi.BoolPtrOutput)
-}
-
-// Repositories, files, and memory stores mounted into each session, up to 500.
+// Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
 func (o DeploymentOutput) Resources() DeploymentResourceArrayOutput {
 	return o.ApplyT(func(v *Deployment) DeploymentResourceArrayOutput { return v.Resources }).(DeploymentResourceArrayOutput)
 }
 
-// When to run. Omit to run only on demand.
+// When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
 func (o DeploymentOutput) Schedule() SchedulePtrOutput {
 	return o.ApplyT(func(v *Deployment) SchedulePtrOutput { return v.Schedule }).(SchedulePtrOutput)
 }
 
-// Whether the deployment is `active` or `paused`. The platform also pauses a deployment when it cannot run, for example because its agent was archived.
+// Whether the deployment is active or paused, as observed on the platform. The platform may pause deployments when dependencies cannot run. This resource does not change pause status.
 func (o DeploymentOutput) Status() pulumi.StringOutput {
 	return o.ApplyT(func(v *Deployment) pulumi.StringOutput { return v.Status }).(pulumi.StringOutput)
 }
@@ -310,7 +295,7 @@ func (o DeploymentOutput) UpdatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *Deployment) pulumi.StringOutput { return v.UpdatedAt }).(pulumi.StringOutput)
 }
 
-// Vaults whose credentials sessions can use, up to 50.
+// Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
 func (o DeploymentOutput) VaultIds() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Deployment) pulumi.StringArrayOutput { return v.VaultIds }).(pulumi.StringArrayOutput)
 }

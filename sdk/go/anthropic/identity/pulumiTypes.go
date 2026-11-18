@@ -13,6 +13,7 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
+// Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
 type FederationMatch struct {
 	// The required `aud` claim.
 	Audience *string `pulumi:"audience"`
@@ -20,7 +21,7 @@ type FederationMatch struct {
 	Claims map[string]string `pulumi:"claims"`
 	// A CEL expression over the token's claims that must evaluate to true, up to 4,096 characters.
 	Condition *string `pulumi:"condition"`
-	// A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+	// Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
 	SubjectPrefix *string `pulumi:"subjectPrefix"`
 }
 
@@ -35,6 +36,7 @@ type FederationMatchInput interface {
 	ToFederationMatchOutputWithContext(context.Context) FederationMatchOutput
 }
 
+// Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
 type FederationMatchArgs struct {
 	// The required `aud` claim.
 	Audience pulumi.StringPtrInput `pulumi:"audience"`
@@ -42,7 +44,7 @@ type FederationMatchArgs struct {
 	Claims pulumi.StringMapInput `pulumi:"claims"`
 	// A CEL expression over the token's claims that must evaluate to true, up to 4,096 characters.
 	Condition pulumi.StringPtrInput `pulumi:"condition"`
-	// A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+	// Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
 	SubjectPrefix pulumi.StringPtrInput `pulumi:"subjectPrefix"`
 }
 
@@ -58,6 +60,7 @@ func (i FederationMatchArgs) ToFederationMatchOutputWithContext(ctx context.Cont
 	return pulumi.ToOutputWithContext(ctx, i).(FederationMatchOutput)
 }
 
+// Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
 type FederationMatchOutput struct{ *pulumi.OutputState }
 
 func (FederationMatchOutput) ElementType() reflect.Type {
@@ -87,11 +90,12 @@ func (o FederationMatchOutput) Condition() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v FederationMatch) *string { return v.Condition }).(pulumi.StringPtrOutput)
 }
 
-// A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+// Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
 func (o FederationMatchOutput) SubjectPrefix() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v FederationMatch) *string { return v.SubjectPrefix }).(pulumi.StringPtrOutput)
 }
 
+// The service account that tokens issued by a federation rule act as.
 type FederationTarget struct {
 	// The service account's ID.
 	ServiceAccountId string `pulumi:"serviceAccountId"`
@@ -108,6 +112,7 @@ type FederationTargetInput interface {
 	ToFederationTargetOutputWithContext(context.Context) FederationTargetOutput
 }
 
+// The service account that tokens issued by a federation rule act as.
 type FederationTargetArgs struct {
 	// The service account's ID.
 	ServiceAccountId pulumi.StringInput `pulumi:"serviceAccountId"`
@@ -125,6 +130,7 @@ func (i FederationTargetArgs) ToFederationTargetOutputWithContext(ctx context.Co
 	return pulumi.ToOutputWithContext(ctx, i).(FederationTargetOutput)
 }
 
+// The service account that tokens issued by a federation rule act as.
 type FederationTargetOutput struct{ *pulumi.OutputState }
 
 func (FederationTargetOutput) ElementType() reflect.Type {
@@ -144,16 +150,17 @@ func (o FederationTargetOutput) ServiceAccountId() pulumi.StringOutput {
 	return o.ApplyT(func(v FederationTarget) string { return v.ServiceAccountId }).(pulumi.StringOutput)
 }
 
+// The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
 type Jwks struct {
 	// A PEM-encoded CA certificate to trust when fetching the keys, up to 8,192 characters. For `discovery` and `explicit_url`.
 	CaCertPem *string `pulumi:"caCertPem"`
-	// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+	// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
 	DiscoveryBase *string `pulumi:"discoveryBase"`
-	// The signing keys, as JSON Web Keys. Required for `inline`.
+	// A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
 	Keys []map[string]interface{} `pulumi:"keys"`
 	// The source of the signing keys.
 	Type JwksType `pulumi:"type"`
-	// The JWKS URL. Required for `explicit_url`.
+	// The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
 	Url *string `pulumi:"url"`
 }
 
@@ -168,16 +175,17 @@ type JwksInput interface {
 	ToJwksOutputWithContext(context.Context) JwksOutput
 }
 
+// The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
 type JwksArgs struct {
 	// A PEM-encoded CA certificate to trust when fetching the keys, up to 8,192 characters. For `discovery` and `explicit_url`.
 	CaCertPem pulumi.StringPtrInput `pulumi:"caCertPem"`
-	// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+	// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
 	DiscoveryBase pulumi.StringPtrInput `pulumi:"discoveryBase"`
-	// The signing keys, as JSON Web Keys. Required for `inline`.
+	// A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
 	Keys pulumi.MapArrayInput `pulumi:"keys"`
 	// The source of the signing keys.
 	Type JwksTypeInput `pulumi:"type"`
-	// The JWKS URL. Required for `explicit_url`.
+	// The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
 	Url pulumi.StringPtrInput `pulumi:"url"`
 }
 
@@ -234,6 +242,7 @@ func (i *jwksPtrType) ToJwksPtrOutputWithContext(ctx context.Context) JwksPtrOut
 	return pulumi.ToOutputWithContext(ctx, i).(JwksPtrOutput)
 }
 
+// The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
 type JwksOutput struct{ *pulumi.OutputState }
 
 func (JwksOutput) ElementType() reflect.Type {
@@ -263,12 +272,12 @@ func (o JwksOutput) CaCertPem() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Jwks) *string { return v.CaCertPem }).(pulumi.StringPtrOutput)
 }
 
-// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
 func (o JwksOutput) DiscoveryBase() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Jwks) *string { return v.DiscoveryBase }).(pulumi.StringPtrOutput)
 }
 
-// The signing keys, as JSON Web Keys. Required for `inline`.
+// A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
 func (o JwksOutput) Keys() pulumi.MapArrayOutput {
 	return o.ApplyT(func(v Jwks) []map[string]interface{} { return v.Keys }).(pulumi.MapArrayOutput)
 }
@@ -278,7 +287,7 @@ func (o JwksOutput) Type() JwksTypeOutput {
 	return o.ApplyT(func(v Jwks) JwksType { return v.Type }).(JwksTypeOutput)
 }
 
-// The JWKS URL. Required for `explicit_url`.
+// The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
 func (o JwksOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Jwks) *string { return v.Url }).(pulumi.StringPtrOutput)
 }
@@ -317,7 +326,7 @@ func (o JwksPtrOutput) CaCertPem() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
 func (o JwksPtrOutput) DiscoveryBase() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Jwks) *string {
 		if v == nil {
@@ -327,7 +336,7 @@ func (o JwksPtrOutput) DiscoveryBase() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// The signing keys, as JSON Web Keys. Required for `inline`.
+// A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
 func (o JwksPtrOutput) Keys() pulumi.MapArrayOutput {
 	return o.ApplyT(func(v *Jwks) []map[string]interface{} {
 		if v == nil {
@@ -347,7 +356,7 @@ func (o JwksPtrOutput) Type() JwksTypePtrOutput {
 	}).(JwksTypePtrOutput)
 }
 
-// The JWKS URL. Required for `explicit_url`.
+// The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
 func (o JwksPtrOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Jwks) *string {
 		if v == nil {
@@ -357,6 +366,7 @@ func (o JwksPtrOutput) Url() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+// The health and schedule of automatic signing-key polling, when available.
 type PollStatus struct {
 	// How many polls in a row have failed.
 	ConsecutiveFailures int `pulumi:"consecutiveFailures"`
@@ -366,6 +376,7 @@ type PollStatus struct {
 	NextPollAt *string `pulumi:"nextPollAt"`
 }
 
+// The health and schedule of automatic signing-key polling, when available.
 type PollStatusOutput struct{ *pulumi.OutputState }
 
 func (PollStatusOutput) ElementType() reflect.Type {

@@ -58,11 +58,11 @@ export class Workspace extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * Where the workspace's data is stored and where inference may run.
+     * Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
      */
     declare public readonly dataResidency: pulumi.Output<outputs.organization.DataResidency | undefined>;
     /**
-     * The color the Console shows the workspace in, as `#RRGGBB`.
+     * The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
      */
     declare public readonly displayColor: pulumi.Output<string | undefined>;
     /**
@@ -70,13 +70,17 @@ export class Workspace extends pulumi.CustomResource {
      */
     declare public readonly externalKeyId: pulumi.Output<string | undefined>;
     /**
-     * The workspace's name, 1 to 40 characters.
+     * The workspace's nonempty name.
      */
     declare public readonly name: pulumi.Output<string>;
     /**
-     * Tags for the workspace. Keys may not start with `anthropic`.
+     * Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
      */
     declare public readonly tags: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+     */
+    declare public readonly userProfileId: pulumi.Output<string | undefined>;
 
     /**
      * Create a Workspace resource with the given unique name, arguments, and options.
@@ -97,6 +101,7 @@ export class Workspace extends pulumi.CustomResource {
             resourceInputs["externalKeyId"] = args?.externalKeyId;
             resourceInputs["name"] = args?.name;
             resourceInputs["tags"] = args?.tags;
+            resourceInputs["userProfileId"] = args?.userProfileId;
             resourceInputs["compartmentId"] = undefined /*out*/;
             resourceInputs["createdAt"] = undefined /*out*/;
         } else {
@@ -107,6 +112,7 @@ export class Workspace extends pulumi.CustomResource {
             resourceInputs["externalKeyId"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["tags"] = undefined /*out*/;
+            resourceInputs["userProfileId"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         const replaceOnChanges = { replaceOnChanges: ["dataResidency.workspaceGeo"] };
@@ -120,11 +126,11 @@ export class Workspace extends pulumi.CustomResource {
  */
 export interface WorkspaceArgs {
     /**
-     * Where the workspace's data is stored and where inference may run.
+     * Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
      */
     dataResidency?: pulumi.Input<inputs.organization.DataResidencyArgs | undefined>;
     /**
-     * The color the Console shows the workspace in, as `#RRGGBB`.
+     * The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
      */
     displayColor?: pulumi.Input<string | undefined>;
     /**
@@ -132,11 +138,15 @@ export interface WorkspaceArgs {
      */
     externalKeyId?: pulumi.Input<string | undefined>;
     /**
-     * The workspace's name, 1 to 40 characters.
+     * The workspace's nonempty name.
      */
     name: pulumi.Input<string>;
     /**
-     * Tags for the workspace. Keys may not start with `anthropic`.
+     * Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
      */
     tags?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+    /**
+     * The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+     */
+    userProfileId?: pulumi.Input<string | undefined>;
 }

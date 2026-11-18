@@ -20,14 +20,14 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
     public static final DeploymentResourceArgs Empty = new DeploymentResourceArgs();
 
     /**
-     * Whether the agent can write to the memory store. For `memory_store`.
+     * Whether the agent can write to the memory store. For memory_store; defaults to read_write.
      * 
      */
     @Import(name="access")
     private @Nullable Output<MemoryAccess> access;
 
     /**
-     * @return Whether the agent can write to the memory store. For `memory_store`.
+     * @return Whether the agent can write to the memory store. For memory_store; defaults to read_write.
      * 
      */
     public Optional<Output<MemoryAccess>> access() {
@@ -35,14 +35,14 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
     }
 
     /**
-     * A token that can read the repository. For `github_repository`.
+     * A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
      * 
      */
     @Import(name="authorizationToken")
     private @Nullable Output<String> authorizationToken;
 
     /**
-     * @return A token that can read the repository. For `github_repository`.
+     * @return A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
      * 
      */
     public Optional<Output<String>> authorizationToken() {
@@ -50,14 +50,14 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
     }
 
     /**
-     * The branch or commit to check out. For `github_repository`; defaults to the default branch.
+     * The branch or commit to check out. For github_repository; defaults to the default branch.
      * 
      */
     @Import(name="checkout")
     private @Nullable Output<CheckoutArgs> checkout;
 
     /**
-     * @return The branch or commit to check out. For `github_repository`; defaults to the default branch.
+     * @return The branch or commit to check out. For github_repository; defaults to the default branch.
      * 
      */
     public Optional<Output<CheckoutArgs>> checkout() {
@@ -65,14 +65,14 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
     }
 
     /**
-     * The file&#39;s ID. Required for `file`.
+     * The file&#39;s ID. Required for file.
      * 
      */
     @Import(name="fileId")
     private @Nullable Output<String> fileId;
 
     /**
-     * @return The file&#39;s ID. Required for `file`.
+     * @return The file&#39;s ID. Required for file.
      * 
      */
     public Optional<Output<String>> fileId() {
@@ -80,14 +80,14 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
     }
 
     /**
-     * How the agent should use the memory store. For `memory_store`.
+     * How the agent should use the memory store. For memory_store; at most 4096 characters.
      * 
      */
     @Import(name="instructions")
     private @Nullable Output<String> instructions;
 
     /**
-     * @return How the agent should use the memory store. For `memory_store`.
+     * @return How the agent should use the memory store. For memory_store; at most 4096 characters.
      * 
      */
     public Optional<Output<String>> instructions() {
@@ -95,14 +95,14 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
     }
 
     /**
-     * The memory store&#39;s ID. Required for `memory_store`.
+     * The memory store&#39;s ID. Required for memory_store.
      * 
      */
     @Import(name="memoryStoreId")
     private @Nullable Output<String> memoryStoreId;
 
     /**
-     * @return The memory store&#39;s ID. Required for `memory_store`.
+     * @return The memory store&#39;s ID. Required for memory_store.
      * 
      */
     public Optional<Output<String>> memoryStoreId() {
@@ -110,14 +110,14 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
     }
 
     /**
-     * Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+     * Where the resource is mounted in the sandbox. For github_repository and file.
      * 
      */
     @Import(name="mountPath")
     private @Nullable Output<String> mountPath;
 
     /**
-     * @return Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+     * @return Where the resource is mounted in the sandbox. For github_repository and file.
      * 
      */
     public Optional<Output<String>> mountPath() {
@@ -140,14 +140,14 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
     }
 
     /**
-     * The repository&#39;s URL. Required for `github_repository`.
+     * The repository&#39;s URL. Required for github_repository.
      * 
      */
     @Import(name="url")
     private @Nullable Output<String> url;
 
     /**
-     * @return The repository&#39;s URL. Required for `github_repository`.
+     * @return The repository&#39;s URL. Required for github_repository.
      * 
      */
     public Optional<Output<String>> url() {
@@ -187,7 +187,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param access Whether the agent can write to the memory store. For `memory_store`.
+         * @param access Whether the agent can write to the memory store. For memory_store; defaults to read_write.
          * 
          * @return builder
          * 
@@ -198,7 +198,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param access Whether the agent can write to the memory store. For `memory_store`.
+         * @param access Whether the agent can write to the memory store. For memory_store; defaults to read_write.
          * 
          * @return builder
          * 
@@ -208,7 +208,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param authorizationToken A token that can read the repository. For `github_repository`.
+         * @param authorizationToken A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
          * 
          * @return builder
          * 
@@ -219,7 +219,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param authorizationToken A token that can read the repository. For `github_repository`.
+         * @param authorizationToken A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
          * 
          * @return builder
          * 
@@ -229,7 +229,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param checkout The branch or commit to check out. For `github_repository`; defaults to the default branch.
+         * @param checkout The branch or commit to check out. For github_repository; defaults to the default branch.
          * 
          * @return builder
          * 
@@ -240,7 +240,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param checkout The branch or commit to check out. For `github_repository`; defaults to the default branch.
+         * @param checkout The branch or commit to check out. For github_repository; defaults to the default branch.
          * 
          * @return builder
          * 
@@ -250,7 +250,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param fileId The file&#39;s ID. Required for `file`.
+         * @param fileId The file&#39;s ID. Required for file.
          * 
          * @return builder
          * 
@@ -261,7 +261,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param fileId The file&#39;s ID. Required for `file`.
+         * @param fileId The file&#39;s ID. Required for file.
          * 
          * @return builder
          * 
@@ -271,7 +271,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param instructions How the agent should use the memory store. For `memory_store`.
+         * @param instructions How the agent should use the memory store. For memory_store; at most 4096 characters.
          * 
          * @return builder
          * 
@@ -282,7 +282,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param instructions How the agent should use the memory store. For `memory_store`.
+         * @param instructions How the agent should use the memory store. For memory_store; at most 4096 characters.
          * 
          * @return builder
          * 
@@ -292,7 +292,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param memoryStoreId The memory store&#39;s ID. Required for `memory_store`.
+         * @param memoryStoreId The memory store&#39;s ID. Required for memory_store.
          * 
          * @return builder
          * 
@@ -303,7 +303,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param memoryStoreId The memory store&#39;s ID. Required for `memory_store`.
+         * @param memoryStoreId The memory store&#39;s ID. Required for memory_store.
          * 
          * @return builder
          * 
@@ -313,7 +313,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param mountPath Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+         * @param mountPath Where the resource is mounted in the sandbox. For github_repository and file.
          * 
          * @return builder
          * 
@@ -324,7 +324,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param mountPath Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+         * @param mountPath Where the resource is mounted in the sandbox. For github_repository and file.
          * 
          * @return builder
          * 
@@ -355,7 +355,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param url The repository&#39;s URL. Required for `github_repository`.
+         * @param url The repository&#39;s URL. Required for github_repository.
          * 
          * @return builder
          * 
@@ -366,7 +366,7 @@ public final class DeploymentResourceArgs extends com.pulumi.resources.ResourceA
         }
 
         /**
-         * @param url The repository&#39;s URL. Required for `github_repository`.
+         * @param url The repository&#39;s URL. Required for github_repository.
          * 
          * @return builder
          * 

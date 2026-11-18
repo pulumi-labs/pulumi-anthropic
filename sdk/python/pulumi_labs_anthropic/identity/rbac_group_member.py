@@ -24,8 +24,8 @@ class RbacGroupMemberArgs:
         """
         The set of arguments for constructing a RbacGroupMember resource.
 
-        :param pulumi.Input[_builtins.str] rbac_group_id: The group's ID.
-        :param pulumi.Input[_builtins.str] user_id: The user's ID.
+        :param pulumi.Input[_builtins.str] rbac_group_id: The group's ID. Changing this value replaces the membership.
+        :param pulumi.Input[_builtins.str] user_id: The user's ID. Changing this value replaces the membership.
         """
         pulumi.set(__self__, "rbac_group_id", rbac_group_id)
         pulumi.set(__self__, "user_id", user_id)
@@ -34,7 +34,7 @@ class RbacGroupMemberArgs:
     @pulumi.getter(name="rbacGroupId")
     def rbac_group_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The group's ID.
+        The group's ID. Changing this value replaces the membership.
         """
         return pulumi.get(self, "rbac_group_id")
 
@@ -46,7 +46,7 @@ class RbacGroupMemberArgs:
     @pulumi.getter(name="userId")
     def user_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The user's ID.
+        The user's ID. Changing this value replaces the membership.
         """
         return pulumi.get(self, "user_id")
 
@@ -67,12 +67,12 @@ class RbacGroupMember(pulumi.CustomResource):
         """
         Adds a user to an RBAC group. The resource's ID is `<rbac-group-id>/<user-id>`.
 
-        RBAC groups are available to Claude Enterprise organizations.
+        RBAC groups are available to Claude Enterprise organizations. Deleting this resource removes only the membership, not the user or group. Membership of SCIM-provisioned groups cannot be changed while SCIM provisioning is active in the tenant. Owner-access protections can prevent adding or removing members.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] rbac_group_id: The group's ID.
-        :param pulumi.Input[_builtins.str] user_id: The user's ID.
+        :param pulumi.Input[_builtins.str] rbac_group_id: The group's ID. Changing this value replaces the membership.
+        :param pulumi.Input[_builtins.str] user_id: The user's ID. Changing this value replaces the membership.
         """
         ...
     @overload
@@ -83,7 +83,7 @@ class RbacGroupMember(pulumi.CustomResource):
         """
         Adds a user to an RBAC group. The resource's ID is `<rbac-group-id>/<user-id>`.
 
-        RBAC groups are available to Claude Enterprise organizations.
+        RBAC groups are available to Claude Enterprise organizations. Deleting this resource removes only the membership, not the user or group. Membership of SCIM-provisioned groups cannot be changed while SCIM provisioning is active in the tenant. Owner-access protections can prevent adding or removing members.
 
         :param str resource_name: The name of the resource.
         :param RbacGroupMemberArgs args: The arguments to use to populate this resource's properties.
@@ -175,7 +175,7 @@ class RbacGroupMember(pulumi.CustomResource):
     @pulumi.getter(name="rbacGroupId")
     def rbac_group_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The group's ID.
+        The group's ID. Changing this value replaces the membership.
         """
         return pulumi.get(self, "rbac_group_id")
 
@@ -183,7 +183,7 @@ class RbacGroupMember(pulumi.CustomResource):
     @pulumi.getter(name="userId")
     def user_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The user's ID.
+        The user's ID. Changing this value replaces the membership.
         """
         return pulumi.get(self, "user_id")
 

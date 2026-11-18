@@ -7,7 +7,7 @@ import * as utilities from "../utilities";
 /**
  * A role-based access control group of users. Add users with `RbacGroupMember`. Roles are attached to groups in the organization's admin settings, and are reported by `roleIds`.
  *
- * RBAC groups are available to Claude Enterprise organizations. Groups provisioned by SCIM cannot be changed or deleted while SCIM provisioning is active.
+ * RBAC groups are available to Claude Enterprise organizations. Groups provisioned by SCIM cannot be changed or deleted while SCIM provisioning is active. Destroying this resource permanently deletes the group; owner-access protections may prevent deletion.
  */
 export class RbacGroup extends pulumi.CustomResource {
     /**
@@ -51,11 +51,11 @@ export class RbacGroup extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * The group's name, 1 to 255 characters. Names need not be unique.
+     * The group's name. Names need not be unique and can be changed without replacing the group.
      */
     declare public readonly name: pulumi.Output<string>;
     /**
-     * The IDs of the roles attached to the group.
+     * The IDs of the roles attached to the group. An empty list means no roles are attached. If this value is absent, role information is temporarily unavailable; refresh again rather than treating it as an empty list.
      */
     declare public /*out*/ readonly roleIds: pulumi.Output<string[] | undefined>;
     /**
@@ -103,7 +103,7 @@ export class RbacGroup extends pulumi.CustomResource {
  */
 export interface RbacGroupArgs {
     /**
-     * The group's name, 1 to 255 characters. Names need not be unique.
+     * The group's name. Names need not be unique and can be changed without replacing the group.
      */
     name: pulumi.Input<string>;
 }

@@ -1,39 +1,28 @@
 // Copyright 2026, Pulumi Corporation.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
 
 package agents
 
 import (
 	"context"
 	"fmt"
+	"time"
+	"unicode/utf8"
 
+	"github.com/anthropics/anthropic-sdk-go/v2"
+	"github.com/anthropics/anthropic-sdk-go/v2/option"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/apiutil"
+	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
-
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
+	"github.com/pulumi/pulumi/sdk/v3/go/property"
 )
 
-// Tunnel exposes MCP servers on a private network to Managed Agents.
-type Tunnel struct {
-	rest.Resource[TunnelArgs, TunnelState, *TunnelState]
-}
+type Tunnel struct{}
 
-// NewTunnel returns the Tunnel resource controller.
-func NewTunnel() *Tunnel {
-	return &Tunnel{rest.Resource[TunnelArgs, TunnelState, *TunnelState]{
-		Collection: tunnelCollection,
-		EndOfLife:  rest.Archive,
-	}}
+// NewTunnel returns the complete Tunnel resource.
+func NewTunnel() infer.InferredResource {
+	return tunnelResource{infer.Resource(&Tunnel{})}
 }
 
 func (t *Tunnel) Annotate(a infer.Annotator) {
@@ -61,69 +50,182 @@ type TunnelState struct {
 	CreatedAt   string `pulumi:"createdAt"`
 }
 
-func (s *TunnelState) Inputs() *TunnelArgs { return &s.TunnelArgs }
-
 func (s *TunnelState) Annotate(a infer.Annotator) {
 	a.Describe(&s.Domain, "The tunnel's globally unique domain, which MCP server URLs use.")
 	a.Describe(&s.TunnelToken, "The token the tunnel client authenticates with.")
 	a.Describe(&s.CreatedAt, "When the tunnel was created, in RFC 3339 format.")
 }
 
-var (
-	_ infer.CustomUpdate[TunnelArgs, TunnelState] = (*Tunnel)(nil)
-	_ infer.CustomRead[TunnelArgs, TunnelState]   = (*Tunnel)(nil)
-	_ infer.CustomDelete[TunnelState]             = (*Tunnel)(nil)
-)
-
-// Create creates the tunnel and reveals its token.
-func (t *Tunnel) Create(ctx context.Context, req infer.CreateRequest[TunnelArgs]) (infer.CreateResponse[TunnelState], error) {
-	resp, err := t.Resource.Create(ctx, req)
-	if err != nil || req.DryRun {
-		return resp, err
+func (*Tunnel) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckResponse[TunnelArgs], error) {
+	args, failures, err := infer.DefaultCheck[TunnelArgs](ctx, req.NewInputs)
+	v := req.NewInputs.Get("displayName")
+	if !v.IsComputed() && v.IsString() {
+		if n := utf8.RuneCountInString(v.AsString()); n < 1 || n > 255 {
+			failures = append(failures, p.CheckFailure{Property: "displayName", Reason: "must contain 1–255 characters"})
+		}
 	}
-	resp.Output.TunnelToken, err = t.revealToken(ctx, resp.ID)
-	return resp, rest.InitFailed(err)
+	return infer.CheckResponse[TunnelArgs]{Inputs: args, Failures: failures}, err
 }
 
-// Update reveals the token of a tunnel whose creation failed before it could, which is
-// the only update a tunnel has: every input replaces it.
-func (t *Tunnel) Update(
-	ctx context.Context, req infer.UpdateRequest[TunnelArgs, TunnelState],
-) (infer.UpdateResponse[TunnelState], error) {
-	out := req.State
-	out.TunnelArgs = req.Inputs
-	if req.DryRun || out.TunnelToken != "" {
-		return infer.UpdateResponse[TunnelState]{Output: out}, nil
+func (*Tunnel) Create(ctx context.Context, req infer.CreateRequest[TunnelArgs]) (infer.CreateResponse[TunnelState], error) {
+	if req.DryRun {
+		return infer.CreateResponse[TunnelState]{Output: TunnelState{TunnelArgs: req.Inputs}}, nil
 	}
-	token, err := t.revealToken(ctx, req.ID)
-	out.TunnelToken = token
-	return infer.UpdateResponse[TunnelState]{Output: out}, err
+	c, err := config.ClientFor(ctx, config.Workspace)
+	if err != nil {
+		return infer.CreateResponse[TunnelState]{}, err
+	}
+	params := anthropic.BetaTunnelNewParams{}
+	if req.Inputs.DisplayName != nil {
+		params.DisplayName = anthropic.String(*req.Inputs.DisplayName)
+	}
+	// Allocation is documented as non-idempotent. An ambiguous failure needs manual reconciliation.
+	r, err := c.Beta.Tunnels.New(ctx, params, option.WithMaxRetries(0))
+	if err != nil {
+		return infer.CreateResponse[TunnelState]{}, err
+	}
+	s, err := tunnelState(r)
+	if err != nil {
+		return infer.CreateResponse[TunnelState]{}, err
+	}
+	s.TunnelToken, err = tunnelReveal(ctx, c, r.ID)
+	if err != nil {
+		return infer.CreateResponse[TunnelState]{}, err
+	}
+	return infer.CreateResponse[TunnelState]{ID: r.ID, Output: s}, nil
 }
 
-func (t *Tunnel) revealToken(ctx context.Context, id string) (string, error) {
-	var raw []byte
-	if err := t.Collection.Action(ctx, id, "reveal_token", &raw); err != nil {
-		return "", fmt.Errorf("revealing the token of tunnel %s: %w", id, err)
+func (*Tunnel) Read(ctx context.Context, req infer.ReadRequest[TunnelArgs, TunnelState]) (infer.ReadResponse[TunnelArgs, TunnelState], error) {
+	c, err := config.ClientFor(ctx, config.Workspace)
+	if err != nil {
+		return infer.ReadResponse[TunnelArgs, TunnelState]{}, err
 	}
-	var token struct {
-		TunnelToken string `pulumi:"tunnelToken"`
+	r, err := c.Beta.Tunnels.Get(ctx, req.ID, anthropic.BetaTunnelGetParams{})
+	if apiutil.IsNotFound(err) {
+		return infer.ReadResponse[TunnelArgs, TunnelState]{}, nil
 	}
-	err := rest.Decode(raw, &token)
-	return token.TunnelToken, err
+	if err != nil {
+		return infer.ReadResponse[TunnelArgs, TunnelState]{}, err
+	}
+	s, err := tunnelState(r)
+	if err != nil {
+		return infer.ReadResponse[TunnelArgs, TunnelState]{}, err
+	}
+	if r.ID != req.ID {
+		return infer.ReadResponse[TunnelArgs, TunnelState]{}, fmt.Errorf("tunnel response identity mismatch")
+	}
+	if !r.ArchivedAt.IsZero() {
+		return infer.ReadResponse[TunnelArgs, TunnelState]{}, nil
+	}
+	s.TunnelToken, err = tunnelReveal(ctx, c, req.ID)
+	if err != nil {
+		return infer.ReadResponse[TunnelArgs, TunnelState]{}, err
+	}
+	return infer.ReadResponse[TunnelArgs, TunnelState]{ID: req.ID, Inputs: s.TunnelArgs, State: s}, nil
 }
 
-// Read refreshes the tunnel. The API returns the token only when asked to reveal it, so
-// the token already known is kept, and a tunnel without one, as on import, reveals it.
-func (t *Tunnel) Read(
-	ctx context.Context, req infer.ReadRequest[TunnelArgs, TunnelState],
-) (infer.ReadResponse[TunnelArgs, TunnelState], error) {
-	resp, err := t.Resource.Read(ctx, req)
-	if err != nil || resp.ID == "" {
-		return resp, err
+// There is no tunnel update operation; refresh obtains current observations and token.
+func (*Tunnel) Update(_ context.Context, req infer.UpdateRequest[TunnelArgs, TunnelState]) (infer.UpdateResponse[TunnelState], error) {
+	s := req.State
+	if req.DryRun {
+		s.TunnelArgs = req.Inputs
 	}
-	resp.State.TunnelToken = req.State.TunnelToken
-	if resp.State.TunnelToken == "" {
-		resp.State.TunnelToken, err = t.revealToken(ctx, resp.ID)
+	return infer.UpdateResponse[TunnelState]{Output: s}, nil
+}
+
+func (*Tunnel) Delete(ctx context.Context, req infer.DeleteRequest[TunnelState]) (infer.DeleteResponse, error) {
+	c, err := config.ClientFor(ctx, config.Workspace)
+	if err != nil {
+		return infer.DeleteResponse{}, err
+	}
+	_, err = c.Beta.Tunnels.Archive(ctx, req.ID, anthropic.BetaTunnelArchiveParams{})
+	if apiutil.IsNotFound(err) {
+		err = nil
+	}
+	return infer.DeleteResponse{}, err
+}
+
+func (*Tunnel) WireDependencies(f infer.FieldSelector, a *TunnelArgs, s *TunnelState) {
+	f.OutputField(&s.TunnelToken).AlwaysSecret()
+}
+
+// Narrow infer v1.5 accommodations: Check loses output dependencies and Read
+// does not apply secret wiring.
+type tunnelResource struct{ infer.InferredResource }
+
+func (r tunnelResource) Check(ctx context.Context, req p.CheckRequest) (p.CheckResponse, error) {
+	resp, err := infer.Resource(&Tunnel{}).Check(ctx, req)
+	if err == nil && len(resp.Failures) == 0 {
+		resp.Inputs = req.Inputs
 	}
 	return resp, err
+}
+
+func (r tunnelResource) Diff(ctx context.Context, req p.DiffRequest) (p.DiffResponse, error) {
+	return infer.Resource(&Tunnel{}).Diff(ctx, req)
+}
+
+func (r tunnelResource) Create(ctx context.Context, req p.CreateRequest) (p.CreateResponse, error) {
+	resp, err := infer.Resource(&Tunnel{}).Create(ctx, req)
+	if err == nil {
+		resp.Properties = tunnelOutput(resp.Properties)
+	}
+	return resp, err
+}
+
+func (r tunnelResource) Read(ctx context.Context, req p.ReadRequest) (p.ReadResponse, error) {
+	resp, err := infer.Resource(&Tunnel{}).Read(ctx, req)
+	if err == nil && resp.ID != "" {
+		resp.Properties = tunnelOutput(resp.Properties)
+	}
+	return resp, err
+}
+
+func (r tunnelResource) Update(ctx context.Context, req p.UpdateRequest) (p.UpdateResponse, error) {
+	return infer.Resource(&Tunnel{}).Update(ctx, req)
+}
+
+func (r tunnelResource) Delete(ctx context.Context, req p.DeleteRequest) error {
+	return infer.Resource(&Tunnel{}).Delete(ctx, req)
+}
+
+func tunnelOutput(m property.Map) property.Map {
+	if !m.Get("tunnelToken").IsNull() {
+		m = m.Set("tunnelToken", m.Get("tunnelToken").WithSecret(true))
+	}
+	return m
+}
+
+func tunnelState(r *anthropic.BetaTunnel) (TunnelState, error) {
+	s := TunnelState{}
+	if r == nil {
+		return s, fmt.Errorf("missing tunnel response")
+	}
+	if r.JSON.DisplayName.Valid() && apiutil.JSONString(r.JSON.DisplayName.Raw()) {
+		name := r.DisplayName
+		s.DisplayName = &name
+	}
+	if r.JSON.Domain.Valid() && apiutil.JSONString(r.JSON.Domain.Raw()) {
+		s.Domain = r.Domain
+	}
+	if r.JSON.CreatedAt.Valid() {
+		s.CreatedAt = r.CreatedAt.Format(time.RFC3339Nano)
+	}
+	if !r.JSON.ID.Valid() || !apiutil.JSONString(r.JSON.ID.Raw()) || r.ID == "" || s.Domain == "" || s.CreatedAt == "" ||
+		(!apiutil.JSONString(r.JSON.DisplayName.Raw()) && r.JSON.DisplayName.Raw() != "null") ||
+		(!r.JSON.ArchivedAt.Valid() && r.JSON.ArchivedAt.Raw() != "null") {
+		return s, fmt.Errorf("incomplete or invalid tunnel response")
+	}
+	return s, nil
+}
+
+func tunnelReveal(ctx context.Context, c *anthropic.Client, id string) (string, error) {
+	r, err := c.Beta.Tunnels.RevealToken(ctx, id, anthropic.BetaTunnelRevealTokenParams{})
+	if err != nil {
+		return "", fmt.Errorf("revealing tunnel token: %w", err)
+	}
+	if r == nil || !r.JSON.TunnelToken.Valid() || !apiutil.JSONString(r.JSON.TunnelToken.Raw()) || r.TunnelToken == "" {
+		return "", fmt.Errorf("missing tunnel token")
+	}
+	return r.TunnelToken, nil
 }

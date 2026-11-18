@@ -15,12 +15,12 @@ import javax.annotation.Nullable;
 @CustomType
 public final class EnvironmentConfig {
     /**
-     * @return The sandbox&#39;s network access. Applies to `cloud`.
+     * @return The sandbox&#39;s network access. Applies to `cloud`. Removing this configuration replaces the environment.
      * 
      */
     private @Nullable EnvironmentNetworking networking;
     /**
-     * @return Packages installed in the sandbox. Applies to `cloud`.
+     * @return Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
      * 
      */
     private @Nullable Packages packages;
@@ -32,14 +32,14 @@ public final class EnvironmentConfig {
 
     private EnvironmentConfig() {}
     /**
-     * @return The sandbox&#39;s network access. Applies to `cloud`.
+     * @return The sandbox&#39;s network access. Applies to `cloud`. Removing this configuration replaces the environment.
      * 
      */
     public Optional<EnvironmentNetworking> networking() {
         return Optional.ofNullable(this.networking);
     }
     /**
-     * @return Packages installed in the sandbox. Applies to `cloud`.
+     * @return Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
      * 
      */
     public Optional<Packages> packages() {

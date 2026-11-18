@@ -25,8 +25,8 @@ class UserArgs:
         """
         The set of arguments for constructing a User resource.
 
-        :param pulumi.Input['OrganizationRole'] role: The user's organization role. The `admin` role cannot be granted through the API.
-        :param pulumi.Input[_builtins.str] user_id: The ID of the existing user to manage.
+        :param pulumi.Input['OrganizationRole'] role: The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
+        :param pulumi.Input[_builtins.str] user_id: The existing user's ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
         """
         pulumi.set(__self__, "role", role)
         pulumi.set(__self__, "user_id", user_id)
@@ -35,7 +35,7 @@ class UserArgs:
     @pulumi.getter
     def role(self) -> pulumi.Input['OrganizationRole']:
         """
-        The user's organization role. The `admin` role cannot be granted through the API.
+        The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
         """
         return pulumi.get(self, "role")
 
@@ -47,7 +47,7 @@ class UserArgs:
     @pulumi.getter(name="userId")
     def user_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The ID of the existing user to manage.
+        The existing user's ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
         """
         return pulumi.get(self, "user_id")
 
@@ -66,16 +66,12 @@ class User(pulumi.CustomResource):
                  user_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
-        A user of the organization, and their organization role.
-
-        Users cannot be created through the API: people join by accepting an `anthropic.organization.Invite`. Creating this resource adopts an existing user by ID and sets their role.
-
-        Deleting this resource removes the user from the organization. To stop managing a user without removing them, set the `retainOnDelete` resource option.
+        Manages an existing user's organization membership and role. People join by accepting an `anthropic.organization.Invite`; creating this resource adopts an existing user by ID and assigns the configured role. Deleting this resource removes the user from the organization, including when replacing userId. Use retainOnDelete to stop managing a user without removing them. Import uses the user ID; privileged roles can be observed but cannot be assigned, so select an assignable role before managing an imported privileged user.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input['OrganizationRole'] role: The user's organization role. The `admin` role cannot be granted through the API.
-        :param pulumi.Input[_builtins.str] user_id: The ID of the existing user to manage.
+        :param pulumi.Input['OrganizationRole'] role: The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
+        :param pulumi.Input[_builtins.str] user_id: The existing user's ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
         """
         ...
     @overload
@@ -84,11 +80,7 @@ class User(pulumi.CustomResource):
                  args: UserArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        A user of the organization, and their organization role.
-
-        Users cannot be created through the API: people join by accepting an `anthropic.organization.Invite`. Creating this resource adopts an existing user by ID and sets their role.
-
-        Deleting this resource removes the user from the organization. To stop managing a user without removing them, set the `retainOnDelete` resource option.
+        Manages an existing user's organization membership and role. People join by accepting an `anthropic.organization.Invite`; creating this resource adopts an existing user by ID and assigns the configured role. Deleting this resource removes the user from the organization, including when replacing userId. Use retainOnDelete to stop managing a user without removing them. Import uses the user ID; privileged roles can be observed but cannot be assigned, so select an assignable role before managing an imported privileged user.
 
         :param str resource_name: The name of the resource.
         :param UserArgs args: The arguments to use to populate this resource's properties.
@@ -125,8 +117,6 @@ class User(pulumi.CustomResource):
             __props__.__dict__["added_at"] = None
             __props__.__dict__["email"] = None
             __props__.__dict__["name"] = None
-        replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["userId"])
-        opts = pulumi.ResourceOptions.merge(opts, replace_on_changes)
         super(User, __self__).__init__(
             'anthropic:organization:User',
             resource_name,
@@ -164,7 +154,7 @@ class User(pulumi.CustomResource):
 
     @_builtins.property
     @pulumi.getter(name="addedAt")
-    def added_at(self) -> pulumi.Output[_builtins.str]:
+    def added_at(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
         When the user joined the organization, in RFC 3339 format.
         """
@@ -172,7 +162,7 @@ class User(pulumi.CustomResource):
 
     @_builtins.property
     @pulumi.getter
-    def email(self) -> pulumi.Output[_builtins.str]:
+    def email(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
         The user's email address.
         """
@@ -180,7 +170,7 @@ class User(pulumi.CustomResource):
 
     @_builtins.property
     @pulumi.getter
-    def name(self) -> pulumi.Output[_builtins.str]:
+    def name(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
         The user's name.
         """
@@ -188,9 +178,9 @@ class User(pulumi.CustomResource):
 
     @_builtins.property
     @pulumi.getter
-    def role(self) -> pulumi.Output['OrganizationRole']:
+    def role(self) -> pulumi.Output[_builtins.str]:
         """
-        The user's organization role. The `admin` role cannot be granted through the API.
+        The observed organization role, including privileged administrator or owner roles that cannot be assigned.
         """
         return pulumi.get(self, "role")
 
@@ -198,7 +188,7 @@ class User(pulumi.CustomResource):
     @pulumi.getter(name="userId")
     def user_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The ID of the existing user to manage.
+        The existing user's ID.
         """
         return pulumi.get(self, "user_id")
 

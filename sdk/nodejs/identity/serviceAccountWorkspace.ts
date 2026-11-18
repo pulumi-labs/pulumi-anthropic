@@ -8,11 +8,11 @@ import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 /**
- * Grants a service account a role in a workspace. The resource's ID is `<workspace-id>/<service-account-id>`.
+ * Grants a service account a role in a workspace. The resource ID is `<workspace-id>/<service-account-id>` and supports import of explicit grants. Changing either ID replaces the grant. Manage each pair with only one resource: creating a grant for an existing pair replaces its role, and deleting either duplicate removes the shared explicit grant.
  *
- * Every service account is implicitly a `workspace_user` of the organization's default workspace; that membership cannot be removed, so do not manage it with this resource.
+ * Every service account has implicit `workspace_user` access to the organization's default workspace. Creating this resource there makes an explicit grant; deleting it restores implicit access rather than revoking all access. Implicit memberships cannot be imported. If an explicit grant becomes implicit, refresh reports the explicit grant as absent. Deleting this resource does not delete the service account or workspace.
  *
- * Managing service accounts requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+ * Requires an OAuth token with `org:admin` (`anthropic:authToken`).
  */
 export class ServiceAccountWorkspace extends pulumi.CustomResource {
     /**
@@ -52,15 +52,15 @@ export class ServiceAccountWorkspace extends pulumi.CustomResource {
     }
 
     /**
-     * The service account's ID.
+     * The service account's nonempty ID. Changing it replaces the grant.
      */
     declare public readonly serviceAccountId: pulumi.Output<string>;
     /**
-     * The workspace's ID.
+     * The workspace's nonempty ID. Changing it replaces the grant.
      */
     declare public readonly workspaceId: pulumi.Output<string>;
     /**
-     * The service account's role in the workspace.
+     * The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
      */
     declare public readonly workspaceRole: pulumi.Output<enums.identity.WorkspaceRole>;
 
@@ -104,15 +104,15 @@ export class ServiceAccountWorkspace extends pulumi.CustomResource {
  */
 export interface ServiceAccountWorkspaceArgs {
     /**
-     * The service account's ID.
+     * The service account's nonempty ID. Changing it replaces the grant.
      */
     serviceAccountId: pulumi.Input<string>;
     /**
-     * The workspace's ID.
+     * The workspace's nonempty ID. Changing it replaces the grant.
      */
     workspaceId: pulumi.Input<string>;
     /**
-     * The service account's role in the workspace.
+     * The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role.
      */
     workspaceRole: pulumi.Input<enums.identity.WorkspaceRole>;
 }

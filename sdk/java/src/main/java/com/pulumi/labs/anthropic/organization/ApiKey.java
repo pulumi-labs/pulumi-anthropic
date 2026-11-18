@@ -10,30 +10,30 @@ import com.pulumi.core.internal.Codegen;
 import com.pulumi.labs.anthropic.Utilities;
 import com.pulumi.labs.anthropic.organization.ApiKeyArgs;
 import com.pulumi.labs.anthropic.organization.enums.ApiKeyStatus;
+import com.pulumi.labs.anthropic.organization.outputs.ApiKeyActor;
+import com.pulumi.labs.anthropic.organization.outputs.ApiKeyScope;
 import java.lang.String;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * An API key&#39;s name and status.
+ * Manages an existing API key&#39;s name and status. Create the key in the Claude Console and supply its ID; secret key material is never returned. Omitted name or status leaves that value unchanged. Removing either from configuration stops managing it without clearing it.
  * 
- * API keys cannot be created through the API, only in the Claude Console, and their secret values are never returned. Creating this resource adopts an existing key by ID; fields left undeclared are left as they are.
- * 
- * Deleting this resource archives the key, which permanently revokes it. To stop managing a key without revoking it, set the `retainOnDelete` resource option.
+ * Deleting this resource archives and permanently revokes the key. Use retainOnDelete to stop managing it without revocation. Changing apiKeyId adopts the new key before revoking the old one. Archived and expired keys remain readable.
  * 
  */
 @ResourceType(type="anthropic:organization:ApiKey")
 public class ApiKey extends com.pulumi.resources.CustomResource {
     /**
-     * The ID of the existing API key to manage.
+     * The existing key&#39;s nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
      * 
      */
     @Export(name="apiKeyId", refs={String.class}, tree="[0]")
     private Output<String> apiKeyId;
 
     /**
-     * @return The ID of the existing API key to manage.
+     * @return The existing key&#39;s nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
      * 
      */
     public Output<String> apiKeyId() {
@@ -54,70 +54,126 @@ public class ApiKey extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * When the key expires, in RFC 3339 format, if it does.
+     * The actor that created the key, if recorded.
+     *
+     */
+    @Export(name="createdBy", refs={ApiKeyActor.class}, tree="[0]")
+    private Output</* @Nullable */ ApiKeyActor> createdBy;
+
+    /**
+     * @return The actor that created the key, if recorded.
+     *
+     */
+    public Output<Optional<ApiKeyActor>> createdBy() {
+        return Codegen.optional(this.createdBy);
+    }
+    /**
+     * When the key expires, in RFC 3339 format, or an empty string if it never expires.
      * 
      */
     @Export(name="expiresAt", refs={String.class}, tree="[0]")
     private Output<String> expiresAt;
 
     /**
-     * @return When the key expires, in RFC 3339 format, if it does.
+     * @return When the key expires, in RFC 3339 format, or an empty string if it never expires.
      * 
      */
     public Output<String> expiresAt() {
         return this.expiresAt;
     }
     /**
-     * The key&#39;s name, 1 to 500 characters.
+     * The key&#39;s name, 1 to 500 characters. Omission leaves the current name unchanged.
      * 
      */
     @Export(name="name", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> name;
 
     /**
-     * @return The key&#39;s name, 1 to 500 characters.
+     * @return The key&#39;s name, 1 to 500 characters. Omission leaves the current name unchanged.
      * 
      */
     public Output<Optional<String>> name() {
         return Codegen.optional(this.name);
     }
     /**
-     * A redacted hint of the key&#39;s value, for recognizing it.
+     * The current status, including active, inactive, archived or expired. An expired key&#39;s status is not recovered as a writable input on import.
+     *
+     */
+    @Export(name="observedStatus", refs={String.class}, tree="[0]")
+    private Output<String> observedStatus;
+
+    /**
+     * @return The current status, including active, inactive, archived or expired. An expired key&#39;s status is not recovered as a writable input on import.
+     *
+     */
+    public Output<String> observedStatus() {
+        return this.observedStatus;
+    }
+    /**
+     * A redacted hint for recognizing the key; empty if unavailable.
      * 
      */
     @Export(name="partialKeyHint", refs={String.class}, tree="[0]")
     private Output<String> partialKeyHint;
 
     /**
-     * @return A redacted hint of the key&#39;s value, for recognizing it.
+     * @return A redacted hint for recognizing the key; empty if unavailable.
      * 
      */
     public Output<String> partialKeyHint() {
         return this.partialKeyHint;
     }
     /**
-     * The key&#39;s status. An archived key cannot be reactivated.
+     * The user or service account the key acts as, if bound to a principal.
+     *
+     */
+    @Export(name="principal", refs={ApiKeyActor.class}, tree="[0]")
+    private Output</* @Nullable */ ApiKeyActor> principal;
+
+    /**
+     * @return The user or service account the key acts as, if bound to a principal.
+     *
+     */
+    public Output<Optional<ApiKeyActor>> principal() {
+        return Codegen.optional(this.principal);
+    }
+    /**
+     * Where the key belongs: an organization or a workspace.
+     *
+     */
+    @Export(name="scope", refs={ApiKeyScope.class}, tree="[0]")
+    private Output</* @Nullable */ ApiKeyScope> scope;
+
+    /**
+     * @return Where the key belongs: an organization or a workspace.
+     *
+     */
+    public Output<Optional<ApiKeyScope>> scope() {
+        return Codegen.optional(this.scope);
+    }
+    /**
+     * The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
      * 
      */
     @Export(name="status", refs={ApiKeyStatus.class}, tree="[0]")
     private Output</* @Nullable */ ApiKeyStatus> status;
 
     /**
-     * @return The key&#39;s status. An archived key cannot be reactivated.
+     * @return The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
      * 
      */
     public Output<Optional<ApiKeyStatus>> status() {
         return Codegen.optional(this.status);
     }
     /**
-     * The ID of the workspace the key belongs to.
+     * The key&#39;s actual workspace ID, or an empty string for organization scope. See scope for the ownership boundary.
      * 
      */
     @Export(name="workspaceId", refs={String.class}, tree="[0]")
     private Output<String> workspaceId;
 
     /**
-     * @return The ID of the workspace the key belongs to.
+     * @return The key&#39;s actual workspace ID, or an empty string for organization scope. See scope for the ownership boundary.
      * 
      */
     public Output<String> workspaceId() {

@@ -17,6 +17,8 @@ from . import outputs
 from ._enums import *
 
 __all__ = [
+    'AgentAdvisor',
+    'AgentDelegation',
     'AgentReference',
     'Budget',
     'Checkout',
@@ -25,6 +27,9 @@ __all__ = [
     'DeploymentResource',
     'EnvironmentConfig',
     'EnvironmentNetworking',
+    'ExecutionIdentity',
+    'FetchToolFilter',
+    'FetchURLSources',
     'InjectionLocation',
     'MCPServer',
     'Model',
@@ -34,6 +39,7 @@ __all__ = [
     'Packages',
     'RosterEntry',
     'Schedule',
+    'SearchLocation',
     'SkillRef',
     'TokenEndpointAuth',
     'Tool',
@@ -43,13 +49,114 @@ __all__ = [
 ]
 
 @pulumi.output_type
+class AgentAdvisor(dict):
+    """
+    Controls whether the primary thread can consult an advisor model.
+    """
+    def __init__(__self__, *,
+                 type: _builtins.str,
+                 model: Optional[_builtins.str] = None):
+        """
+        Controls whether the primary thread can consult an advisor model.
+
+        :param _builtins.str type: enabled or disabled.
+        :param _builtins.str model: Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+        """
+        pulumi.set(__self__, "type", type)
+        if model is not None:
+            pulumi.set(__self__, "model", model)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> _builtins.str:
+        """
+        enabled or disabled.
+        """
+        return pulumi.get(self, "type")
+
+    @_builtins.property
+    @pulumi.getter
+    def model(self) -> Optional[_builtins.str]:
+        """
+        Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+        """
+        return pulumi.get(self, "model")
+
+
+@pulumi.output_type
+class AgentDelegation(dict):
+    """
+    Controls subagent or workflow delegation independently.
+    """
+    @staticmethod
+    def __key_warning(key: str):
+        suggest = None
+        if key == "inlineAgents":
+            suggest = "inline_agents"
+        elif key == "predefinedAgents":
+            suggest = "predefined_agents"
+
+        if suggest:
+            pulumi.log.warn(f"Key '{key}' not found in AgentDelegation. Access the value via the '{suggest}' property getter instead.")
+
+    def __getitem__(self, key: str) -> Any:
+        AgentDelegation.__key_warning(key)
+        return super().__getitem__(key)
+
+    def get(self, key: str, default = None) -> Any:
+        AgentDelegation.__key_warning(key)
+        return super().get(key, default)
+
+    def __init__(__self__, *,
+                 type: _builtins.str,
+                 inline_agents: Optional[_builtins.str] = None,
+                 predefined_agents: Optional[Sequence['outputs.RosterEntry']] = None):
+        """
+        Controls subagent or workflow delegation independently.
+
+        :param _builtins.str type: enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+        :param _builtins.str inline_agents: enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+        :param Sequence['RosterEntry'] predefined_agents: At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+        """
+        pulumi.set(__self__, "type", type)
+        if inline_agents is not None:
+            pulumi.set(__self__, "inline_agents", inline_agents)
+        if predefined_agents is not None:
+            pulumi.set(__self__, "predefined_agents", predefined_agents)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> _builtins.str:
+        """
+        enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+        """
+        return pulumi.get(self, "type")
+
+    @_builtins.property
+    @pulumi.getter(name="inlineAgents")
+    def inline_agents(self) -> Optional[_builtins.str]:
+        """
+        enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+        """
+        return pulumi.get(self, "inline_agents")
+
+    @_builtins.property
+    @pulumi.getter(name="predefinedAgents")
+    def predefined_agents(self) -> Optional[Sequence['outputs.RosterEntry']]:
+        """
+        At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+        """
+        return pulumi.get(self, "predefined_agents")
+
+
+@pulumi.output_type
 class AgentReference(dict):
     def __init__(__self__, *,
                  id: _builtins.str,
                  version: Optional[_builtins.int] = None):
         """
         :param _builtins.str id: The agent's ID.
-        :param _builtins.int version: The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+        :param _builtins.int version: The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
         """
         pulumi.set(__self__, "id", id)
         if version is not None:
@@ -67,7 +174,7 @@ class AgentReference(dict):
     @pulumi.getter
     def version(self) -> Optional[_builtins.int]:
         """
-        The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+        The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
         """
         return pulumi.get(self, "version")
 
@@ -94,7 +201,7 @@ class Budget(dict):
     def __init__(__self__, *,
                  max_list_cost: 'outputs.MonetaryAmount'):
         """
-        :param 'MonetaryAmount' max_list_cost: The most the deployment may spend, at list price.
+        :param 'MonetaryAmount' max_list_cost: The most each future session may spend at public list prices, rather than negotiated prices.
         """
         pulumi.set(__self__, "max_list_cost", max_list_cost)
 
@@ -102,7 +209,7 @@ class Budget(dict):
     @pulumi.getter(name="maxListCost")
     def max_list_cost(self) -> 'outputs.MonetaryAmount':
         """
-        The most the deployment may spend, at list price.
+        The most each future session may spend at public list prices, rather than negotiated prices.
         """
         return pulumi.get(self, "max_list_cost")
 
@@ -115,8 +222,8 @@ class Checkout(dict):
                  sha: Optional[_builtins.str] = None):
         """
         :param 'CheckoutType' type: Whether to check out a branch or a commit.
-        :param _builtins.str name: The branch. Required for `branch`.
-        :param _builtins.str sha: The commit SHA. Required for `commit`.
+        :param _builtins.str name: The branch. Required for branch.
+        :param _builtins.str sha: The commit SHA. Required for commit.
         """
         pulumi.set(__self__, "type", type)
         if name is not None:
@@ -136,7 +243,7 @@ class Checkout(dict):
     @pulumi.getter
     def name(self) -> Optional[_builtins.str]:
         """
-        The branch. Required for `branch`.
+        The branch. Required for branch.
         """
         return pulumi.get(self, "name")
 
@@ -144,7 +251,7 @@ class Checkout(dict):
     @pulumi.getter
     def sha(self) -> Optional[_builtins.str]:
         """
-        The commit SHA. Required for `commit`.
+        The commit SHA. Required for commit.
         """
         return pulumi.get(self, "sha")
 
@@ -192,7 +299,7 @@ class CredentialAuth(dict):
         """
         :param 'CredentialType' type: The kind of credential. Changing it replaces the credential.
         :param _builtins.str access_token: The OAuth access token. Required for `mcp_oauth`.
-        :param _builtins.str expires_at: When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+        :param _builtins.str expires_at: When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
         :param 'InjectionLocation' injection_location: Where in outbound requests the secret is injected. For `environment_variable`; both locations are enabled when omitted.
         :param _builtins.str mcp_server_url: The MCP server the credential is for, unique within the vault. Required for `mcp_oauth` and `static_bearer`. Changing it replaces the credential.
         :param 'CredentialNetworking' networking: The hosts the secret may be sent to. Required for `environment_variable`.
@@ -241,7 +348,7 @@ class CredentialAuth(dict):
     @pulumi.getter(name="expiresAt")
     def expires_at(self) -> Optional[_builtins.str]:
         """
-        When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+        When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
         """
         return pulumi.get(self, "expires_at")
 
@@ -386,14 +493,14 @@ class DeploymentResource(dict):
                  url: Optional[_builtins.str] = None):
         """
         :param 'DeploymentResourceType' type: The kind of resource.
-        :param 'MemoryAccess' access: Whether the agent can write to the memory store. For `memory_store`.
-        :param _builtins.str authorization_token: A token that can read the repository. For `github_repository`.
-        :param 'Checkout' checkout: The branch or commit to check out. For `github_repository`; defaults to the default branch.
-        :param _builtins.str file_id: The file's ID. Required for `file`.
-        :param _builtins.str instructions: How the agent should use the memory store. For `memory_store`.
-        :param _builtins.str memory_store_id: The memory store's ID. Required for `memory_store`.
-        :param _builtins.str mount_path: Where the resource is mounted in the sandbox. For `github_repository` and `file`.
-        :param _builtins.str url: The repository's URL. Required for `github_repository`.
+        :param 'MemoryAccess' access: Whether the agent can write to the memory store. For memory_store; defaults to read_write.
+        :param _builtins.str authorization_token: A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
+        :param 'Checkout' checkout: The branch or commit to check out. For github_repository; defaults to the default branch.
+        :param _builtins.str file_id: The file's ID. Required for file.
+        :param _builtins.str instructions: How the agent should use the memory store. For memory_store; at most 4096 characters.
+        :param _builtins.str memory_store_id: The memory store's ID. Required for memory_store.
+        :param _builtins.str mount_path: Where the resource is mounted in the sandbox. For github_repository and file.
+        :param _builtins.str url: The repository's URL. Required for github_repository.
         """
         pulumi.set(__self__, "type", type)
         if access is not None:
@@ -425,7 +532,7 @@ class DeploymentResource(dict):
     @pulumi.getter
     def access(self) -> Optional['MemoryAccess']:
         """
-        Whether the agent can write to the memory store. For `memory_store`.
+        Whether the agent can write to the memory store. For memory_store; defaults to read_write.
         """
         return pulumi.get(self, "access")
 
@@ -433,7 +540,7 @@ class DeploymentResource(dict):
     @pulumi.getter(name="authorizationToken")
     def authorization_token(self) -> Optional[_builtins.str]:
         """
-        A token that can read the repository. For `github_repository`.
+        A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
         """
         return pulumi.get(self, "authorization_token")
 
@@ -441,7 +548,7 @@ class DeploymentResource(dict):
     @pulumi.getter
     def checkout(self) -> Optional['outputs.Checkout']:
         """
-        The branch or commit to check out. For `github_repository`; defaults to the default branch.
+        The branch or commit to check out. For github_repository; defaults to the default branch.
         """
         return pulumi.get(self, "checkout")
 
@@ -449,7 +556,7 @@ class DeploymentResource(dict):
     @pulumi.getter(name="fileId")
     def file_id(self) -> Optional[_builtins.str]:
         """
-        The file's ID. Required for `file`.
+        The file's ID. Required for file.
         """
         return pulumi.get(self, "file_id")
 
@@ -457,7 +564,7 @@ class DeploymentResource(dict):
     @pulumi.getter
     def instructions(self) -> Optional[_builtins.str]:
         """
-        How the agent should use the memory store. For `memory_store`.
+        How the agent should use the memory store. For memory_store; at most 4096 characters.
         """
         return pulumi.get(self, "instructions")
 
@@ -465,7 +572,7 @@ class DeploymentResource(dict):
     @pulumi.getter(name="memoryStoreId")
     def memory_store_id(self) -> Optional[_builtins.str]:
         """
-        The memory store's ID. Required for `memory_store`.
+        The memory store's ID. Required for memory_store.
         """
         return pulumi.get(self, "memory_store_id")
 
@@ -473,7 +580,7 @@ class DeploymentResource(dict):
     @pulumi.getter(name="mountPath")
     def mount_path(self) -> Optional[_builtins.str]:
         """
-        Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+        Where the resource is mounted in the sandbox. For github_repository and file.
         """
         return pulumi.get(self, "mount_path")
 
@@ -481,7 +588,7 @@ class DeploymentResource(dict):
     @pulumi.getter
     def url(self) -> Optional[_builtins.str]:
         """
-        The repository's URL. Required for `github_repository`.
+        The repository's URL. Required for github_repository.
         """
         return pulumi.get(self, "url")
 
@@ -494,8 +601,8 @@ class EnvironmentConfig(dict):
                  packages: Optional['outputs.Packages'] = None):
         """
         :param 'EnvironmentType' type: Whether sessions run in an Anthropic-managed cloud sandbox or on your own infrastructure. Changing it replaces the environment.
-        :param 'EnvironmentNetworking' networking: The sandbox's network access. Applies to `cloud`.
-        :param 'Packages' packages: Packages installed in the sandbox. Applies to `cloud`.
+        :param 'EnvironmentNetworking' networking: The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
+        :param 'Packages' packages: Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
         """
         pulumi.set(__self__, "type", type)
         if networking is not None:
@@ -515,7 +622,7 @@ class EnvironmentConfig(dict):
     @pulumi.getter
     def networking(self) -> Optional['outputs.EnvironmentNetworking']:
         """
-        The sandbox's network access. Applies to `cloud`.
+        The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
         """
         return pulumi.get(self, "networking")
 
@@ -523,7 +630,7 @@ class EnvironmentConfig(dict):
     @pulumi.getter
     def packages(self) -> Optional['outputs.Packages']:
         """
-        Packages installed in the sandbox. Applies to `cloud`.
+        Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
         """
         return pulumi.get(self, "packages")
 
@@ -558,9 +665,9 @@ class EnvironmentNetworking(dict):
                  allowed_hosts: Optional[Sequence[_builtins.str]] = None):
         """
         :param 'NetworkingType' type: Whether network access is unrestricted or limited.
-        :param _builtins.bool allow_mcp_servers: Whether the agent's MCP servers are reachable. Applies to `limited`.
-        :param _builtins.bool allow_package_managers: Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
-        :param Sequence[_builtins.str] allowed_hosts: Hosts the sandbox can reach. Applies to `limited`.
+        :param _builtins.bool allow_mcp_servers: Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
+        :param _builtins.bool allow_package_managers: Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
+        :param Sequence[_builtins.str] allowed_hosts: Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
         """
         pulumi.set(__self__, "type", type)
         if allow_mcp_servers is not None:
@@ -582,7 +689,7 @@ class EnvironmentNetworking(dict):
     @pulumi.getter(name="allowMcpServers")
     def allow_mcp_servers(self) -> Optional[_builtins.bool]:
         """
-        Whether the agent's MCP servers are reachable. Applies to `limited`.
+        Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
         """
         return pulumi.get(self, "allow_mcp_servers")
 
@@ -590,7 +697,7 @@ class EnvironmentNetworking(dict):
     @pulumi.getter(name="allowPackageManagers")
     def allow_package_managers(self) -> Optional[_builtins.bool]:
         """
-        Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+        Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
         """
         return pulumi.get(self, "allow_package_managers")
 
@@ -598,9 +705,165 @@ class EnvironmentNetworking(dict):
     @pulumi.getter(name="allowedHosts")
     def allowed_hosts(self) -> Optional[Sequence[_builtins.str]]:
         """
-        Hosts the sandbox can reach. Applies to `limited`.
+        Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
         """
         return pulumi.get(self, "allowed_hosts")
+
+
+@pulumi.output_type
+class ExecutionIdentity(dict):
+    """
+    Execution principal for agent runs. Configuring a principal does not grant its permissions.
+    """
+    @staticmethod
+    def __key_warning(key: str):
+        suggest = None
+        if key == "roleArn":
+            suggest = "role_arn"
+
+        if suggest:
+            pulumi.log.warn(f"Key '{key}' not found in ExecutionIdentity. Access the value via the '{suggest}' property getter instead.")
+
+    def __getitem__(self, key: str) -> Any:
+        ExecutionIdentity.__key_warning(key)
+        return super().__getitem__(key)
+
+    def get(self, key: str, default = None) -> Any:
+        ExecutionIdentity.__key_warning(key)
+        return super().get(key, default)
+
+    def __init__(__self__, *,
+                 type: _builtins.str,
+                 role_arn: Optional[_builtins.str] = None):
+        """
+        Execution principal for agent runs. Configuring a principal does not grant its permissions.
+
+        :param _builtins.str type: aws_role or service_account. service_account restores the default principal.
+        :param _builtins.str role_arn: AWS IAM role ARN. Required only for aws_role.
+        """
+        pulumi.set(__self__, "type", type)
+        if role_arn is not None:
+            pulumi.set(__self__, "role_arn", role_arn)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> _builtins.str:
+        """
+        aws_role or service_account. service_account restores the default principal.
+        """
+        return pulumi.get(self, "type")
+
+    @_builtins.property
+    @pulumi.getter(name="roleArn")
+    def role_arn(self) -> Optional[_builtins.str]:
+        """
+        AWS IAM role ARN. Required only for aws_role.
+        """
+        return pulumi.get(self, "role_arn")
+
+
+@pulumi.output_type
+class FetchToolFilter(dict):
+    """
+    Selects tool results whose URLs may be fetched.
+    """
+    def __init__(__self__, *,
+                 type: _builtins.str,
+                 tools: Optional[Sequence[_builtins.str]] = None):
+        """
+        Selects tool results whose URLs may be fetched.
+
+        :param _builtins.str type: all, none, only or except. only and except require a tools list.
+        :param Sequence[_builtins.str] tools: Exact case-sensitive tool names for only or except.
+        """
+        pulumi.set(__self__, "type", type)
+        if tools is not None:
+            pulumi.set(__self__, "tools", tools)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> _builtins.str:
+        """
+        all, none, only or except. only and except require a tools list.
+        """
+        return pulumi.get(self, "type")
+
+    @_builtins.property
+    @pulumi.getter
+    def tools(self) -> Optional[Sequence[_builtins.str]]:
+        """
+        Exact case-sensitive tool names for only or except.
+        """
+        return pulumi.get(self, "tools")
+
+
+@pulumi.output_type
+class FetchURLSources(dict):
+    """
+    Conversation sources allowed to contribute fetchable URLs.
+    """
+    @staticmethod
+    def __key_warning(key: str):
+        suggest = None
+        if key == "clientToolResults":
+            suggest = "client_tool_results"
+        elif key == "serverToolResults":
+            suggest = "server_tool_results"
+        elif key == "userInput":
+            suggest = "user_input"
+
+        if suggest:
+            pulumi.log.warn(f"Key '{key}' not found in FetchURLSources. Access the value via the '{suggest}' property getter instead.")
+
+    def __getitem__(self, key: str) -> Any:
+        FetchURLSources.__key_warning(key)
+        return super().__getitem__(key)
+
+    def get(self, key: str, default = None) -> Any:
+        FetchURLSources.__key_warning(key)
+        return super().get(key, default)
+
+    def __init__(__self__, *,
+                 client_tool_results: Optional['outputs.FetchToolFilter'] = None,
+                 server_tool_results: Optional['outputs.FetchToolFilter'] = None,
+                 user_input: Optional[_builtins.str] = None):
+        """
+        Conversation sources allowed to contribute fetchable URLs.
+
+        :param 'FetchToolFilter' client_tool_results: Filter for custom tool results. Tool names must refer to custom tools in this agent.
+        :param 'FetchToolFilter' server_tool_results: Filter for built-in tool results. Listed names must be web_search or web_fetch.
+        :param _builtins.str user_input: all or none, controlling URLs in user messages. Defaults to all.
+        """
+        if client_tool_results is not None:
+            pulumi.set(__self__, "client_tool_results", client_tool_results)
+        if server_tool_results is not None:
+            pulumi.set(__self__, "server_tool_results", server_tool_results)
+        if user_input is not None:
+            pulumi.set(__self__, "user_input", user_input)
+
+    @_builtins.property
+    @pulumi.getter(name="clientToolResults")
+    def client_tool_results(self) -> Optional['outputs.FetchToolFilter']:
+        """
+        Filter for custom tool results. Tool names must refer to custom tools in this agent.
+        """
+        return pulumi.get(self, "client_tool_results")
+
+    @_builtins.property
+    @pulumi.getter(name="serverToolResults")
+    def server_tool_results(self) -> Optional['outputs.FetchToolFilter']:
+        """
+        Filter for built-in tool results. Listed names must be web_search or web_fetch.
+        """
+        return pulumi.get(self, "server_tool_results")
+
+    @_builtins.property
+    @pulumi.getter(name="userInput")
+    def user_input(self) -> Optional[_builtins.str]:
+        """
+        all or none, controlling URLs in user messages. Defaults to all.
+        """
+        return pulumi.get(self, "user_input")
 
 
 @pulumi.output_type
@@ -636,10 +899,15 @@ class InjectionLocation(dict):
 
 @pulumi.output_type
 class MCPServer(dict):
+    """
+    A named remote MCP endpoint available to the agent.
+    """
     def __init__(__self__, *,
                  name: _builtins.str,
                  url: _builtins.str):
         """
+        A named remote MCP endpoint available to the agent.
+
         :param _builtins.str name: The server's name, which an `mcp_toolset` tool refers to.
         :param _builtins.str url: The server's URL. Credentials for it are supplied by a vault at session time.
         """
@@ -665,6 +933,9 @@ class MCPServer(dict):
 
 @pulumi.output_type
 class Model(dict):
+    """
+    Model selection and inference settings for an agent.
+    """
     @staticmethod
     def __key_warning(key: str):
         suggest = None
@@ -688,10 +959,12 @@ class Model(dict):
                  inference_geo: Optional[_builtins.str] = None,
                  speed: Optional['Speed'] = None):
         """
+        Model selection and inference settings for an agent.
+
         :param _builtins.str id: The model ID, such as `claude-opus-5-5`.
-        :param 'Effort' effort: How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
-        :param _builtins.str inference_geo: Where inference runs, such as `us` or `global`.
-        :param 'Speed' speed: The inference speed tier.
+        :param 'Effort' effort: How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
+        :param _builtins.str inference_geo: Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
+        :param 'Speed' speed: The inference speed tier. Removing a configured tier restores standard.
         """
         pulumi.set(__self__, "id", id)
         if effort is not None:
@@ -713,7 +986,7 @@ class Model(dict):
     @pulumi.getter
     def effort(self) -> Optional['Effort']:
         """
-        How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
+        How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
         """
         return pulumi.get(self, "effort")
 
@@ -721,7 +994,7 @@ class Model(dict):
     @pulumi.getter(name="inferenceGeo")
     def inference_geo(self) -> Optional[_builtins.str]:
         """
-        Where inference runs, such as `us` or `global`.
+        Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
         """
         return pulumi.get(self, "inference_geo")
 
@@ -729,7 +1002,7 @@ class Model(dict):
     @pulumi.getter
     def speed(self) -> Optional['Speed']:
         """
-        The inference speed tier.
+        The inference speed tier. Removing a configured tier restores standard.
         """
         return pulumi.get(self, "speed")
 
@@ -740,8 +1013,8 @@ class MonetaryAmount(dict):
                  amount: _builtins.str,
                  currency: _builtins.str):
         """
-        :param _builtins.str amount: The amount in the currency's minor units, as an integer string: `2500` is $25.00.
-        :param _builtins.str currency: The ISO 4217 currency code. Only `USD` is supported.
+        :param _builtins.str amount: The amount in the currency's minor units, as an integer string: 2500 is $25.00.
+        :param _builtins.str currency: The ISO 4217 currency code. Only USD is supported.
         """
         pulumi.set(__self__, "amount", amount)
         pulumi.set(__self__, "currency", currency)
@@ -750,7 +1023,7 @@ class MonetaryAmount(dict):
     @pulumi.getter
     def amount(self) -> _builtins.str:
         """
-        The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+        The amount in the currency's minor units, as an integer string: 2500 is $25.00.
         """
         return pulumi.get(self, "amount")
 
@@ -758,27 +1031,81 @@ class MonetaryAmount(dict):
     @pulumi.getter
     def currency(self) -> _builtins.str:
         """
-        The ISO 4217 currency code. Only `USD` is supported.
+        The ISO 4217 currency code. Only USD is supported.
         """
         return pulumi.get(self, "currency")
 
 
 @pulumi.output_type
 class Multiagent(dict):
+    """
+    Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
+    """
     def __init__(__self__, *,
-                 agents: Sequence['outputs.RosterEntry']):
+                 advisor: Optional['outputs.AgentAdvisor'] = None,
+                 agents: Optional[Sequence['outputs.RosterEntry']] = None,
+                 subagents: Optional['outputs.AgentDelegation'] = None,
+                 type: Optional[_builtins.str] = None,
+                 workflows: Optional['outputs.AgentDelegation'] = None):
         """
-        :param Sequence['RosterEntry'] agents: The agents the coordinator can delegate to, between 1 and 20.
+        Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
+
+        :param 'AgentAdvisor' advisor: Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+        :param Sequence['RosterEntry'] agents: The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
+        :param 'AgentDelegation' subagents: Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+        :param _builtins.str type: Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+        :param 'AgentDelegation' workflows: Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
         """
-        pulumi.set(__self__, "agents", agents)
+        if advisor is not None:
+            pulumi.set(__self__, "advisor", advisor)
+        if agents is not None:
+            pulumi.set(__self__, "agents", agents)
+        if subagents is not None:
+            pulumi.set(__self__, "subagents", subagents)
+        if type is not None:
+            pulumi.set(__self__, "type", type)
+        if workflows is not None:
+            pulumi.set(__self__, "workflows", workflows)
 
     @_builtins.property
     @pulumi.getter
-    def agents(self) -> Sequence['outputs.RosterEntry']:
+    def advisor(self) -> Optional['outputs.AgentAdvisor']:
         """
-        The agents the coordinator can delegate to, between 1 and 20.
+        Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+        """
+        return pulumi.get(self, "advisor")
+
+    @_builtins.property
+    @pulumi.getter
+    def agents(self) -> Optional[Sequence['outputs.RosterEntry']]:
+        """
+        The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
         """
         return pulumi.get(self, "agents")
+
+    @_builtins.property
+    @pulumi.getter
+    def subagents(self) -> Optional['outputs.AgentDelegation']:
+        """
+        Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+        """
+        return pulumi.get(self, "subagents")
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> Optional[_builtins.str]:
+        """
+        Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+        """
+        return pulumi.get(self, "type")
+
+    @_builtins.property
+    @pulumi.getter
+    def workflows(self) -> Optional['outputs.AgentDelegation']:
+        """
+        Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+        """
+        return pulumi.get(self, "workflows")
 
 
 @pulumi.output_type
@@ -788,12 +1115,12 @@ class OAuthRefresh(dict):
         suggest = None
         if key == "clientId":
             suggest = "client_id"
-        elif key == "refreshToken":
-            suggest = "refresh_token"
         elif key == "tokenEndpoint":
             suggest = "token_endpoint"
         elif key == "tokenEndpointAuth":
             suggest = "token_endpoint_auth"
+        elif key == "refreshToken":
+            suggest = "refresh_token"
 
         if suggest:
             pulumi.log.warn(f"Key '{key}' not found in OAuthRefresh. Access the value via the '{suggest}' property getter instead.")
@@ -808,23 +1135,24 @@ class OAuthRefresh(dict):
 
     def __init__(__self__, *,
                  client_id: _builtins.str,
-                 refresh_token: _builtins.str,
                  token_endpoint: _builtins.str,
                  token_endpoint_auth: 'outputs.TokenEndpointAuth',
+                 refresh_token: Optional[_builtins.str] = None,
                  resource: Optional[_builtins.str] = None,
                  scope: Optional[_builtins.str] = None):
         """
         :param _builtins.str client_id: The OAuth client ID. Changing it replaces the credential.
-        :param _builtins.str refresh_token: The OAuth refresh token.
         :param _builtins.str token_endpoint: The token endpoint's URL. Changing it replaces the credential.
         :param 'TokenEndpointAuth' token_endpoint_auth: How the client authenticates to the token endpoint.
+        :param _builtins.str refresh_token: The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
         :param _builtins.str resource: The OAuth resource indicator. Changing it replaces the credential.
-        :param _builtins.str scope: The OAuth scope to request.
+        :param _builtins.str scope: The OAuth scope to request. Removing this setting clears the stored scope.
         """
         pulumi.set(__self__, "client_id", client_id)
-        pulumi.set(__self__, "refresh_token", refresh_token)
         pulumi.set(__self__, "token_endpoint", token_endpoint)
         pulumi.set(__self__, "token_endpoint_auth", token_endpoint_auth)
+        if refresh_token is not None:
+            pulumi.set(__self__, "refresh_token", refresh_token)
         if resource is not None:
             pulumi.set(__self__, "resource", resource)
         if scope is not None:
@@ -837,14 +1165,6 @@ class OAuthRefresh(dict):
         The OAuth client ID. Changing it replaces the credential.
         """
         return pulumi.get(self, "client_id")
-
-    @_builtins.property
-    @pulumi.getter(name="refreshToken")
-    def refresh_token(self) -> _builtins.str:
-        """
-        The OAuth refresh token.
-        """
-        return pulumi.get(self, "refresh_token")
 
     @_builtins.property
     @pulumi.getter(name="tokenEndpoint")
@@ -863,6 +1183,14 @@ class OAuthRefresh(dict):
         return pulumi.get(self, "token_endpoint_auth")
 
     @_builtins.property
+    @pulumi.getter(name="refreshToken")
+    def refresh_token(self) -> Optional[_builtins.str]:
+        """
+        The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
+        """
+        return pulumi.get(self, "refresh_token")
+
+    @_builtins.property
     @pulumi.getter
     def resource(self) -> Optional[_builtins.str]:
         """
@@ -874,7 +1202,7 @@ class OAuthRefresh(dict):
     @pulumi.getter
     def scope(self) -> Optional[_builtins.str]:
         """
-        The OAuth scope to request.
+        The OAuth scope to request. Removing this setting clears the stored scope.
         """
         return pulumi.get(self, "scope")
 
@@ -960,12 +1288,17 @@ class Packages(dict):
 
 @pulumi.output_type
 class RosterEntry(dict):
+    """
+    An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
+    """
     def __init__(__self__, *,
                  type: 'RosterEntryType',
                  id: Optional[_builtins.str] = None,
                  model: Optional[_builtins.str] = None,
                  version: Optional[_builtins.int] = None):
         """
+        An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
+
         :param 'RosterEntryType' type: The kind of roster entry.
         :param _builtins.str id: The agent's ID. Required for `agent`.
         :param _builtins.str model: The advisor's model ID. Required for `advisor`.
@@ -1018,8 +1351,8 @@ class Schedule(dict):
                  expression: _builtins.str,
                  timezone: _builtins.str):
         """
-        :param _builtins.str expression: A cron expression, such as `0 9 * * 1-5`.
-        :param _builtins.str timezone: The IANA time zone the expression is evaluated in, such as `America/New_York`.
+        :param _builtins.str expression: A cron expression, such as 0 9 * * 1-5.
+        :param _builtins.str timezone: The IANA time zone the expression is evaluated in, such as America/New_York.
         """
         pulumi.set(__self__, "expression", expression)
         pulumi.set(__self__, "timezone", timezone)
@@ -1028,7 +1361,7 @@ class Schedule(dict):
     @pulumi.getter
     def expression(self) -> _builtins.str:
         """
-        A cron expression, such as `0 9 * * 1-5`.
+        A cron expression, such as 0 9 * * 1-5.
         """
         return pulumi.get(self, "expression")
 
@@ -1036,13 +1369,76 @@ class Schedule(dict):
     @pulumi.getter
     def timezone(self) -> _builtins.str:
         """
-        The IANA time zone the expression is evaluated in, such as `America/New_York`.
+        The IANA time zone the expression is evaluated in, such as America/New_York.
+        """
+        return pulumi.get(self, "timezone")
+
+
+@pulumi.output_type
+class SearchLocation(dict):
+    """
+    Approximate user location for search localization.
+    """
+    def __init__(__self__, *,
+                 city: Optional[_builtins.str] = None,
+                 country: Optional[_builtins.str] = None,
+                 region: Optional[_builtins.str] = None,
+                 timezone: Optional[_builtins.str] = None):
+        """
+        Approximate user location for search localization.
+
+        :param _builtins.str city: City name.
+        :param _builtins.str country: Uppercase two-letter ISO 3166-1 country code.
+        :param _builtins.str region: Region or state name.
+        :param _builtins.str timezone: IANA timezone identifier, such as America/Los_Angeles.
+        """
+        if city is not None:
+            pulumi.set(__self__, "city", city)
+        if country is not None:
+            pulumi.set(__self__, "country", country)
+        if region is not None:
+            pulumi.set(__self__, "region", region)
+        if timezone is not None:
+            pulumi.set(__self__, "timezone", timezone)
+
+    @_builtins.property
+    @pulumi.getter
+    def city(self) -> Optional[_builtins.str]:
+        """
+        City name.
+        """
+        return pulumi.get(self, "city")
+
+    @_builtins.property
+    @pulumi.getter
+    def country(self) -> Optional[_builtins.str]:
+        """
+        Uppercase two-letter ISO 3166-1 country code.
+        """
+        return pulumi.get(self, "country")
+
+    @_builtins.property
+    @pulumi.getter
+    def region(self) -> Optional[_builtins.str]:
+        """
+        Region or state name.
+        """
+        return pulumi.get(self, "region")
+
+    @_builtins.property
+    @pulumi.getter
+    def timezone(self) -> Optional[_builtins.str]:
+        """
+        IANA timezone identifier, such as America/Los_Angeles.
         """
         return pulumi.get(self, "timezone")
 
 
 @pulumi.output_type
 class SkillRef(dict):
+    """
+    An Anthropic-provided or organization-uploaded skill available to an agent.
+    """
     @staticmethod
     def __key_warning(key: str):
         suggest = None
@@ -1065,6 +1461,8 @@ class SkillRef(dict):
                  type: 'SkillType',
                  version: Optional[_builtins.str] = None):
         """
+        An Anthropic-provided or organization-uploaded skill available to an agent.
+
         :param _builtins.str skill_id: The skill's ID.
         :param 'SkillType' type: Whether the skill is provided by Anthropic or uploaded to the organization.
         :param _builtins.str version: The skill version to pin. Omit to always use the latest version.
@@ -1122,7 +1520,7 @@ class TokenEndpointAuth(dict):
                  type: 'TokenEndpointAuthType',
                  client_secret: Optional[_builtins.str] = None):
         """
-        :param 'TokenEndpointAuthType' type: The authentication method.
+        :param 'TokenEndpointAuthType' type: The authentication method. Changing it replaces the credential.
         :param _builtins.str client_secret: The client secret. Required unless the type is `none`.
         """
         pulumi.set(__self__, "type", type)
@@ -1133,7 +1531,7 @@ class TokenEndpointAuth(dict):
     @pulumi.getter
     def type(self) -> 'TokenEndpointAuthType':
         """
-        The authentication method.
+        The authentication method. Changing it replaces the credential.
         """
         return pulumi.get(self, "type")
 
@@ -1148,6 +1546,9 @@ class TokenEndpointAuth(dict):
 
 @pulumi.output_type
 class Tool(dict):
+    """
+    An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
+    """
     @staticmethod
     def __key_warning(key: str):
         suggest = None
@@ -1178,6 +1579,8 @@ class Tool(dict):
                  mcp_server_name: Optional[_builtins.str] = None,
                  name: Optional[_builtins.str] = None):
         """
+        An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
+
         :param 'ToolType' type: The kind of tool.
         :param Sequence['ToolConfig'] configs: Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
         :param 'ToolDefaults' default_config: Settings for tools without an entry in `configs`, for `agent_toolset_20260401` and `mcp_toolset`.
@@ -1259,11 +1662,24 @@ class Tool(dict):
 
 @pulumi.output_type
 class ToolConfig(dict):
+    """
+    Settings for one tool within an agent or MCP toolset.
+    """
     @staticmethod
     def __key_warning(key: str):
         suggest = None
-        if key == "permissionPolicy":
+        if key == "allowedDomains":
+            suggest = "allowed_domains"
+        elif key == "blockedDomains":
+            suggest = "blocked_domains"
+        elif key == "maxContentTokens":
+            suggest = "max_content_tokens"
+        elif key == "permissionPolicy":
             suggest = "permission_policy"
+        elif key == "urlSources":
+            suggest = "url_sources"
+        elif key == "userLocation":
+            suggest = "user_location"
 
         if suggest:
             pulumi.log.warn(f"Key '{key}' not found in ToolConfig. Access the value via the '{suggest}' property getter instead.")
@@ -1278,18 +1694,40 @@ class ToolConfig(dict):
 
     def __init__(__self__, *,
                  name: _builtins.str,
+                 allowed_domains: Optional[Sequence[_builtins.str]] = None,
+                 blocked_domains: Optional[Sequence[_builtins.str]] = None,
                  enabled: Optional[_builtins.bool] = None,
-                 permission_policy: Optional['PermissionPolicy'] = None):
+                 max_content_tokens: Optional[_builtins.int] = None,
+                 permission_policy: Optional['PermissionPolicy'] = None,
+                 url_sources: Optional['outputs.FetchURLSources'] = None,
+                 user_location: Optional['outputs.SearchLocation'] = None):
         """
+        Settings for one tool within an agent or MCP toolset.
+
         :param _builtins.str name: The tool's name, such as `bash` or `web_fetch`.
+        :param Sequence[_builtins.str] allowed_domains: Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+        :param Sequence[_builtins.str] blocked_domains: Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
         :param _builtins.bool enabled: Whether the agent may use the tool.
+        :param _builtins.int max_content_tokens: Maximum fetched content tokens, for web_fetch.
         :param 'PermissionPolicy' permission_policy: Whether a tool call needs approval.
+        :param 'FetchURLSources' url_sources: Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+        :param 'SearchLocation' user_location: Approximate location used to localize web_search results.
         """
         pulumi.set(__self__, "name", name)
+        if allowed_domains is not None:
+            pulumi.set(__self__, "allowed_domains", allowed_domains)
+        if blocked_domains is not None:
+            pulumi.set(__self__, "blocked_domains", blocked_domains)
         if enabled is not None:
             pulumi.set(__self__, "enabled", enabled)
+        if max_content_tokens is not None:
+            pulumi.set(__self__, "max_content_tokens", max_content_tokens)
         if permission_policy is not None:
             pulumi.set(__self__, "permission_policy", permission_policy)
+        if url_sources is not None:
+            pulumi.set(__self__, "url_sources", url_sources)
+        if user_location is not None:
+            pulumi.set(__self__, "user_location", user_location)
 
     @_builtins.property
     @pulumi.getter
@@ -1300,12 +1738,36 @@ class ToolConfig(dict):
         return pulumi.get(self, "name")
 
     @_builtins.property
+    @pulumi.getter(name="allowedDomains")
+    def allowed_domains(self) -> Optional[Sequence[_builtins.str]]:
+        """
+        Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+        """
+        return pulumi.get(self, "allowed_domains")
+
+    @_builtins.property
+    @pulumi.getter(name="blockedDomains")
+    def blocked_domains(self) -> Optional[Sequence[_builtins.str]]:
+        """
+        Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+        """
+        return pulumi.get(self, "blocked_domains")
+
+    @_builtins.property
     @pulumi.getter
     def enabled(self) -> Optional[_builtins.bool]:
         """
         Whether the agent may use the tool.
         """
         return pulumi.get(self, "enabled")
+
+    @_builtins.property
+    @pulumi.getter(name="maxContentTokens")
+    def max_content_tokens(self) -> Optional[_builtins.int]:
+        """
+        Maximum fetched content tokens, for web_fetch.
+        """
+        return pulumi.get(self, "max_content_tokens")
 
     @_builtins.property
     @pulumi.getter(name="permissionPolicy")
@@ -1315,9 +1777,28 @@ class ToolConfig(dict):
         """
         return pulumi.get(self, "permission_policy")
 
+    @_builtins.property
+    @pulumi.getter(name="urlSources")
+    def url_sources(self) -> Optional['outputs.FetchURLSources']:
+        """
+        Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+        """
+        return pulumi.get(self, "url_sources")
+
+    @_builtins.property
+    @pulumi.getter(name="userLocation")
+    def user_location(self) -> Optional['outputs.SearchLocation']:
+        """
+        Approximate location used to localize web_search results.
+        """
+        return pulumi.get(self, "user_location")
+
 
 @pulumi.output_type
 class ToolDefaults(dict):
+    """
+    Default settings for tools without an individual override.
+    """
     @staticmethod
     def __key_warning(key: str):
         suggest = None
@@ -1339,6 +1820,8 @@ class ToolDefaults(dict):
                  enabled: Optional[_builtins.bool] = None,
                  permission_policy: Optional['PermissionPolicy'] = None):
         """
+        Default settings for tools without an individual override.
+
         :param _builtins.bool enabled: Whether the agent may use the tools.
         :param 'PermissionPolicy' permission_policy: Whether a tool call needs approval.
         """

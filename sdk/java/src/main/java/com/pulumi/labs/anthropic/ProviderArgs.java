@@ -6,6 +6,7 @@ package com.pulumi.labs.anthropic;
 import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
 import com.pulumi.core.internal.Codegen;
+import com.pulumi.labs.anthropic.inputs.FederationArgs;
 import java.lang.String;
 import java.util.Objects;
 import java.util.Optional;
@@ -17,45 +18,45 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
     public static final ProviderArgs Empty = new ProviderArgs();
 
     /**
-     * An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
-     * 
+     * An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
+     *
      */
     @Import(name="adminKey")
     private @Nullable Output<String> adminKey;
 
     /**
-     * @return An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
-     * 
+     * @return An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
+     *
      */
     public Optional<Output<String>> adminKey() {
         return Optional.ofNullable(this.adminKey);
     }
 
     /**
-     * An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
-     * 
+     * An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
+     *
      */
     @Import(name="apiKey")
     private @Nullable Output<String> apiKey;
 
     /**
-     * @return An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
-     * 
+     * @return An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
+     *
      */
     public Optional<Output<String>> apiKey() {
         return Optional.ofNullable(this.apiKey);
     }
 
     /**
-     * An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
-     * 
+     * An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
+     *
      */
     @Import(name="authToken")
     private @Nullable Output<String> authToken;
 
     /**
-     * @return An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
-     * 
+     * @return An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
+     *
      */
     public Optional<Output<String>> authToken() {
         return Optional.ofNullable(this.authToken);
@@ -63,29 +64,44 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.
-     * 
+     *
      */
     @Import(name="baseUrl")
     private @Nullable Output<String> baseUrl;
 
     /**
      * @return The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.
-     * 
+     *
      */
     public Optional<Output<String>> baseUrl() {
         return Optional.ofNullable(this.baseUrl);
     }
 
     /**
-     * The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
-     * 
+     * Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+     *
+     */
+    @Import(name="federation", json=true)
+    private @Nullable Output<FederationArgs> federation;
+
+    /**
+     * @return Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+     *
+     */
+    public Optional<Output<FederationArgs>> federation() {
+        return Optional.ofNullable(this.federation);
+    }
+
+    /**
+     * The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
+     *
      */
     @Import(name="workspaceId")
     private @Nullable Output<String> workspaceId;
 
     /**
-     * @return The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
-     * 
+     * @return The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
+     *
      */
     public Optional<Output<String>> workspaceId() {
         return Optional.ofNullable(this.workspaceId);
@@ -98,6 +114,7 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         this.apiKey = $.apiKey;
         this.authToken = $.authToken;
         this.baseUrl = $.baseUrl;
+        this.federation = $.federation;
         this.workspaceId = $.workspaceId;
     }
 
@@ -120,10 +137,10 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param adminKey An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
-         * 
+         * @param adminKey An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder adminKey(@Nullable Output<String> adminKey) {
             $.adminKey = adminKey;
@@ -131,20 +148,20 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param adminKey An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
-         * 
+         * @param adminKey An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder adminKey(String adminKey) {
             return adminKey(Output.of(adminKey));
         }
 
         /**
-         * @param apiKey An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
-         * 
+         * @param apiKey An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder apiKey(@Nullable Output<String> apiKey) {
             $.apiKey = apiKey;
@@ -152,20 +169,20 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param apiKey An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
-         * 
+         * @param apiKey An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder apiKey(String apiKey) {
             return apiKey(Output.of(apiKey));
         }
 
         /**
-         * @param authToken An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
-         * 
+         * @param authToken An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder authToken(@Nullable Output<String> authToken) {
             $.authToken = authToken;
@@ -173,10 +190,10 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param authToken An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
-         * 
+         * @param authToken An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder authToken(String authToken) {
             return authToken(Output.of(authToken));
@@ -184,9 +201,9 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param baseUrl The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder baseUrl(@Nullable Output<String> baseUrl) {
             $.baseUrl = baseUrl;
@@ -195,19 +212,40 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param baseUrl The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder baseUrl(String baseUrl) {
             return baseUrl(Output.of(baseUrl));
         }
 
         /**
-         * @param workspaceId The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
-         * 
+         * @param federation Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+         *
          * @return builder
-         * 
+         *
+         */
+        public Builder federation(@Nullable Output<FederationArgs> federation) {
+            $.federation = federation;
+            return this;
+        }
+
+        /**
+         * @param federation Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+         *
+         * @return builder
+         *
+         */
+        public Builder federation(FederationArgs federation) {
+            return federation(Output.of(federation));
+        }
+
+        /**
+         * @param workspaceId The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
+         *
+         * @return builder
+         *
          */
         public Builder workspaceId(@Nullable Output<String> workspaceId) {
             $.workspaceId = workspaceId;
@@ -215,10 +253,10 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param workspaceId The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
-         * 
+         * @param workspaceId The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
+         *
          * @return builder
-         * 
+         *
          */
         public Builder workspaceId(String workspaceId) {
             return workspaceId(Output.of(workspaceId));

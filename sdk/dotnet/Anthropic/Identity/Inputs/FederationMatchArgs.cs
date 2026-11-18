@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Identity.Inputs
 {
 
+    /// <summary>
+    /// Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
+    /// </summary>
     public sealed class FederationMatchArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
@@ -38,7 +41,7 @@ namespace Pulumi.Labs.Anthropic.Identity.Inputs
         public Input<string>? Condition { get; set; }
 
         /// <summary>
-        /// A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+        /// Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
         /// </summary>
         [Input("subjectPrefix")]
         public Input<string>? SubjectPrefix { get; set; }

@@ -15,11 +15,22 @@
 package organization_test
 
 import (
-	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
+	"errors"
+	"testing"
 
 	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/providertest"
+	"github.com/pulumi/pulumi-go-provider/infer"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
+	"github.com/stretchr/testify/require"
 )
+
+func requireOrdinaryError(t *testing.T, err error) {
+	t.Helper()
+	require.Error(t, err)
+	var initError infer.ResourceInitFailedError
+	require.False(t, errors.As(err, &initError), "initialization checkpoints are not supported")
+}
 
 // urn returns a test URN for a resource type of this module, by name.
 func urn(name string) resource.URN {

@@ -2,12 +2,15 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "../types/input";
+import * as outputs from "../types/output";
+import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 /**
- * A CA certificate for an MCP tunnel, used to verify the certificates of MCP servers behind the tunnel. A tunnel holds at most two active certificates, which allows rotation.
+ * A CA certificate trusted by an MCP tunnel when connecting to MCP servers. A tunnel holds at most two active certificates. Replacement creates the new certificate before archiving the old one, so rotation requires a free certificate slot. Deleting the last active certificate stops MCP traffic until another is registered.
  *
- * Certificates cannot be updated, so any change replaces the certificate. Deleting this resource archives the certificate. Its ID is `<tunnelId>/<certificateId>`.
+ * Certificates cannot be updated; changing either input replaces the certificate. Deletion archives it. Import uses `<tunnelId>/<certificateId>` and cannot recover the original PEM; supplying a PEM after import replaces the certificate.
  */
 export class TunnelCertificate extends pulumi.CustomResource {
     /**
@@ -47,23 +50,27 @@ export class TunnelCertificate extends pulumi.CustomResource {
     }
 
     /**
-     * A single PEM-encoded CA certificate, up to 8,192 characters.
+     * A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
      */
-    declare public readonly caCertificatePem: pulumi.Output<string>;
+    declare public readonly caCertificatePem: pulumi.Output<string | undefined>;
     /**
      * When the certificate was added, in RFC 3339 format.
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * When the certificate expires, in RFC 3339 format.
+     * When the certificate expires, in RFC 3339 format. Absent when the certificate does not expire.
      */
-    declare public /*out*/ readonly expiresAt: pulumi.Output<string>;
+    declare public /*out*/ readonly expiresAt: pulumi.Output<string | undefined>;
     /**
-     * The certificate's SHA-256 fingerprint.
+     * The lowercase hexadecimal SHA-256 fingerprint of the certificate's DER encoding.
      */
     declare public /*out*/ readonly fingerprint: pulumi.Output<string>;
     /**
-     * The tunnel that trusts the certificate.
+     * Whether the confirmed certificate registration is active or archived. Unavailable when the registration's identity or trust status cannot be confirmed. Active registration does not verify MCP server reachability.
+     */
+    declare public /*out*/ readonly status: pulumi.Output<enums.agents.TunnelCertificateStatus | undefined>;
+    /**
+     * The tunnel that trusts the certificate. Changing it replaces the certificate.
      */
     declare public readonly tunnelId: pulumi.Output<string>;
 
@@ -78,9 +85,6 @@ export class TunnelCertificate extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if (args?.caCertificatePem === undefined && !opts.urn) {
-                throw new Error("Missing required property 'caCertificatePem'");
-            }
             if (args?.tunnelId === undefined && !opts.urn) {
                 throw new Error("Missing required property 'tunnelId'");
             }
@@ -89,11 +93,13 @@ export class TunnelCertificate extends pulumi.CustomResource {
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["expiresAt"] = undefined /*out*/;
             resourceInputs["fingerprint"] = undefined /*out*/;
+            resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["caCertificatePem"] = undefined /*out*/;
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["expiresAt"] = undefined /*out*/;
             resourceInputs["fingerprint"] = undefined /*out*/;
+            resourceInputs["status"] = undefined /*out*/;
             resourceInputs["tunnelId"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -108,11 +114,11 @@ export class TunnelCertificate extends pulumi.CustomResource {
  */
 export interface TunnelCertificateArgs {
     /**
-     * A single PEM-encoded CA certificate, up to 8,192 characters.
+     * A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
      */
-    caCertificatePem: pulumi.Input<string>;
+    caCertificatePem?: pulumi.Input<string | undefined>;
     /**
-     * The tunnel that trusts the certificate.
+     * The tunnel that trusts the certificate. Changing it replaces the certificate.
      */
     tunnelId: pulumi.Input<string>;
 }

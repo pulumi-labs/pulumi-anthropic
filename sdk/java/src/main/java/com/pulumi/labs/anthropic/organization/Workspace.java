@@ -53,28 +53,28 @@ public class Workspace extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * Where the workspace&#39;s data is stored and where inference may run.
+     * Where the workspace&#39;s data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
      * 
      */
     @Export(name="dataResidency", refs={DataResidency.class}, tree="[0]")
     private Output</* @Nullable */ DataResidency> dataResidency;
 
     /**
-     * @return Where the workspace&#39;s data is stored and where inference may run.
+     * @return Where the workspace&#39;s data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
      * 
      */
     public Output<Optional<DataResidency>> dataResidency() {
         return Codegen.optional(this.dataResidency);
     }
     /**
-     * The color the Console shows the workspace in, as `#RRGGBB`.
+     * The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
      * 
      */
     @Export(name="displayColor", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> displayColor;
 
     /**
-     * @return The color the Console shows the workspace in, as `#RRGGBB`.
+     * @return The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
      * 
      */
     public Output<Optional<String>> displayColor() {
@@ -95,32 +95,46 @@ public class Workspace extends com.pulumi.resources.CustomResource {
         return Codegen.optional(this.externalKeyId);
     }
     /**
-     * The workspace&#39;s name, 1 to 40 characters.
+     * The workspace&#39;s nonempty name.
      * 
      */
     @Export(name="name", refs={String.class}, tree="[0]")
     private Output<String> name;
 
     /**
-     * @return The workspace&#39;s name, 1 to 40 characters.
+     * @return The workspace&#39;s nonempty name.
      * 
      */
     public Output<String> name() {
         return this.name;
     }
     /**
-     * Tags for the workspace. Keys may not start with `anthropic`.
+     * Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
      * 
      */
     @Export(name="tags", refs={Map.class,String.class}, tree="[0,1,1]")
     private Output</* @Nullable */ Map<String,String>> tags;
 
     /**
-     * @return Tags for the workspace. Keys may not start with `anthropic`.
+     * @return Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
      * 
      */
     public Output<Optional<Map<String,String>>> tags() {
         return Codegen.optional(this.tags);
+    }
+    /**
+     * The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+     *
+     */
+    @Export(name="userProfileId", refs={String.class}, tree="[0]")
+    private Output</* @Nullable */ String> userProfileId;
+
+    /**
+     * @return The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+     *
+     */
+    public Output<Optional<String>> userProfileId() {
+        return Codegen.optional(this.userProfileId);
     }
 
     /**

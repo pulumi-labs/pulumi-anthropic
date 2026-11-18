@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Inputs
 {
 
+    /// <summary>
+    /// An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
+    /// </summary>
     public sealed class RosterEntryArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>

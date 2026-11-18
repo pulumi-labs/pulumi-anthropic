@@ -6,32 +6,104 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 import * as enums from "../types/enums";
 
+/**
+ * Workload identity federation using an explicitly configured OIDC identity token source. Files are reread and commands are rerun when a new access token is needed. No default token file or authentication profile is used.
+ */
+export interface FederationArgs {
+    /**
+     * The OIDC assertion source. Specify exactly one of token, file or command. This configuration is secret; file contents and command output are not saved in provider state. Assertions with a jti claim must be fresh for each exchange; use a command that obtains a new assertion rather than sharing a previously exchanged token.
+     */
+    identityToken: pulumi.Input<inputs.IdentityTokenArgs>;
+    /**
+     * The organization the federation rule belongs to. Required for the token exchange; this value does not select an organization for API-key operations.
+     */
+    organizationId: pulumi.Input<string>;
+    /**
+     * Federation rule ID (fdrl_...). The server's rule determines granted scopes; OAuth-only identity operations require org:admin.
+     */
+    ruleId: pulumi.Input<string>;
+    /**
+     * Optional expected service-account target (svac_...). Omit for user-targeted rules.
+     */
+    serviceAccountId?: pulumi.Input<string | undefined>;
+}
+
+/**
+ * An OIDC identity token source. Specify exactly one of token, file or command.
+ */
+export interface IdentityTokenArgs {
+    /**
+     * Executable followed by zero or more arguments, invoked whenever a new access token is needed. Must print one nonempty JWT to stdout, at most 64 KiB; surrounding whitespace is trimmed. Runs directly without a shell, inherits the provider process environment and working directory, and is stopped after 30 seconds or operation cancellation. Specify a shell explicitly for shell syntax. Command stdout and stderr are never logged or saved in provider state.
+     */
+    command?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+    /**
+     * Absolute path to an OIDC JWT file, reread whenever a new access token is needed. Rotate the file before each exchange if its JWT carries a single-use jti claim. The file contents are not saved in provider state.
+     */
+    file?: pulumi.Input<string | undefined>;
+    /**
+     * A literal OIDC JWT. It is reused for each exchange and cannot be renewed by the provider. A JWT with a jti claim can be exchanged only once when issuer replay protection is enabled.
+     */
+    token?: pulumi.Input<string | undefined>;
+}
+
 export namespace agents {
+    /**
+     * Controls whether the primary thread can consult an advisor model.
+     */
+    export interface AgentAdvisorArgs {
+        /**
+         * Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model.
+         */
+        model?: pulumi.Input<string | undefined>;
+        /**
+         * enabled or disabled.
+         */
+        type: pulumi.Input<string>;
+    }
+
+    /**
+     * Controls subagent or workflow delegation independently.
+     */
+    export interface AgentDelegationArgs {
+        /**
+         * enabled or disabled. Defaults to enabled; removing a configured value restores that default.
+         */
+        inlineAgents?: pulumi.Input<string | undefined>;
+        /**
+         * At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists.
+         */
+        predefinedAgents?: pulumi.Input<pulumi.Input<inputs.agents.RosterEntryArgs>[] | undefined>;
+        /**
+         * enabled or disabled. Disabled delegation cannot configure inline or predefined agents.
+         */
+        type: pulumi.Input<string>;
+    }
+
     export interface AgentReferenceArgs {
         /**
          * The agent's ID.
          */
         id: pulumi.Input<string>;
         /**
-         * The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+         * The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
          */
         version?: pulumi.Input<number | undefined>;
     }
 
     export interface BudgetArgs {
         /**
-         * The most the deployment may spend, at list price.
+         * The most each future session may spend at public list prices, rather than negotiated prices.
          */
         maxListCost: pulumi.Input<inputs.agents.MonetaryAmountArgs>;
     }
 
     export interface CheckoutArgs {
         /**
-         * The branch. Required for `branch`.
+         * The branch. Required for branch.
          */
         name?: pulumi.Input<string | undefined>;
         /**
-         * The commit SHA. Required for `commit`.
+         * The commit SHA. Required for commit.
          */
         sha?: pulumi.Input<string | undefined>;
         /**
@@ -46,7 +118,7 @@ export namespace agents {
          */
         accessToken?: pulumi.Input<string | undefined>;
         /**
-         * When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+         * When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
          */
         expiresAt?: pulumi.Input<string | undefined>;
         /**
@@ -96,31 +168,31 @@ export namespace agents {
 
     export interface DeploymentResourceArgs {
         /**
-         * Whether the agent can write to the memory store. For `memory_store`.
+         * Whether the agent can write to the memory store. For memory_store; defaults to read_write.
          */
         access?: pulumi.Input<enums.agents.MemoryAccess | undefined>;
         /**
-         * A token that can read the repository. For `github_repository`.
+         * A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
          */
         authorizationToken?: pulumi.Input<string | undefined>;
         /**
-         * The branch or commit to check out. For `github_repository`; defaults to the default branch.
+         * The branch or commit to check out. For github_repository; defaults to the default branch.
          */
         checkout?: pulumi.Input<inputs.agents.CheckoutArgs | undefined>;
         /**
-         * The file's ID. Required for `file`.
+         * The file's ID. Required for file.
          */
         fileId?: pulumi.Input<string | undefined>;
         /**
-         * How the agent should use the memory store. For `memory_store`.
+         * How the agent should use the memory store. For memory_store; at most 4096 characters.
          */
         instructions?: pulumi.Input<string | undefined>;
         /**
-         * The memory store's ID. Required for `memory_store`.
+         * The memory store's ID. Required for memory_store.
          */
         memoryStoreId?: pulumi.Input<string | undefined>;
         /**
-         * Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+         * Where the resource is mounted in the sandbox. For github_repository and file.
          */
         mountPath?: pulumi.Input<string | undefined>;
         /**
@@ -128,18 +200,18 @@ export namespace agents {
          */
         type: pulumi.Input<enums.agents.DeploymentResourceType>;
         /**
-         * The repository's URL. Required for `github_repository`.
+         * The repository's URL. Required for github_repository.
          */
         url?: pulumi.Input<string | undefined>;
     }
 
     export interface EnvironmentConfigArgs {
         /**
-         * The sandbox's network access. Applies to `cloud`.
+         * The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment.
          */
         networking?: pulumi.Input<inputs.agents.EnvironmentNetworkingArgs | undefined>;
         /**
-         * Packages installed in the sandbox. Applies to `cloud`.
+         * Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list.
          */
         packages?: pulumi.Input<inputs.agents.PackagesArgs | undefined>;
         /**
@@ -150,21 +222,67 @@ export namespace agents {
 
     export interface EnvironmentNetworkingArgs {
         /**
-         * Whether the agent's MCP servers are reachable. Applies to `limited`.
+         * Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
          */
         allowMcpServers?: pulumi.Input<boolean | undefined>;
         /**
-         * Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+         * Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
          */
         allowPackageManagers?: pulumi.Input<boolean | undefined>;
         /**
-         * Hosts the sandbox can reach. Applies to `limited`.
+         * Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
          */
         allowedHosts?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         /**
          * Whether network access is unrestricted or limited.
          */
         type: pulumi.Input<enums.agents.NetworkingType>;
+    }
+
+    /**
+     * Execution principal for agent runs. Configuring a principal does not grant its permissions.
+     */
+    export interface ExecutionIdentityArgs {
+        /**
+         * AWS IAM role ARN. Required only for aws_role.
+         */
+        roleArn?: pulumi.Input<string | undefined>;
+        /**
+         * aws_role or service_account. service_account restores the default principal.
+         */
+        type: pulumi.Input<string>;
+    }
+
+    /**
+     * Selects tool results whose URLs may be fetched.
+     */
+    export interface FetchToolFilterArgs {
+        /**
+         * Exact case-sensitive tool names for only or except.
+         */
+        tools?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+        /**
+         * all, none, only or except. only and except require a tools list.
+         */
+        type: pulumi.Input<string>;
+    }
+
+    /**
+     * Conversation sources allowed to contribute fetchable URLs.
+     */
+    export interface FetchURLSourcesArgs {
+        /**
+         * Filter for custom tool results. Tool names must refer to custom tools in this agent.
+         */
+        clientToolResults?: pulumi.Input<inputs.agents.FetchToolFilterArgs | undefined>;
+        /**
+         * Filter for built-in tool results. Listed names must be web_search or web_fetch.
+         */
+        serverToolResults?: pulumi.Input<inputs.agents.FetchToolFilterArgs | undefined>;
+        /**
+         * all or none, controlling URLs in user messages. Defaults to all.
+         */
+        userInput?: pulumi.Input<string | undefined>;
     }
 
     export interface InjectionLocationArgs {
@@ -178,6 +296,9 @@ export namespace agents {
         header?: pulumi.Input<boolean | undefined>;
     }
 
+    /**
+     * A named remote MCP endpoint available to the agent.
+     */
     export interface MCPServerArgs {
         /**
          * The server's name, which an `mcp_toolset` tool refers to.
@@ -189,9 +310,12 @@ export namespace agents {
         url: pulumi.Input<string>;
     }
 
+    /**
+     * Model selection and inference settings for an agent.
+     */
     export interface ModelArgs {
         /**
-         * How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged.
+         * How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
          */
         effort?: pulumi.Input<enums.agents.Effort | undefined>;
         /**
@@ -199,31 +323,50 @@ export namespace agents {
          */
         id: pulumi.Input<string>;
         /**
-         * Where inference runs, such as `us` or `global`.
+         * Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
          */
         inferenceGeo?: pulumi.Input<string | undefined>;
         /**
-         * The inference speed tier.
+         * The inference speed tier. Removing a configured tier restores standard.
          */
         speed?: pulumi.Input<enums.agents.Speed | undefined>;
     }
 
     export interface MonetaryAmountArgs {
         /**
-         * The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+         * The amount in the currency's minor units, as an integer string: 2500 is $25.00.
          */
         amount: pulumi.Input<string>;
         /**
-         * The ISO 4217 currency code. Only `USD` is supported.
+         * The ISO 4217 currency code. Only USD is supported.
          */
         currency: pulumi.Input<string>;
     }
 
+    /**
+     * Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
+     */
     export interface MultiagentArgs {
         /**
-         * The agents the coordinator can delegate to, between 1 and 20.
+         * Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
          */
-        agents: pulumi.Input<pulumi.Input<inputs.agents.RosterEntryArgs>[]>;
+        advisor?: pulumi.Input<inputs.agents.AgentAdvisorArgs | undefined>;
+        /**
+         * The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
+         */
+        agents?: pulumi.Input<pulumi.Input<inputs.agents.RosterEntryArgs>[] | undefined>;
+        /**
+         * Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+         */
+        subagents?: pulumi.Input<inputs.agents.AgentDelegationArgs | undefined>;
+        /**
+         * Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+         */
+        type?: pulumi.Input<string | undefined>;
+        /**
+         * Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+         */
+        workflows?: pulumi.Input<inputs.agents.AgentDelegationArgs | undefined>;
     }
 
     export interface OAuthRefreshArgs {
@@ -232,15 +375,15 @@ export namespace agents {
          */
         clientId: pulumi.Input<string>;
         /**
-         * The OAuth refresh token.
+         * The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
          */
-        refreshToken: pulumi.Input<string>;
+        refreshToken?: pulumi.Input<string | undefined>;
         /**
          * The OAuth resource indicator. Changing it replaces the credential.
          */
         resource?: pulumi.Input<string | undefined>;
         /**
-         * The OAuth scope to request.
+         * The OAuth scope to request. Removing this setting clears the stored scope.
          */
         scope?: pulumi.Input<string | undefined>;
         /**
@@ -280,6 +423,9 @@ export namespace agents {
         pip?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     }
 
+    /**
+     * An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
+     */
     export interface RosterEntryArgs {
         /**
          * The agent's ID. Required for `agent`.
@@ -301,15 +447,40 @@ export namespace agents {
 
     export interface ScheduleArgs {
         /**
-         * A cron expression, such as `0 9 * * 1-5`.
+         * A cron expression, such as 0 9 * * 1-5.
          */
         expression: pulumi.Input<string>;
         /**
-         * The IANA time zone the expression is evaluated in, such as `America/New_York`.
+         * The IANA time zone the expression is evaluated in, such as America/New_York.
          */
         timezone: pulumi.Input<string>;
     }
 
+    /**
+     * Approximate user location for search localization.
+     */
+    export interface SearchLocationArgs {
+        /**
+         * City name.
+         */
+        city?: pulumi.Input<string | undefined>;
+        /**
+         * Uppercase two-letter ISO 3166-1 country code.
+         */
+        country?: pulumi.Input<string | undefined>;
+        /**
+         * Region or state name.
+         */
+        region?: pulumi.Input<string | undefined>;
+        /**
+         * IANA timezone identifier, such as America/Los_Angeles.
+         */
+        timezone?: pulumi.Input<string | undefined>;
+    }
+
+    /**
+     * An Anthropic-provided or organization-uploaded skill available to an agent.
+     */
     export interface SkillRefArgs {
         /**
          * The skill's ID.
@@ -331,11 +502,14 @@ export namespace agents {
          */
         clientSecret?: pulumi.Input<string | undefined>;
         /**
-         * The authentication method.
+         * The authentication method. Changing it replaces the credential.
          */
         type: pulumi.Input<enums.agents.TokenEndpointAuthType>;
     }
 
+    /**
+     * An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.
+     */
     export interface ToolArgs {
         /**
          * Per-tool settings, for `agent_toolset_20260401` and `mcp_toolset`.
@@ -367,11 +541,26 @@ export namespace agents {
         type: pulumi.Input<enums.agents.ToolType>;
     }
 
+    /**
+     * Settings for one tool within an agent or MCP toolset.
+     */
     export interface ToolConfigArgs {
+        /**
+         * Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+         */
+        allowedDomains?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+        /**
+         * Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+         */
+        blockedDomains?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         /**
          * Whether the agent may use the tool.
          */
         enabled?: pulumi.Input<boolean | undefined>;
+        /**
+         * Maximum fetched content tokens, for web_fetch.
+         */
+        maxContentTokens?: pulumi.Input<number | undefined>;
         /**
          * The tool's name, such as `bash` or `web_fetch`.
          */
@@ -380,8 +569,19 @@ export namespace agents {
          * Whether a tool call needs approval.
          */
         permissionPolicy?: pulumi.Input<enums.agents.PermissionPolicy | undefined>;
+        /**
+         * Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+         */
+        urlSources?: pulumi.Input<inputs.agents.FetchURLSourcesArgs | undefined>;
+        /**
+         * Approximate location used to localize web_search results.
+         */
+        userLocation?: pulumi.Input<inputs.agents.SearchLocationArgs | undefined>;
     }
 
+    /**
+     * Default settings for tools without an individual override.
+     */
     export interface ToolDefaultsArgs {
         /**
          * Whether the agent may use the tools.
@@ -396,6 +596,9 @@ export namespace agents {
 }
 
 export namespace identity {
+    /**
+     * Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
+     */
     export interface FederationMatchArgs {
         /**
          * The required `aud` claim.
@@ -410,11 +613,14 @@ export namespace identity {
          */
         condition?: pulumi.Input<string | undefined>;
         /**
-         * A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+         * Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
          */
         subjectPrefix?: pulumi.Input<string | undefined>;
     }
 
+    /**
+     * The service account that tokens issued by a federation rule act as.
+     */
     export interface FederationTargetArgs {
         /**
          * The service account's ID.
@@ -422,17 +628,20 @@ export namespace identity {
         serviceAccountId: pulumi.Input<string>;
     }
 
+    /**
+     * The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
+     */
     export interface JwksArgs {
         /**
          * A PEM-encoded CA certificate to trust when fetching the keys, up to 8,192 characters. For `discovery` and `explicit_url`.
          */
         caCertPem?: pulumi.Input<string | undefined>;
         /**
-         * The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+         * The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
          */
         discoveryBase?: pulumi.Input<string | undefined>;
         /**
-         * The signing keys, as JSON Web Keys. Required for `inline`.
+         * A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
          */
         keys?: pulumi.Input<pulumi.Input<{[key: string]: any}>[] | undefined>;
         /**
@@ -440,7 +649,7 @@ export namespace identity {
          */
         type: pulumi.Input<enums.identity.JwksType>;
         /**
-         * The JWKS URL. Required for `explicit_url`.
+         * The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
          */
         url?: pulumi.Input<string | undefined>;
     }
@@ -450,19 +659,22 @@ export namespace identity {
 export namespace organization {
     export interface DataResidencyArgs {
         /**
-         * The geographies inference may run in. Omit to allow any geography.
+         * The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
          */
         allowedInferenceGeos?: pulumi.Input<pulumi.Input<enums.organization.InferenceGeo>[] | undefined>;
         /**
-         * The geography inference runs in when a request doesn't choose one.
+         * The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
          */
         defaultInferenceGeo?: pulumi.Input<enums.organization.InferenceGeo | undefined>;
         /**
-         * Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.
+         * Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
          */
         workspaceGeo?: pulumi.Input<enums.organization.WorkspaceGeo | undefined>;
     }
 
+    /**
+     * The user, workspace, or organization whose spending is capped. Specify only the ID matching the scope type.
+     */
     export interface SpendLimitScopeArgs {
         /**
          * The kind of scope.

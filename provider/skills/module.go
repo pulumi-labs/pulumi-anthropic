@@ -17,18 +17,11 @@ package skills
 
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
-
-	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // Resources returns the module's resources.
 func Resources() []infer.InferredResource {
 	return []infer.InferredResource{
-		infer.Resource(NewSkill()),
+		NewSkill(),
 	}
 }
-
-// The module's collections. The Skills API is generally available, so it takes no beta
-// parameter.
-var skillCollection = rest.Collection{Plane: config.Workspace, Path: "v1/skills", GA: true}

@@ -12,13 +12,13 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `<workspaceId>/<userId>`.
+// A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `<workspaceId>/<userId>`. Deleting this resource removes the workspace membership, not the user or workspace.
 type WorkspaceMember struct {
 	pulumi.CustomResourceState
 
-	// The user's ID.
+	// The user's ID. Changing this value replaces the membership.
 	UserId pulumi.StringOutput `pulumi:"userId"`
-	// The workspace's ID.
+	// The workspace's ID. Changing this value replaces the membership.
 	WorkspaceId pulumi.StringOutput `pulumi:"workspaceId"`
 	// The user's role in the workspace.
 	WorkspaceRole WorkspaceRoleOutput `pulumi:"workspaceRole"`
@@ -84,9 +84,9 @@ func WorkspaceMemberExists(ctx *pulumi.Context,
 }
 
 type workspaceMemberArgs struct {
-	// The user's ID.
+	// The user's ID. Changing this value replaces the membership.
 	UserId string `pulumi:"userId"`
-	// The workspace's ID.
+	// The workspace's ID. Changing this value replaces the membership.
 	WorkspaceId string `pulumi:"workspaceId"`
 	// The user's role in the workspace.
 	WorkspaceRole WorkspaceRole `pulumi:"workspaceRole"`
@@ -94,9 +94,9 @@ type workspaceMemberArgs struct {
 
 // The set of arguments for constructing a WorkspaceMember resource.
 type WorkspaceMemberArgs struct {
-	// The user's ID.
+	// The user's ID. Changing this value replaces the membership.
 	UserId pulumi.StringInput
-	// The workspace's ID.
+	// The workspace's ID. Changing this value replaces the membership.
 	WorkspaceId pulumi.StringInput
 	// The user's role in the workspace.
 	WorkspaceRole WorkspaceRoleInput
@@ -189,12 +189,12 @@ func (o WorkspaceMemberOutput) ToWorkspaceMemberOutputWithContext(ctx context.Co
 	return o
 }
 
-// The user's ID.
+// The user's ID. Changing this value replaces the membership.
 func (o WorkspaceMemberOutput) UserId() pulumi.StringOutput {
 	return o.ApplyT(func(v *WorkspaceMember) pulumi.StringOutput { return v.UserId }).(pulumi.StringOutput)
 }
 
-// The workspace's ID.
+// The workspace's ID. Changing this value replaces the membership.
 func (o WorkspaceMemberOutput) WorkspaceId() pulumi.StringOutput {
 	return o.ApplyT(func(v *WorkspaceMember) pulumi.StringOutput { return v.WorkspaceId }).(pulumi.StringOutput)
 }

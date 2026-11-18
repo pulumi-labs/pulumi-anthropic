@@ -10,7 +10,7 @@ import * as utilities from "../utilities";
 /**
  * A credential in a Claude Managed Agents vault: an OAuth grant or bearer token for an MCP server, or a secret injected into outbound requests as an environment variable.
  *
- * Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `<vaultId>/<credentialId>`.
+ * Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `<vaultId>/<credentialId>`. Deletion permanently removes the credential, not archives it. Running sessions periodically re-resolve credentials; immediate revocation is not guaranteed.
  */
 export class VaultCredential extends pulumi.CustomResource {
     /**
@@ -58,7 +58,7 @@ export class VaultCredential extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * The credential's display name.
+     * The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
      */
     declare public readonly displayName: pulumi.Output<string | undefined>;
     /**
@@ -106,7 +106,7 @@ export class VaultCredential extends pulumi.CustomResource {
             resourceInputs["vaultId"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        const replaceOnChanges = { replaceOnChanges: ["auth.mcpServerUrl", "auth.refresh.clientId", "auth.refresh.resource", "auth.refresh.tokenEndpoint", "auth.secretName", "auth.type", "vaultId"] };
+        const replaceOnChanges = { replaceOnChanges: ["auth.mcpServerUrl", "auth.refresh.clientId", "auth.refresh.resource", "auth.refresh.tokenEndpoint", "auth.refresh.tokenEndpointAuth.type", "auth.secretName", "auth.type", "vaultId"] };
         opts = pulumi.mergeOptions(opts, replaceOnChanges);
         super(VaultCredential.__pulumiType, name, resourceInputs, opts);
     }
@@ -121,7 +121,7 @@ export interface VaultCredentialArgs {
      */
     auth: pulumi.Input<inputs.agents.CredentialAuthArgs>;
     /**
-     * The credential's display name.
+     * The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
      */
     displayName?: pulumi.Input<string | undefined>;
     /**

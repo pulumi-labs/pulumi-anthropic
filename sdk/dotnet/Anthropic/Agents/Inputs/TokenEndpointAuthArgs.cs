@@ -30,7 +30,7 @@ namespace Pulumi.Labs.Anthropic.Agents.Inputs
         }
 
         /// <summary>
-        /// The authentication method.
+        /// The authentication method. Changing it replaces the credential.
         /// </summary>
         [Input("type", required: true)]
         public Input<Pulumi.Labs.Anthropic.Agents.TokenEndpointAuthType> Type { get; set; } = null!;

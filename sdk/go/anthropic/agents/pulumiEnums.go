@@ -2531,6 +2531,98 @@ func (in *toolTypePtr) ToToolTypePtrOutputWithContext(ctx context.Context) ToolT
 	return pulumi.ToOutputWithContext(ctx, in).(ToolTypePtrOutput)
 }
 
+type TunnelCertificateStatus string
+
+const (
+	// The certificate is in the tunnel's trusted set.
+	TunnelCertificateStatusActive = TunnelCertificateStatus("active")
+	// The certificate has been archived and is no longer trusted.
+	TunnelCertificateStatusArchived = TunnelCertificateStatus("archived")
+)
+
+type TunnelCertificateStatusOutput struct{ *pulumi.OutputState }
+
+func (TunnelCertificateStatusOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*TunnelCertificateStatus)(nil)).Elem()
+}
+
+func (o TunnelCertificateStatusOutput) ToTunnelCertificateStatusOutput() TunnelCertificateStatusOutput {
+	return o
+}
+
+func (o TunnelCertificateStatusOutput) ToTunnelCertificateStatusOutputWithContext(ctx context.Context) TunnelCertificateStatusOutput {
+	return o
+}
+
+func (o TunnelCertificateStatusOutput) ToTunnelCertificateStatusPtrOutput() TunnelCertificateStatusPtrOutput {
+	return o.ToTunnelCertificateStatusPtrOutputWithContext(context.Background())
+}
+
+func (o TunnelCertificateStatusOutput) ToTunnelCertificateStatusPtrOutputWithContext(ctx context.Context) TunnelCertificateStatusPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v TunnelCertificateStatus) *TunnelCertificateStatus {
+		return &v
+	}).(TunnelCertificateStatusPtrOutput)
+}
+
+func (o TunnelCertificateStatusOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o TunnelCertificateStatusOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e TunnelCertificateStatus) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o TunnelCertificateStatusOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o TunnelCertificateStatusOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e TunnelCertificateStatus) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type TunnelCertificateStatusPtrOutput struct{ *pulumi.OutputState }
+
+func (TunnelCertificateStatusPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**TunnelCertificateStatus)(nil)).Elem()
+}
+
+func (o TunnelCertificateStatusPtrOutput) ToTunnelCertificateStatusPtrOutput() TunnelCertificateStatusPtrOutput {
+	return o
+}
+
+func (o TunnelCertificateStatusPtrOutput) ToTunnelCertificateStatusPtrOutputWithContext(ctx context.Context) TunnelCertificateStatusPtrOutput {
+	return o
+}
+
+func (o TunnelCertificateStatusPtrOutput) Elem() TunnelCertificateStatusOutput {
+	return o.ApplyT(func(v *TunnelCertificateStatus) TunnelCertificateStatus {
+		if v != nil {
+			return *v
+		}
+		var ret TunnelCertificateStatus
+		return ret
+	}).(TunnelCertificateStatusOutput)
+}
+
+func (o TunnelCertificateStatusPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o TunnelCertificateStatusPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *TunnelCertificateStatus) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*AccessTypeInput)(nil)).Elem(), AccessType("application"))
 	pulumi.RegisterInputType(reflect.TypeOf((*AccessTypePtrInput)(nil)).Elem(), AccessType("application"))
@@ -2592,4 +2684,6 @@ func init() {
 	pulumi.RegisterOutputType(TokenEndpointAuthTypePtrOutput{})
 	pulumi.RegisterOutputType(ToolTypeOutput{})
 	pulumi.RegisterOutputType(ToolTypePtrOutput{})
+	pulumi.RegisterOutputType(TunnelCertificateStatusOutput{})
+	pulumi.RegisterOutputType(TunnelCertificateStatusPtrOutput{})
 }

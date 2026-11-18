@@ -11,17 +11,15 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Organization
 {
     /// <summary>
-    /// An API key's name and status.
+    /// Manages an existing API key's name and status. Create the key in the Claude Console and supply its ID; secret key material is never returned. Omitted name or status leaves that value unchanged. Removing either from configuration stops managing it without clearing it.
     /// 
-    /// API keys cannot be created through the API, only in the Claude Console, and their secret values are never returned. Creating this resource adopts an existing key by ID; fields left undeclared are left as they are.
-    /// 
-    /// Deleting this resource archives the key, which permanently revokes it. To stop managing a key without revoking it, set the `retainOnDelete` resource option.
+    /// Deleting this resource archives and permanently revokes the key. Use retainOnDelete to stop managing it without revocation. Changing apiKeyId adopts the new key before revoking the old one. Archived and expired keys remain readable.
     /// </summary>
     [AnthropicResourceType("anthropic:organization:ApiKey")]
     public partial class ApiKey : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// The ID of the existing API key to manage.
+        /// The existing key's nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
         /// </summary>
         [Output("apiKeyId")]
         public Output<string> ApiKeyId { get; private set; } = null!;
@@ -33,31 +31,55 @@ namespace Pulumi.Labs.Anthropic.Organization
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// When the key expires, in RFC 3339 format, if it does.
+        /// The actor that created the key, if recorded.
+        /// </summary>
+        [Output("createdBy")]
+        public Output<Outputs.ApiKeyActor?> CreatedBy { get; private set; } = null!;
+
+        /// <summary>
+        /// When the key expires, in RFC 3339 format, or an empty string if it never expires.
         /// </summary>
         [Output("expiresAt")]
         public Output<string> ExpiresAt { get; private set; } = null!;
 
         /// <summary>
-        /// The key's name, 1 to 500 characters.
+        /// The key's name, 1 to 500 characters. Omission leaves the current name unchanged.
         /// </summary>
         [Output("name")]
         public Output<string?> Name { get; private set; } = null!;
 
         /// <summary>
-        /// A redacted hint of the key's value, for recognizing it.
+        /// The current status, including active, inactive, archived or expired. An expired key's status is not recovered as a writable input on import.
+        /// </summary>
+        [Output("observedStatus")]
+        public Output<string> ObservedStatus { get; private set; } = null!;
+
+        /// <summary>
+        /// A redacted hint for recognizing the key; empty if unavailable.
         /// </summary>
         [Output("partialKeyHint")]
         public Output<string> PartialKeyHint { get; private set; } = null!;
 
         /// <summary>
-        /// The key's status. An archived key cannot be reactivated.
+        /// The user or service account the key acts as, if bound to a principal.
+        /// </summary>
+        [Output("principal")]
+        public Output<Outputs.ApiKeyActor?> Principal { get; private set; } = null!;
+
+        /// <summary>
+        /// Where the key belongs: an organization or a workspace.
+        /// </summary>
+        [Output("scope")]
+        public Output<Outputs.ApiKeyScope?> Scope { get; private set; } = null!;
+
+        /// <summary>
+        /// The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
         /// </summary>
         [Output("status")]
         public Output<Pulumi.Labs.Anthropic.Organization.ApiKeyStatus?> Status { get; private set; } = null!;
 
         /// <summary>
-        /// The ID of the workspace the key belongs to.
+        /// The key's actual workspace ID, or an empty string for organization scope. See scope for the ownership boundary.
         /// </summary>
         [Output("workspaceId")]
         public Output<string> WorkspaceId { get; private set; } = null!;
@@ -113,19 +135,19 @@ namespace Pulumi.Labs.Anthropic.Organization
     public sealed class ApiKeyArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The ID of the existing API key to manage.
+        /// The existing key's nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
         /// </summary>
         [Input("apiKeyId", required: true)]
         public Input<string> ApiKeyId { get; set; } = null!;
 
         /// <summary>
-        /// The key's name, 1 to 500 characters.
+        /// The key's name, 1 to 500 characters. Omission leaves the current name unchanged.
         /// </summary>
         [Input("name")]
         public Input<string>? Name { get; set; }
 
         /// <summary>
-        /// The key's status. An archived key cannot be reactivated.
+        /// The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
         /// </summary>
         [Input("status")]
         public Input<Pulumi.Labs.Anthropic.Organization.ApiKeyStatus>? Status { get; set; }

@@ -10,6 +10,7 @@ from .get_models import *
 from .get_organization import *
 from .get_rate_limits import *
 from .provider import *
+from ._inputs import *
 from . import outputs
 
 # Make subpackages available:

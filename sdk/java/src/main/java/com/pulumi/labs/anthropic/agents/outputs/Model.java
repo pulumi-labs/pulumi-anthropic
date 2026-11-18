@@ -15,51 +15,51 @@ import javax.annotation.Nullable;
 @CustomType
 public final class Model {
     /**
-     * @return How much effort the model spends reasoning. Defaults to the model&#39;s own default, and is kept across changes that leave `id` unchanged.
-     * 
+     * @return How much effort the model spends reasoning. Defaults to the model&#39;s own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
+     *
      */
     private @Nullable Effort effort;
     /**
      * @return The model ID, such as `claude-opus-5-5`.
-     * 
+     *
      */
     private String id;
     /**
-     * @return Where inference runs, such as `us` or `global`.
-     * 
+     * @return Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
+     *
      */
     private @Nullable String inferenceGeo;
     /**
-     * @return The inference speed tier.
-     * 
+     * @return The inference speed tier. Removing a configured tier restores standard.
+     *
      */
     private @Nullable Speed speed;
 
     private Model() {}
     /**
-     * @return How much effort the model spends reasoning. Defaults to the model&#39;s own default, and is kept across changes that leave `id` unchanged.
-     * 
+     * @return How much effort the model spends reasoning. Defaults to the model&#39;s own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required.
+     *
      */
     public Optional<Effort> effort() {
         return Optional.ofNullable(this.effort);
     }
     /**
      * @return The model ID, such as `claude-opus-5-5`.
-     * 
+     *
      */
     public String id() {
         return this.id;
     }
     /**
-     * @return Where inference runs, such as `us` or `global`.
-     * 
+     * @return Where inference runs, such as us or global. Removing a configured region falls back to the workspace default.
+     *
      */
     public Optional<String> inferenceGeo() {
         return Optional.ofNullable(this.inferenceGeo);
     }
     /**
-     * @return The inference speed tier.
-     * 
+     * @return The inference speed tier. Removing a configured tier restores standard.
+     *
      */
     public Optional<Speed> speed() {
         return Optional.ofNullable(this.speed);
@@ -80,11 +80,11 @@ public final class Model {
         private @Nullable Speed speed;
         public Builder() {}
         public Builder(Model defaults) {
-    	      Objects.requireNonNull(defaults);
-    	      this.effort = defaults.effort;
-    	      this.id = defaults.id;
-    	      this.inferenceGeo = defaults.inferenceGeo;
-    	      this.speed = defaults.speed;
+              Objects.requireNonNull(defaults);
+              this.effort = defaults.effort;
+              this.id = defaults.id;
+              this.inferenceGeo = defaults.inferenceGeo;
+              this.speed = defaults.speed;
         }
 
         @CustomType.Setter

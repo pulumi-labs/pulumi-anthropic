@@ -12,17 +12,15 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// A Claude Managed Agents vault: a container for the credentials sessions use to reach MCP servers and other services. Add credentials with `VaultCredential`, and attach vaults to sessions or deployments by ID.
-//
-// Deleting this resource deletes the vault and every credential in it.
+// A workspace-scoped Claude Managed Agents credential container. Add credentials with VaultCredential and reference the vault by ID. Deleting this resource permanently deletes the vault; it does not archive it. Archived vaults are treated as deleted.
 type Vault struct {
 	pulumi.CustomResourceState
 
 	// When the vault was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// The vault's display name, 1 to 255 characters.
+	// The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
 	DisplayName pulumi.StringOutput `pulumi:"displayName"`
-	// Arbitrary key-value pairs.
+	// At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
 	Metadata pulumi.StringMapOutput `pulumi:"metadata"`
 	// When the vault was last updated, in RFC 3339 format.
 	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
@@ -77,17 +75,17 @@ func VaultExists(ctx *pulumi.Context,
 }
 
 type vaultArgs struct {
-	// The vault's display name, 1 to 255 characters.
+	// The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
 	DisplayName string `pulumi:"displayName"`
-	// Arbitrary key-value pairs.
+	// At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
 	Metadata map[string]string `pulumi:"metadata"`
 }
 
 // The set of arguments for constructing a Vault resource.
 type VaultArgs struct {
-	// The vault's display name, 1 to 255 characters.
+	// The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
 	DisplayName pulumi.StringInput
-	// Arbitrary key-value pairs.
+	// At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
 	Metadata pulumi.StringMapInput
 }
 
@@ -183,12 +181,12 @@ func (o VaultOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *Vault) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// The vault's display name, 1 to 255 characters.
+// The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
 func (o VaultOutput) DisplayName() pulumi.StringOutput {
 	return o.ApplyT(func(v *Vault) pulumi.StringOutput { return v.DisplayName }).(pulumi.StringOutput)
 }
 
-// Arbitrary key-value pairs.
+// At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
 func (o VaultOutput) Metadata() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *Vault) pulumi.StringMapOutput { return v.Metadata }).(pulumi.StringMapOutput)
 }

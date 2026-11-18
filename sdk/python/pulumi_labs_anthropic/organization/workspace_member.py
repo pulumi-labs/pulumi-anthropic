@@ -26,8 +26,8 @@ class WorkspaceMemberArgs:
         """
         The set of arguments for constructing a WorkspaceMember resource.
 
-        :param pulumi.Input[_builtins.str] user_id: The user's ID.
-        :param pulumi.Input[_builtins.str] workspace_id: The workspace's ID.
+        :param pulumi.Input[_builtins.str] user_id: The user's ID. Changing this value replaces the membership.
+        :param pulumi.Input[_builtins.str] workspace_id: The workspace's ID. Changing this value replaces the membership.
         :param pulumi.Input['WorkspaceRole'] workspace_role: The user's role in the workspace.
         """
         pulumi.set(__self__, "user_id", user_id)
@@ -38,7 +38,7 @@ class WorkspaceMemberArgs:
     @pulumi.getter(name="userId")
     def user_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The user's ID.
+        The user's ID. Changing this value replaces the membership.
         """
         return pulumi.get(self, "user_id")
 
@@ -50,7 +50,7 @@ class WorkspaceMemberArgs:
     @pulumi.getter(name="workspaceId")
     def workspace_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The workspace's ID.
+        The workspace's ID. Changing this value replaces the membership.
         """
         return pulumi.get(self, "workspace_id")
 
@@ -82,12 +82,12 @@ class WorkspaceMember(pulumi.CustomResource):
                  workspace_role: pulumi.Input[Optional['WorkspaceRole']] = None,
                  __props__=None):
         """
-        A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `<workspaceId>/<userId>`.
+        A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `<workspaceId>/<userId>`. Deleting this resource removes the workspace membership, not the user or workspace.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] user_id: The user's ID.
-        :param pulumi.Input[_builtins.str] workspace_id: The workspace's ID.
+        :param pulumi.Input[_builtins.str] user_id: The user's ID. Changing this value replaces the membership.
+        :param pulumi.Input[_builtins.str] workspace_id: The workspace's ID. Changing this value replaces the membership.
         :param pulumi.Input['WorkspaceRole'] workspace_role: The user's role in the workspace.
         """
         ...
@@ -97,7 +97,7 @@ class WorkspaceMember(pulumi.CustomResource):
                  args: WorkspaceMemberArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `<workspaceId>/<userId>`.
+        A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `<workspaceId>/<userId>`. Deleting this resource removes the workspace membership, not the user or workspace.
 
         :param str resource_name: The name of the resource.
         :param WorkspaceMemberArgs args: The arguments to use to populate this resource's properties.
@@ -174,7 +174,7 @@ class WorkspaceMember(pulumi.CustomResource):
     @pulumi.getter(name="userId")
     def user_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The user's ID.
+        The user's ID. Changing this value replaces the membership.
         """
         return pulumi.get(self, "user_id")
 
@@ -182,7 +182,7 @@ class WorkspaceMember(pulumi.CustomResource):
     @pulumi.getter(name="workspaceId")
     def workspace_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The workspace's ID.
+        The workspace's ID. Changing this value replaces the membership.
         """
         return pulumi.get(self, "workspace_id")
 

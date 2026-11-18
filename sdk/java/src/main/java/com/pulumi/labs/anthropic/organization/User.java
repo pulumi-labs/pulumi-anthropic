@@ -9,17 +9,12 @@ import com.pulumi.core.annotations.ResourceType;
 import com.pulumi.core.internal.Codegen;
 import com.pulumi.labs.anthropic.Utilities;
 import com.pulumi.labs.anthropic.organization.UserArgs;
-import com.pulumi.labs.anthropic.organization.enums.OrganizationRole;
 import java.lang.String;
-import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * A user of the organization, and their organization role.
- * 
- * Users cannot be created through the API: people join by accepting an `anthropic.organization.Invite`. Creating this resource adopts an existing user by ID and sets their role.
- * 
- * Deleting this resource removes the user from the organization. To stop managing a user without removing them, set the `retainOnDelete` resource option.
+ * Manages an existing user&#39;s organization membership and role. People join by accepting an `anthropic.organization.Invite`; creating this resource adopts an existing user by ID and assigns the configured role. Deleting this resource removes the user from the organization, including when replacing userId. Use retainOnDelete to stop managing a user without removing them. Import uses the user ID; privileged roles can be observed but cannot be assigned, so select an assignable role before managing an imported privileged user.
  * 
  */
 @ResourceType(type="anthropic:organization:User")
@@ -29,66 +24,66 @@ public class User extends com.pulumi.resources.CustomResource {
      * 
      */
     @Export(name="addedAt", refs={String.class}, tree="[0]")
-    private Output<String> addedAt;
+    private Output</* @Nullable */ String> addedAt;
 
     /**
      * @return When the user joined the organization, in RFC 3339 format.
      * 
      */
-    public Output<String> addedAt() {
-        return this.addedAt;
+    public Output<Optional<String>> addedAt() {
+        return Codegen.optional(this.addedAt);
     }
     /**
      * The user&#39;s email address.
      * 
      */
     @Export(name="email", refs={String.class}, tree="[0]")
-    private Output<String> email;
+    private Output</* @Nullable */ String> email;
 
     /**
      * @return The user&#39;s email address.
      * 
      */
-    public Output<String> email() {
-        return this.email;
+    public Output<Optional<String>> email() {
+        return Codegen.optional(this.email);
     }
     /**
      * The user&#39;s name.
      * 
      */
     @Export(name="name", refs={String.class}, tree="[0]")
-    private Output<String> name;
+    private Output</* @Nullable */ String> name;
 
     /**
      * @return The user&#39;s name.
      * 
      */
-    public Output<String> name() {
-        return this.name;
+    public Output<Optional<String>> name() {
+        return Codegen.optional(this.name);
     }
     /**
-     * The user&#39;s organization role. The `admin` role cannot be granted through the API.
+     * The observed organization role, including privileged administrator or owner roles that cannot be assigned.
      * 
      */
-    @Export(name="role", refs={OrganizationRole.class}, tree="[0]")
-    private Output<OrganizationRole> role;
+    @Export(name="role", refs={String.class}, tree="[0]")
+    private Output<String> role;
 
     /**
-     * @return The user&#39;s organization role. The `admin` role cannot be granted through the API.
+     * @return The observed organization role, including privileged administrator or owner roles that cannot be assigned.
      * 
      */
-    public Output<OrganizationRole> role() {
+    public Output<String> role() {
         return this.role;
     }
     /**
-     * The ID of the existing user to manage.
+     * The existing user&#39;s ID.
      * 
      */
     @Export(name="userId", refs={String.class}, tree="[0]")
     private Output<String> userId;
 
     /**
-     * @return The ID of the existing user to manage.
+     * @return The existing user&#39;s ID.
      * 
      */
     public Output<String> userId() {
@@ -135,9 +130,6 @@ public class User extends com.pulumi.resources.CustomResource {
         var defaultOptions = com.pulumi.resources.CustomResourceOptions.builder()
             .version(Utilities.getVersion())
             .pluginDownloadURL("github://api.github.com/pulumi-labs/pulumi-anthropic")
-            .replaceOnChanges(List.of(
-                "userId"
-            ))
             .build();
         return com.pulumi.resources.CustomResourceOptions.merge(defaultOptions, options, id);
     }

@@ -16,6 +16,10 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 
+/**
+ * The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
+ *
+ */
 public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final JwksArgs Empty = new JwksArgs();
@@ -36,14 +40,14 @@ public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+     * The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
      * 
      */
     @Import(name="discoveryBase")
     private @Nullable Output<String> discoveryBase;
 
     /**
-     * @return The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+     * @return The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
      * 
      */
     public Optional<Output<String>> discoveryBase() {
@@ -51,14 +55,14 @@ public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The signing keys, as JSON Web Keys. Required for `inline`.
+     * A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
      * 
      */
     @Import(name="keys")
     private @Nullable Output<List<Map<String,Object>>> keys;
 
     /**
-     * @return The signing keys, as JSON Web Keys. Required for `inline`.
+     * @return A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
      * 
      */
     public Optional<Output<List<Map<String,Object>>>> keys() {
@@ -81,14 +85,14 @@ public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The JWKS URL. Required for `explicit_url`.
+     * The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
      * 
      */
     @Import(name="url")
     private @Nullable Output<String> url;
 
     /**
-     * @return The JWKS URL. Required for `explicit_url`.
+     * @return The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
      * 
      */
     public Optional<Output<String>> url() {
@@ -145,7 +149,7 @@ public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param discoveryBase The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+         * @param discoveryBase The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
          * 
          * @return builder
          * 
@@ -156,7 +160,7 @@ public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param discoveryBase The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+         * @param discoveryBase The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
          * 
          * @return builder
          * 
@@ -166,7 +170,7 @@ public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param keys The signing keys, as JSON Web Keys. Required for `inline`.
+         * @param keys A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
          * 
          * @return builder
          * 
@@ -177,7 +181,7 @@ public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param keys The signing keys, as JSON Web Keys. Required for `inline`.
+         * @param keys A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
          * 
          * @return builder
          * 
@@ -187,7 +191,7 @@ public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param keys The signing keys, as JSON Web Keys. Required for `inline`.
+         * @param keys A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
          * 
          * @return builder
          * 
@@ -218,7 +222,7 @@ public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param url The JWKS URL. Required for `explicit_url`.
+         * @param url The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
          * 
          * @return builder
          * 
@@ -229,7 +233,7 @@ public final class JwksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param url The JWKS URL. Required for `explicit_url`.
+         * @param url The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
          * 
          * @return builder
          * 

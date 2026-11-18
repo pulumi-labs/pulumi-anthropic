@@ -1,0 +1,54 @@
+name: vault-credential-replacement
+runtime: yaml
+config:
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  apiKey:
+    type: string
+    secret: true
+  workspaceId:
+    type: string
+    default: ""
+  runName:
+    type: string
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  provider:
+    type: pulumi:providers:anthropic
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+      workspaceId: ${workspaceId}
+    options:
+      version: TEST_PROVIDER_VERSION
+  vault:
+    type: anthropic:agents:Vault
+    properties:
+      displayName: ${runName}
+    options:
+      provider: ${provider}
+  credential:
+    type: anthropic:agents:VaultCredential
+    properties:
+      vaultId: ${vault.id}
+      displayName: ${runName}-first
+      auth:
+        type: static_bearer
+        mcpServerUrl: https://first.example.com/mcp
+        token:
+          fn::secret: test-vault-replacement-token-no-access
+    options:
+      provider: ${provider}
+outputs:
+  credentialId: ${credential.id}

@@ -11,11 +11,7 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Organization
 {
     /// <summary>
-    /// A user of the organization, and their organization role.
-    /// 
-    /// Users cannot be created through the API: people join by accepting an `anthropic.organization.Invite`. Creating this resource adopts an existing user by ID and sets their role.
-    /// 
-    /// Deleting this resource removes the user from the organization. To stop managing a user without removing them, set the `retainOnDelete` resource option.
+    /// Manages an existing user's organization membership and role. People join by accepting an `anthropic.organization.Invite`; creating this resource adopts an existing user by ID and assigns the configured role. Deleting this resource removes the user from the organization, including when replacing userId. Use retainOnDelete to stop managing a user without removing them. Import uses the user ID; privileged roles can be observed but cannot be assigned, so select an assignable role before managing an imported privileged user.
     /// </summary>
     [AnthropicResourceType("anthropic:organization:User")]
     public partial class User : global::Pulumi.CustomResource
@@ -24,28 +20,28 @@ namespace Pulumi.Labs.Anthropic.Organization
         /// When the user joined the organization, in RFC 3339 format.
         /// </summary>
         [Output("addedAt")]
-        public Output<string> AddedAt { get; private set; } = null!;
+        public Output<string?> AddedAt { get; private set; } = null!;
 
         /// <summary>
         /// The user's email address.
         /// </summary>
         [Output("email")]
-        public Output<string> Email { get; private set; } = null!;
+        public Output<string?> Email { get; private set; } = null!;
 
         /// <summary>
         /// The user's name.
         /// </summary>
         [Output("name")]
-        public Output<string> Name { get; private set; } = null!;
+        public Output<string?> Name { get; private set; } = null!;
 
         /// <summary>
-        /// The user's organization role. The `admin` role cannot be granted through the API.
+        /// The observed organization role, including privileged administrator or owner roles that cannot be assigned.
         /// </summary>
         [Output("role")]
-        public Output<Pulumi.Labs.Anthropic.Organization.OrganizationRole> Role { get; private set; } = null!;
+        public Output<string> Role { get; private set; } = null!;
 
         /// <summary>
-        /// The ID of the existing user to manage.
+        /// The existing user's ID.
         /// </summary>
         [Output("userId")]
         public Output<string> UserId { get; private set; } = null!;
@@ -74,10 +70,6 @@ namespace Pulumi.Labs.Anthropic.Organization
             {
                 Version = Utilities.Version,
                 PluginDownloadURL = "github://api.github.com/pulumi-labs/pulumi-anthropic",
-                ReplaceOnChanges =
-                {
-                    "userId",
-                },
             };
             var merged = CustomResourceOptions.Merge(defaultOptions, options);
             // Override the ID if one was specified for consistency with other language SDKs.
@@ -101,13 +93,13 @@ namespace Pulumi.Labs.Anthropic.Organization
     public sealed class UserArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The user's organization role. The `admin` role cannot be granted through the API.
+        /// The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
         /// </summary>
         [Input("role", required: true)]
         public Input<Pulumi.Labs.Anthropic.Organization.OrganizationRole> Role { get; set; } = null!;
 
         /// <summary>
-        /// The ID of the existing user to manage.
+        /// The existing user's ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
         /// </summary>
         [Input("userId", required: true)]
         public Input<string> UserId { get; set; } = null!;

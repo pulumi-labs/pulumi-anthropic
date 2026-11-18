@@ -16,16 +16,18 @@ import (
 //
 // There is at most one limit per scope and period, and the API sets a limit by overwriting whatever limit that scope and period already has, so creating this resource takes over an existing limit rather than failing. Changing the scope or period replaces the limit.
 //
-// User limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount.
+// User limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount. Deleting a user limit restores any inherited cap for that period; deleting a limit may increase permitted spending. Import accepts a writable limit's spl_ ID.
 type SpendLimit struct {
 	pulumi.CustomResourceState
 
-	// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
+	// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
 	Amount pulumi.StringPtrOutput `pulumi:"amount"`
 	// When the limit was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
 	// The ISO 4217 code of the organization's billing currency, which `amount` is denominated in.
 	Currency pulumi.StringOutput `pulumi:"currency"`
+	// Whether the configured limit is enabled. Organization limits are disabled while extra usage is off; the amount is retained for when extra usage is enabled again. Other periods and inherited limits may still apply.
+	IsEnabled pulumi.BoolOutput `pulumi:"isEnabled"`
 	// The period the limit applies over. If omitted, the API's default applies.
 	Period SpendLimitPeriodPtrOutput `pulumi:"period"`
 	// What the limit applies to.
@@ -88,7 +90,7 @@ func SpendLimitExists(ctx *pulumi.Context,
 }
 
 type spendLimitArgs struct {
-	// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
+	// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
 	Amount *string `pulumi:"amount"`
 	// The period the limit applies over. If omitted, the API's default applies.
 	Period *SpendLimitPeriod `pulumi:"period"`
@@ -98,7 +100,7 @@ type spendLimitArgs struct {
 
 // The set of arguments for constructing a SpendLimit resource.
 type SpendLimitArgs struct {
-	// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
+	// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
 	Amount pulumi.StringPtrInput
 	// The period the limit applies over. If omitted, the API's default applies.
 	Period SpendLimitPeriodPtrInput
@@ -193,7 +195,7 @@ func (o SpendLimitOutput) ToSpendLimitOutputWithContext(ctx context.Context) Spe
 	return o
 }
 
-// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
+// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
 func (o SpendLimitOutput) Amount() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *SpendLimit) pulumi.StringPtrOutput { return v.Amount }).(pulumi.StringPtrOutput)
 }
@@ -206,6 +208,11 @@ func (o SpendLimitOutput) CreatedAt() pulumi.StringOutput {
 // The ISO 4217 code of the organization's billing currency, which `amount` is denominated in.
 func (o SpendLimitOutput) Currency() pulumi.StringOutput {
 	return o.ApplyT(func(v *SpendLimit) pulumi.StringOutput { return v.Currency }).(pulumi.StringOutput)
+}
+
+// Whether the configured limit is enabled. Organization limits are disabled while extra usage is off; the amount is retained for when extra usage is enabled again. Other periods and inherited limits may still apply.
+func (o SpendLimitOutput) IsEnabled() pulumi.BoolOutput {
+	return o.ApplyT(func(v *SpendLimit) pulumi.BoolOutput { return v.IsEnabled }).(pulumi.BoolOutput)
 }
 
 // The period the limit applies over. If omitted, the API's default applies.

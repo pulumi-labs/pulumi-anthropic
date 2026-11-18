@@ -8,11 +8,7 @@ import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 /**
- * A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, run on a cron schedule or on demand.
- *
- * A deployment runs one version of its agent. Set `agent.version` to the agent's `version` output to roll the deployment forward with every change to the agent, or to a fixed number to hold it back: updating the agent creates a new version, and deployments move to it one at a time as their `agent.version` changes.
- *
- * The API cannot delete deployments, so deleting this resource archives the deployment, which stops its schedule and cannot be undone.
+ * A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, on demand or on a cron schedule. Set agent.version to pin a version; otherwise the latest version is pinned whenever configuration is applied. This resource does not start on-demand sessions or manage pausing. Deleting it archives the deployment permanently and stops its schedule.
  */
 export class Deployment extends pulumi.CustomResource {
     /**
@@ -56,7 +52,7 @@ export class Deployment extends pulumi.CustomResource {
      */
     declare public readonly agent: pulumi.Output<outputs.agents.AgentReference>;
     /**
-     * A spending limit for the deployment.
+     * A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
      */
     declare public readonly budget: pulumi.Output<outputs.agents.Budget | undefined>;
     /**
@@ -64,7 +60,7 @@ export class Deployment extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * A description of the deployment.
+     * A description of the deployment. Removing a configured description clears it.
      */
     declare public readonly description: pulumi.Output<string | undefined>;
     /**
@@ -72,11 +68,11 @@ export class Deployment extends pulumi.CustomResource {
      */
     declare public readonly environmentId: pulumi.Output<string>;
     /**
-     * The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+     * The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
      */
     declare public readonly initialEvents: pulumi.Output<{[key: string]: any}[]>;
     /**
-     * Arbitrary key-value pairs.
+     * Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
      */
     declare public readonly metadata: pulumi.Output<{[key: string]: string} | undefined>;
     /**
@@ -84,19 +80,15 @@ export class Deployment extends pulumi.CustomResource {
      */
     declare public readonly name: pulumi.Output<string>;
     /**
-     * Whether the deployment is paused. Omit to leave pausing to other tools.
-     */
-    declare public readonly paused: pulumi.Output<boolean | undefined>;
-    /**
-     * Repositories, files, and memory stores mounted into each session, up to 500.
+     * Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
      */
     declare public readonly resources: pulumi.Output<outputs.agents.DeploymentResource[] | undefined>;
     /**
-     * When to run. Omit to run only on demand.
+     * When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
      */
     declare public readonly schedule: pulumi.Output<outputs.agents.Schedule | undefined>;
     /**
-     * Whether the deployment is `active` or `paused`. The platform also pauses a deployment when it cannot run, for example because its agent was archived.
+     * Whether the deployment is active or paused, as observed on the platform. The platform may pause deployments when dependencies cannot run. This resource does not change pause status.
      */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     /**
@@ -104,7 +96,7 @@ export class Deployment extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly updatedAt: pulumi.Output<string>;
     /**
-     * Vaults whose credentials sessions can use, up to 50.
+     * Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
      */
     declare public readonly vaultIds: pulumi.Output<string[] | undefined>;
 
@@ -138,7 +130,6 @@ export class Deployment extends pulumi.CustomResource {
             resourceInputs["initialEvents"] = args?.initialEvents;
             resourceInputs["metadata"] = args?.metadata;
             resourceInputs["name"] = args?.name;
-            resourceInputs["paused"] = args?.paused;
             resourceInputs["resources"] = args?.resources;
             resourceInputs["schedule"] = args?.schedule;
             resourceInputs["vaultIds"] = args?.vaultIds;
@@ -154,7 +145,6 @@ export class Deployment extends pulumi.CustomResource {
             resourceInputs["initialEvents"] = undefined /*out*/;
             resourceInputs["metadata"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
-            resourceInputs["paused"] = undefined /*out*/;
             resourceInputs["resources"] = undefined /*out*/;
             resourceInputs["schedule"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
@@ -175,11 +165,11 @@ export interface DeploymentArgs {
      */
     agent: pulumi.Input<inputs.agents.AgentReferenceArgs>;
     /**
-     * A spending limit for the deployment.
+     * A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
      */
     budget?: pulumi.Input<inputs.agents.BudgetArgs | undefined>;
     /**
-     * A description of the deployment.
+     * A description of the deployment. Removing a configured description clears it.
      */
     description?: pulumi.Input<string | undefined>;
     /**
@@ -187,11 +177,11 @@ export interface DeploymentArgs {
      */
     environmentId: pulumi.Input<string>;
     /**
-     * The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+     * The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
      */
     initialEvents: pulumi.Input<pulumi.Input<{[key: string]: any}>[]>;
     /**
-     * Arbitrary key-value pairs.
+     * Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
      */
     metadata?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
@@ -199,19 +189,15 @@ export interface DeploymentArgs {
      */
     name: pulumi.Input<string>;
     /**
-     * Whether the deployment is paused. Omit to leave pausing to other tools.
-     */
-    paused?: pulumi.Input<boolean | undefined>;
-    /**
-     * Repositories, files, and memory stores mounted into each session, up to 500.
+     * Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
      */
     resources?: pulumi.Input<pulumi.Input<inputs.agents.DeploymentResourceArgs>[] | undefined>;
     /**
-     * When to run. Omit to run only on demand.
+     * When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
      */
     schedule?: pulumi.Input<inputs.agents.ScheduleArgs | undefined>;
     /**
-     * Vaults whose credentials sessions can use, up to 50.
+     * Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
      */
     vaultIds?: pulumi.Input<pulumi.Input<string>[] | undefined>;
 }

@@ -14,13 +14,13 @@ namespace Pulumi.Labs.Anthropic.Agents.Inputs
     public sealed class MonetaryAmountArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The amount in the currency's minor units, as an integer string: `2500` is $25.00.
+        /// The amount in the currency's minor units, as an integer string: 2500 is $25.00.
         /// </summary>
         [Input("amount", required: true)]
         public Input<string> Amount { get; set; } = null!;
 
         /// <summary>
-        /// The ISO 4217 currency code. Only `USD` is supported.
+        /// The ISO 4217 currency code. Only USD is supported.
         /// </summary>
         [Input("currency", required: true)]
         public Input<string> Currency { get; set; } = null!;

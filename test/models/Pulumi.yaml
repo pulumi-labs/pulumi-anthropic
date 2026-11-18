@@ -1,0 +1,43 @@
+name: models
+runtime: yaml
+description: Read-only model listing through the installed provider and provider configuration; no inference or resource mutations.
+config:
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  apiKey:
+    type: string
+    secret: true
+  workspaceId:
+    type: string
+    default: ""
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  modelsProvider:
+    type: pulumi:providers:anthropic
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+      workspaceId: ${workspaceId}
+    options:
+      version: TEST_PROVIDER_VERSION
+variables:
+  result:
+    fn::invoke:
+      function: anthropic:index:getModels
+      arguments: {}
+      options:
+        provider: ${modelsProvider}
+        version: TEST_PROVIDER_VERSION
+outputs:
+  models: ${result.models}

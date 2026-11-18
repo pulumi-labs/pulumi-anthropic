@@ -14,13 +14,13 @@ namespace Pulumi.Labs.Anthropic.Agents.Inputs
     public sealed class CheckoutArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The branch. Required for `branch`.
+        /// The branch. Required for branch.
         /// </summary>
         [Input("name")]
         public Input<string>? Name { get; set; }
 
         /// <summary>
-        /// The commit SHA. Required for `commit`.
+        /// The commit SHA. Required for commit.
         /// </summary>
         [Input("sha")]
         public Input<string>? Sha { get; set; }

@@ -40,42 +40,42 @@ public class ServiceAccount extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * A description of the service account, up to 2,000 characters.
+     * A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
      * 
      */
     @Export(name="description", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> description;
 
     /**
-     * @return A description of the service account, up to 2,000 characters.
+     * @return A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
      * 
      */
     public Output<Optional<String>> description() {
         return Codegen.optional(this.description);
     }
     /**
-     * A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+     * A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
      * 
      */
     @Export(name="name", refs={String.class}, tree="[0]")
     private Output<String> name;
 
     /**
-     * @return A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+     * @return A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
      * 
      */
     public Output<String> name() {
         return this.name;
     }
     /**
-     * The service account&#39;s organization role. Defaults to `developer`.
+     * The service account&#39;s organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
      * 
      */
     @Export(name="organizationRole", refs={ServiceAccountRole.class}, tree="[0]")
     private Output</* @Nullable */ ServiceAccountRole> organizationRole;
 
     /**
-     * @return The service account&#39;s organization role. Defaults to `developer`.
+     * @return The service account&#39;s organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
      * 
      */
     public Output<Optional<ServiceAccountRole>> organizationRole() {

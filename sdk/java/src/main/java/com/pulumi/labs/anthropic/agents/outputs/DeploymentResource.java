@@ -16,37 +16,37 @@ import javax.annotation.Nullable;
 @CustomType
 public final class DeploymentResource {
     /**
-     * @return Whether the agent can write to the memory store. For `memory_store`.
+     * @return Whether the agent can write to the memory store. For memory_store; defaults to read_write.
      * 
      */
     private @Nullable MemoryAccess access;
     /**
-     * @return A token that can read the repository. For `github_repository`.
+     * @return A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
      * 
      */
     private @Nullable String authorizationToken;
     /**
-     * @return The branch or commit to check out. For `github_repository`; defaults to the default branch.
+     * @return The branch or commit to check out. For github_repository; defaults to the default branch.
      * 
      */
     private @Nullable Checkout checkout;
     /**
-     * @return The file&#39;s ID. Required for `file`.
+     * @return The file&#39;s ID. Required for file.
      * 
      */
     private @Nullable String fileId;
     /**
-     * @return How the agent should use the memory store. For `memory_store`.
+     * @return How the agent should use the memory store. For memory_store; at most 4096 characters.
      * 
      */
     private @Nullable String instructions;
     /**
-     * @return The memory store&#39;s ID. Required for `memory_store`.
+     * @return The memory store&#39;s ID. Required for memory_store.
      * 
      */
     private @Nullable String memoryStoreId;
     /**
-     * @return Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+     * @return Where the resource is mounted in the sandbox. For github_repository and file.
      * 
      */
     private @Nullable String mountPath;
@@ -56,56 +56,56 @@ public final class DeploymentResource {
      */
     private DeploymentResourceType type;
     /**
-     * @return The repository&#39;s URL. Required for `github_repository`.
+     * @return The repository&#39;s URL. Required for github_repository.
      * 
      */
     private @Nullable String url;
 
     private DeploymentResource() {}
     /**
-     * @return Whether the agent can write to the memory store. For `memory_store`.
+     * @return Whether the agent can write to the memory store. For memory_store; defaults to read_write.
      * 
      */
     public Optional<MemoryAccess> access() {
         return Optional.ofNullable(this.access);
     }
     /**
-     * @return A token that can read the repository. For `github_repository`.
+     * @return A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
      * 
      */
     public Optional<String> authorizationToken() {
         return Optional.ofNullable(this.authorizationToken);
     }
     /**
-     * @return The branch or commit to check out. For `github_repository`; defaults to the default branch.
+     * @return The branch or commit to check out. For github_repository; defaults to the default branch.
      * 
      */
     public Optional<Checkout> checkout() {
         return Optional.ofNullable(this.checkout);
     }
     /**
-     * @return The file&#39;s ID. Required for `file`.
+     * @return The file&#39;s ID. Required for file.
      * 
      */
     public Optional<String> fileId() {
         return Optional.ofNullable(this.fileId);
     }
     /**
-     * @return How the agent should use the memory store. For `memory_store`.
+     * @return How the agent should use the memory store. For memory_store; at most 4096 characters.
      * 
      */
     public Optional<String> instructions() {
         return Optional.ofNullable(this.instructions);
     }
     /**
-     * @return The memory store&#39;s ID. Required for `memory_store`.
+     * @return The memory store&#39;s ID. Required for memory_store.
      * 
      */
     public Optional<String> memoryStoreId() {
         return Optional.ofNullable(this.memoryStoreId);
     }
     /**
-     * @return Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+     * @return Where the resource is mounted in the sandbox. For github_repository and file.
      * 
      */
     public Optional<String> mountPath() {
@@ -119,7 +119,7 @@ public final class DeploymentResource {
         return this.type;
     }
     /**
-     * @return The repository&#39;s URL. Required for `github_repository`.
+     * @return The repository&#39;s URL. Required for github_repository.
      * 
      */
     public Optional<String> url() {

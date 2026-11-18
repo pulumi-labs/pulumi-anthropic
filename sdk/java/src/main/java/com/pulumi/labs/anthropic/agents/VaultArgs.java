@@ -18,14 +18,14 @@ public final class VaultArgs extends com.pulumi.resources.ResourceArgs {
     public static final VaultArgs Empty = new VaultArgs();
 
     /**
-     * The vault&#39;s display name, 1 to 255 characters.
+     * The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
      * 
      */
     @Import(name="displayName", required=true)
     private Output<String> displayName;
 
     /**
-     * @return The vault&#39;s display name, 1 to 255 characters.
+     * @return The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
      * 
      */
     public Output<String> displayName() {
@@ -33,14 +33,14 @@ public final class VaultArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Arbitrary key-value pairs.
+     * At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
      * 
      */
     @Import(name="metadata")
     private @Nullable Output<Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs.
+     * @return At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
      * 
      */
     public Optional<Output<Map<String,String>>> metadata() {
@@ -73,7 +73,7 @@ public final class VaultArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param displayName The vault&#39;s display name, 1 to 255 characters.
+         * @param displayName The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
          * 
          * @return builder
          * 
@@ -84,7 +84,7 @@ public final class VaultArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param displayName The vault&#39;s display name, 1 to 255 characters.
+         * @param displayName The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
          * 
          * @return builder
          * 
@@ -94,7 +94,7 @@ public final class VaultArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs.
+         * @param metadata At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
          * 
          * @return builder
          * 
@@ -105,7 +105,7 @@ public final class VaultArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs.
+         * @param metadata At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
          * 
          * @return builder
          * 

@@ -13,20 +13,24 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 
+/**
+ * The user, workspace, or organization whose spending is capped. Specify only the ID matching the scope type.
+ *
+ */
 public final class SpendLimitScopeArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final SpendLimitScopeArgs Empty = new SpendLimitScopeArgs();
 
     /**
      * The kind of scope.
-     * 
+     *
      */
     @Import(name="type", required=true)
     private Output<SpendLimitScopeType> type;
 
     /**
      * @return The kind of scope.
-     * 
+     *
      */
     public Output<SpendLimitScopeType> type() {
         return this.type;
@@ -34,14 +38,14 @@ public final class SpendLimitScopeArgs extends com.pulumi.resources.ResourceArgs
 
     /**
      * The user the limit applies to. Required for `user`.
-     * 
+     *
      */
     @Import(name="userId")
     private @Nullable Output<String> userId;
 
     /**
      * @return The user the limit applies to. Required for `user`.
-     * 
+     *
      */
     public Optional<Output<String>> userId() {
         return Optional.ofNullable(this.userId);
@@ -49,14 +53,14 @@ public final class SpendLimitScopeArgs extends com.pulumi.resources.ResourceArgs
 
     /**
      * The workspace the limit applies to. Required for `workspace`.
-     * 
+     *
      */
     @Import(name="workspaceId")
     private @Nullable Output<String> workspaceId;
 
     /**
      * @return The workspace the limit applies to. Required for `workspace`.
-     * 
+     *
      */
     public Optional<Output<String>> workspaceId() {
         return Optional.ofNullable(this.workspaceId);
@@ -90,9 +94,9 @@ public final class SpendLimitScopeArgs extends com.pulumi.resources.ResourceArgs
 
         /**
          * @param type The kind of scope.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder type(Output<SpendLimitScopeType> type) {
             $.type = type;
@@ -101,9 +105,9 @@ public final class SpendLimitScopeArgs extends com.pulumi.resources.ResourceArgs
 
         /**
          * @param type The kind of scope.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder type(SpendLimitScopeType type) {
             return type(Output.of(type));
@@ -111,9 +115,9 @@ public final class SpendLimitScopeArgs extends com.pulumi.resources.ResourceArgs
 
         /**
          * @param userId The user the limit applies to. Required for `user`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder userId(@Nullable Output<String> userId) {
             $.userId = userId;
@@ -122,9 +126,9 @@ public final class SpendLimitScopeArgs extends com.pulumi.resources.ResourceArgs
 
         /**
          * @param userId The user the limit applies to. Required for `user`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder userId(String userId) {
             return userId(Output.of(userId));
@@ -132,9 +136,9 @@ public final class SpendLimitScopeArgs extends com.pulumi.resources.ResourceArgs
 
         /**
          * @param workspaceId The workspace the limit applies to. Required for `workspace`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder workspaceId(@Nullable Output<String> workspaceId) {
             $.workspaceId = workspaceId;
@@ -143,9 +147,9 @@ public final class SpendLimitScopeArgs extends com.pulumi.resources.ResourceArgs
 
         /**
          * @param workspaceId The workspace the limit applies to. Required for `workspace`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder workspaceId(String workspaceId) {
             return workspaceId(Output.of(workspaceId));

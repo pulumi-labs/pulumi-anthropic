@@ -3,7 +3,7 @@ module github.com/pulumi-labs/pulumi-anthropic
 go 1.26.4
 
 require (
-	github.com/anthropics/anthropic-sdk-go v1.75.0
+	github.com/anthropics/anthropic-sdk-go/v2 v2.9.0
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/pulumi/pulumi-go-provider v1.5.0
 	github.com/pulumi/pulumi/sdk/v3 v3.256.0

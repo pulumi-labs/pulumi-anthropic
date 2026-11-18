@@ -14,12 +14,12 @@ import javax.annotation.Nullable;
 @CustomType
 public final class Checkout {
     /**
-     * @return The branch. Required for `branch`.
+     * @return The branch. Required for branch.
      * 
      */
     private @Nullable String name;
     /**
-     * @return The commit SHA. Required for `commit`.
+     * @return The commit SHA. Required for commit.
      * 
      */
     private @Nullable String sha;
@@ -31,14 +31,14 @@ public final class Checkout {
 
     private Checkout() {}
     /**
-     * @return The branch. Required for `branch`.
+     * @return The branch. Required for branch.
      * 
      */
     public Optional<String> name() {
         return Optional.ofNullable(this.name);
     }
     /**
-     * @return The commit SHA. Required for `commit`.
+     * @return The commit SHA. Required for commit.
      * 
      */
     public Optional<String> sha() {

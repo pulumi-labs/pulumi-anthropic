@@ -19,20 +19,20 @@ import javax.annotation.Nullable;
 /**
  * A user profile: an entity your platform serves through the Anthropic API, such as an end user of your product or a company you resell Claude access to. Send its ID in the `anthropic-user-profile-id` header of Messages, Message Batches, and token counting requests to attribute them to the entity.
  * 
- * The API cannot delete user profiles, so deleting this resource only removes it from the stack; the profile remains.
+ * Deleting this resource deletes the profile. Anthropic keeps the trust and safety records attached to the profile&#39;s ID.
  * 
  */
 @ResourceType(type="anthropic:agents:UserProfile")
 public class UserProfile extends com.pulumi.resources.CustomResource {
     /**
-     * How your platform uses the API on the entity&#39;s behalf. Defaults to `application`.
+     * How your platform uses the API on the entity&#39;s behalf. Defaults to `application`. Removing this setting resets it to `application`.
      * 
      */
     @Export(name="accessType", refs={AccessType.class}, tree="[0]")
     private Output</* @Nullable */ AccessType> accessType;
 
     /**
-     * @return How your platform uses the API on the entity&#39;s behalf. Defaults to `application`.
+     * @return How your platform uses the API on the entity&#39;s behalf. Defaults to `application`. Removing this setting resets it to `application`.
      * 
      */
     public Output<Optional<AccessType>> accessType() {
@@ -53,56 +53,56 @@ public class UserProfile extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * Your platform&#39;s own identifier for the entity, up to 255 characters.
+     * Your platform&#39;s own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
      * 
      */
     @Export(name="externalId", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> externalId;
 
     /**
-     * @return Your platform&#39;s own identifier for the entity, up to 255 characters.
+     * @return Your platform&#39;s own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
      * 
      */
     public Output<Optional<String>> externalId() {
         return Codegen.optional(this.externalId);
     }
     /**
-     * When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+     * When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
      * 
      */
     @Export(name="externalUserOnboardedAt", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> externalUserOnboardedAt;
 
     /**
-     * @return When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+     * @return When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
      * 
      */
     public Output<Optional<String>> externalUserOnboardedAt() {
         return Codegen.optional(this.externalUserOnboardedAt);
     }
     /**
-     * Arbitrary key-value pairs, up to 16.
+     * Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
      * 
      */
     @Export(name="metadata", refs={Map.class,String.class}, tree="[0,1,1]")
     private Output</* @Nullable */ Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs, up to 16.
+     * @return Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
      * 
      */
     public Output<Optional<Map<String,String>>> metadata() {
         return Codegen.optional(this.metadata);
     }
     /**
-     * The entity&#39;s name, 1 to 255 characters.
+     * The entity&#39;s name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
      * 
      */
     @Export(name="name", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> name;
 
     /**
-     * @return The entity&#39;s name, 1 to 255 characters.
+     * @return The entity&#39;s name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
      * 
      */
     public Output<Optional<String>> name() {

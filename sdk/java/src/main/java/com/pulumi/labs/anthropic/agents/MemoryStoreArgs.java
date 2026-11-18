@@ -18,14 +18,14 @@ public final class MemoryStoreArgs extends com.pulumi.resources.ResourceArgs {
     public static final MemoryStoreArgs Empty = new MemoryStoreArgs();
 
     /**
-     * What the store holds, up to 1,024 characters. It is shown to the agent.
+     * Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
      * 
      */
     @Import(name="description")
     private @Nullable Output<String> description;
 
     /**
-     * @return What the store holds, up to 1,024 characters. It is shown to the agent.
+     * @return Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
      * 
      */
     public Optional<Output<String>> description() {
@@ -33,14 +33,14 @@ public final class MemoryStoreArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Arbitrary key-value pairs.
+     * At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
      * 
      */
     @Import(name="metadata")
     private @Nullable Output<Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs.
+     * @return At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
      * 
      */
     public Optional<Output<Map<String,String>>> metadata() {
@@ -48,14 +48,14 @@ public final class MemoryStoreArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The store&#39;s name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+     * A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
      * 
      */
     @Import(name="name", required=true)
     private Output<String> name;
 
     /**
-     * @return The store&#39;s name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+     * @return A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
      * 
      */
     public Output<String> name() {
@@ -89,7 +89,7 @@ public final class MemoryStoreArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param description What the store holds, up to 1,024 characters. It is shown to the agent.
+         * @param description Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
          * 
          * @return builder
          * 
@@ -100,7 +100,7 @@ public final class MemoryStoreArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param description What the store holds, up to 1,024 characters. It is shown to the agent.
+         * @param description Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
          * 
          * @return builder
          * 
@@ -110,7 +110,7 @@ public final class MemoryStoreArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs.
+         * @param metadata At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
          * 
          * @return builder
          * 
@@ -121,7 +121,7 @@ public final class MemoryStoreArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs.
+         * @param metadata At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
          * 
          * @return builder
          * 
@@ -131,7 +131,7 @@ public final class MemoryStoreArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The store&#39;s name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+         * @param name A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
          * 
          * @return builder
          * 
@@ -142,7 +142,7 @@ public final class MemoryStoreArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The store&#39;s name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+         * @param name A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
          * 
          * @return builder
          * 

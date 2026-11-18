@@ -15,31 +15,31 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
     public sealed class DeploymentResource
     {
         /// <summary>
-        /// Whether the agent can write to the memory store. For `memory_store`.
+        /// Whether the agent can write to the memory store. For memory_store; defaults to read_write.
         /// </summary>
         public readonly Pulumi.Labs.Anthropic.Agents.MemoryAccess? Access;
         /// <summary>
-        /// A token that can read the repository. For `github_repository`.
+        /// A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.
         /// </summary>
         public readonly string? AuthorizationToken;
         /// <summary>
-        /// The branch or commit to check out. For `github_repository`; defaults to the default branch.
+        /// The branch or commit to check out. For github_repository; defaults to the default branch.
         /// </summary>
         public readonly Outputs.Checkout? Checkout;
         /// <summary>
-        /// The file's ID. Required for `file`.
+        /// The file's ID. Required for file.
         /// </summary>
         public readonly string? FileId;
         /// <summary>
-        /// How the agent should use the memory store. For `memory_store`.
+        /// How the agent should use the memory store. For memory_store; at most 4096 characters.
         /// </summary>
         public readonly string? Instructions;
         /// <summary>
-        /// The memory store's ID. Required for `memory_store`.
+        /// The memory store's ID. Required for memory_store.
         /// </summary>
         public readonly string? MemoryStoreId;
         /// <summary>
-        /// Where the resource is mounted in the sandbox. For `github_repository` and `file`.
+        /// Where the resource is mounted in the sandbox. For github_repository and file.
         /// </summary>
         public readonly string? MountPath;
         /// <summary>
@@ -47,7 +47,7 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
         /// </summary>
         public readonly Pulumi.Labs.Anthropic.Agents.DeploymentResourceType Type;
         /// <summary>
-        /// The repository's URL. Required for `github_repository`.
+        /// The repository's URL. Required for github_repository.
         /// </summary>
         public readonly string? Url;
 

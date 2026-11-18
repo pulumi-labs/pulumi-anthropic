@@ -11,19 +11,46 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Inputs
 {
 
+    /// <summary>
+    /// Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
+    /// </summary>
     public sealed class MultiagentArgs : global::Pulumi.ResourceArgs
     {
-        [Input("agents", required: true)]
+        /// <summary>
+        /// Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+        /// </summary>
+        [Input("advisor")]
+        public Input<Inputs.AgentAdvisorArgs>? Advisor { get; set; }
+
+        [Input("agents")]
         private InputList<Inputs.RosterEntryArgs>? _agents;
 
         /// <summary>
-        /// The agents the coordinator can delegate to, between 1 and 20.
+        /// The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
         /// </summary>
         public InputList<Inputs.RosterEntryArgs> Agents
         {
             get => _agents ?? (_agents = new InputList<Inputs.RosterEntryArgs>());
             set => _agents = value;
         }
+
+        /// <summary>
+        /// Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+        /// </summary>
+        [Input("subagents")]
+        public Input<Inputs.AgentDelegationArgs>? Subagents { get; set; }
+
+        /// <summary>
+        /// Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+        /// </summary>
+        [Input("type")]
+        public Input<string>? Type { get; set; }
+
+        /// <summary>
+        /// Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+        /// </summary>
+        [Input("workflows")]
+        public Input<Inputs.AgentDelegationArgs>? Workflows { get; set; }
 
         public MultiagentArgs()
         {

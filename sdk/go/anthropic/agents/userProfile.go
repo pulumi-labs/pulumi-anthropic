@@ -13,21 +13,21 @@ import (
 
 // A user profile: an entity your platform serves through the Anthropic API, such as an end user of your product or a company you resell Claude access to. Send its ID in the `anthropic-user-profile-id` header of Messages, Message Batches, and token counting requests to attribute them to the entity.
 //
-// The API cannot delete user profiles, so deleting this resource only removes it from the stack; the profile remains.
+// Deleting this resource deletes the profile. Anthropic keeps the trust and safety records attached to the profile's ID.
 type UserProfile struct {
 	pulumi.CustomResourceState
 
-	// How your platform uses the API on the entity's behalf. Defaults to `application`.
+	// How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
 	AccessType AccessTypePtrOutput `pulumi:"accessType"`
 	// When the profile was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// Your platform's own identifier for the entity, up to 255 characters.
+	// Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
 	ExternalId pulumi.StringPtrOutput `pulumi:"externalId"`
-	// When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+	// When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
 	ExternalUserOnboardedAt pulumi.StringPtrOutput `pulumi:"externalUserOnboardedAt"`
-	// Arbitrary key-value pairs, up to 16.
+	// Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
 	Metadata pulumi.StringMapOutput `pulumi:"metadata"`
-	// The entity's name, 1 to 255 characters.
+	// The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
 	Name pulumi.StringPtrOutput `pulumi:"name"`
 	// The profile's active or pending trust grants, by grant name.
 	TrustGrants TrustGrantMapOutput `pulumi:"trustGrants"`
@@ -81,29 +81,29 @@ func UserProfileExists(ctx *pulumi.Context,
 }
 
 type userProfileArgs struct {
-	// How your platform uses the API on the entity's behalf. Defaults to `application`.
+	// How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
 	AccessType *AccessType `pulumi:"accessType"`
-	// Your platform's own identifier for the entity, up to 255 characters.
+	// Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
 	ExternalId *string `pulumi:"externalId"`
-	// When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+	// When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
 	ExternalUserOnboardedAt *string `pulumi:"externalUserOnboardedAt"`
-	// Arbitrary key-value pairs, up to 16.
+	// Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
 	Metadata map[string]string `pulumi:"metadata"`
-	// The entity's name, 1 to 255 characters.
+	// The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
 	Name *string `pulumi:"name"`
 }
 
 // The set of arguments for constructing a UserProfile resource.
 type UserProfileArgs struct {
-	// How your platform uses the API on the entity's behalf. Defaults to `application`.
+	// How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
 	AccessType AccessTypePtrInput
-	// Your platform's own identifier for the entity, up to 255 characters.
+	// Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
 	ExternalId pulumi.StringPtrInput
-	// When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+	// When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
 	ExternalUserOnboardedAt pulumi.StringPtrInput
-	// Arbitrary key-value pairs, up to 16.
+	// Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
 	Metadata pulumi.StringMapInput
-	// The entity's name, 1 to 255 characters.
+	// The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
 	Name pulumi.StringPtrInput
 }
 
@@ -194,7 +194,7 @@ func (o UserProfileOutput) ToUserProfileOutputWithContext(ctx context.Context) U
 	return o
 }
 
-// How your platform uses the API on the entity's behalf. Defaults to `application`.
+// How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
 func (o UserProfileOutput) AccessType() AccessTypePtrOutput {
 	return o.ApplyT(func(v *UserProfile) AccessTypePtrOutput { return v.AccessType }).(AccessTypePtrOutput)
 }
@@ -204,22 +204,22 @@ func (o UserProfileOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *UserProfile) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// Your platform's own identifier for the entity, up to 255 characters.
+// Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
 func (o UserProfileOutput) ExternalId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *UserProfile) pulumi.StringPtrOutput { return v.ExternalId }).(pulumi.StringPtrOutput)
 }
 
-// When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+// When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
 func (o UserProfileOutput) ExternalUserOnboardedAt() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *UserProfile) pulumi.StringPtrOutput { return v.ExternalUserOnboardedAt }).(pulumi.StringPtrOutput)
 }
 
-// Arbitrary key-value pairs, up to 16.
+// Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
 func (o UserProfileOutput) Metadata() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *UserProfile) pulumi.StringMapOutput { return v.Metadata }).(pulumi.StringMapOutput)
 }
 
-// The entity's name, 1 to 255 characters.
+// The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
 func (o UserProfileOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *UserProfile) pulumi.StringPtrOutput { return v.Name }).(pulumi.StringPtrOutput)
 }

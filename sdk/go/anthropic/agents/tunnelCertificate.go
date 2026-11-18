@@ -12,21 +12,23 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// A CA certificate for an MCP tunnel, used to verify the certificates of MCP servers behind the tunnel. A tunnel holds at most two active certificates, which allows rotation.
+// A CA certificate trusted by an MCP tunnel when connecting to MCP servers. A tunnel holds at most two active certificates. Replacement creates the new certificate before archiving the old one, so rotation requires a free certificate slot. Deleting the last active certificate stops MCP traffic until another is registered.
 //
-// Certificates cannot be updated, so any change replaces the certificate. Deleting this resource archives the certificate. Its ID is `<tunnelId>/<certificateId>`.
+// Certificates cannot be updated; changing either input replaces the certificate. Deletion archives it. Import uses `<tunnelId>/<certificateId>` and cannot recover the original PEM; supplying a PEM after import replaces the certificate.
 type TunnelCertificate struct {
 	pulumi.CustomResourceState
 
-	// A single PEM-encoded CA certificate, up to 8,192 characters.
-	CaCertificatePem pulumi.StringOutput `pulumi:"caCertificatePem"`
+	// A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
+	CaCertificatePem pulumi.StringPtrOutput `pulumi:"caCertificatePem"`
 	// When the certificate was added, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// When the certificate expires, in RFC 3339 format.
-	ExpiresAt pulumi.StringOutput `pulumi:"expiresAt"`
-	// The certificate's SHA-256 fingerprint.
+	// When the certificate expires, in RFC 3339 format. Absent when the certificate does not expire.
+	ExpiresAt pulumi.StringPtrOutput `pulumi:"expiresAt"`
+	// The lowercase hexadecimal SHA-256 fingerprint of the certificate's DER encoding.
 	Fingerprint pulumi.StringOutput `pulumi:"fingerprint"`
-	// The tunnel that trusts the certificate.
+	// Whether the confirmed certificate registration is active or archived. Unavailable when the registration's identity or trust status cannot be confirmed. Active registration does not verify MCP server reachability.
+	Status TunnelCertificateStatusPtrOutput `pulumi:"status"`
+	// The tunnel that trusts the certificate. Changing it replaces the certificate.
 	TunnelId pulumi.StringOutput `pulumi:"tunnelId"`
 }
 
@@ -37,9 +39,6 @@ func NewTunnelCertificate(ctx *pulumi.Context,
 		return nil, errors.New("missing one or more required arguments")
 	}
 
-	if args.CaCertificatePem == nil {
-		return nil, errors.New("invalid value for required argument 'CaCertificatePem'")
-	}
 	if args.TunnelId == nil {
 		return nil, errors.New("invalid value for required argument 'TunnelId'")
 	}
@@ -87,17 +86,17 @@ func TunnelCertificateExists(ctx *pulumi.Context,
 }
 
 type tunnelCertificateArgs struct {
-	// A single PEM-encoded CA certificate, up to 8,192 characters.
-	CaCertificatePem string `pulumi:"caCertificatePem"`
-	// The tunnel that trusts the certificate.
+	// A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
+	CaCertificatePem *string `pulumi:"caCertificatePem"`
+	// The tunnel that trusts the certificate. Changing it replaces the certificate.
 	TunnelId string `pulumi:"tunnelId"`
 }
 
 // The set of arguments for constructing a TunnelCertificate resource.
 type TunnelCertificateArgs struct {
-	// A single PEM-encoded CA certificate, up to 8,192 characters.
-	CaCertificatePem pulumi.StringInput
-	// The tunnel that trusts the certificate.
+	// A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
+	CaCertificatePem pulumi.StringPtrInput
+	// The tunnel that trusts the certificate. Changing it replaces the certificate.
 	TunnelId pulumi.StringInput
 }
 
@@ -188,9 +187,9 @@ func (o TunnelCertificateOutput) ToTunnelCertificateOutputWithContext(ctx contex
 	return o
 }
 
-// A single PEM-encoded CA certificate, up to 8,192 characters.
-func (o TunnelCertificateOutput) CaCertificatePem() pulumi.StringOutput {
-	return o.ApplyT(func(v *TunnelCertificate) pulumi.StringOutput { return v.CaCertificatePem }).(pulumi.StringOutput)
+// A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
+func (o TunnelCertificateOutput) CaCertificatePem() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *TunnelCertificate) pulumi.StringPtrOutput { return v.CaCertificatePem }).(pulumi.StringPtrOutput)
 }
 
 // When the certificate was added, in RFC 3339 format.
@@ -198,17 +197,22 @@ func (o TunnelCertificateOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *TunnelCertificate) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// When the certificate expires, in RFC 3339 format.
-func (o TunnelCertificateOutput) ExpiresAt() pulumi.StringOutput {
-	return o.ApplyT(func(v *TunnelCertificate) pulumi.StringOutput { return v.ExpiresAt }).(pulumi.StringOutput)
+// When the certificate expires, in RFC 3339 format. Absent when the certificate does not expire.
+func (o TunnelCertificateOutput) ExpiresAt() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *TunnelCertificate) pulumi.StringPtrOutput { return v.ExpiresAt }).(pulumi.StringPtrOutput)
 }
 
-// The certificate's SHA-256 fingerprint.
+// The lowercase hexadecimal SHA-256 fingerprint of the certificate's DER encoding.
 func (o TunnelCertificateOutput) Fingerprint() pulumi.StringOutput {
 	return o.ApplyT(func(v *TunnelCertificate) pulumi.StringOutput { return v.Fingerprint }).(pulumi.StringOutput)
 }
 
-// The tunnel that trusts the certificate.
+// Whether the confirmed certificate registration is active or archived. Unavailable when the registration's identity or trust status cannot be confirmed. Active registration does not verify MCP server reachability.
+func (o TunnelCertificateOutput) Status() TunnelCertificateStatusPtrOutput {
+	return o.ApplyT(func(v *TunnelCertificate) TunnelCertificateStatusPtrOutput { return v.Status }).(TunnelCertificateStatusPtrOutput)
+}
+
+// The tunnel that trusts the certificate. Changing it replaces the certificate.
 func (o TunnelCertificateOutput) TunnelId() pulumi.StringOutput {
 	return o.ApplyT(func(v *TunnelCertificate) pulumi.StringOutput { return v.TunnelId }).(pulumi.StringOutput)
 }

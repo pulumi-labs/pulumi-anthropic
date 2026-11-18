@@ -9,31 +9,33 @@ import com.pulumi.core.annotations.ResourceType;
 import com.pulumi.core.internal.Codegen;
 import com.pulumi.labs.anthropic.Utilities;
 import com.pulumi.labs.anthropic.agents.TunnelCertificateArgs;
+import com.pulumi.labs.anthropic.agents.enums.TunnelCertificateStatus;
 import java.lang.String;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * A CA certificate for an MCP tunnel, used to verify the certificates of MCP servers behind the tunnel. A tunnel holds at most two active certificates, which allows rotation.
+ * A CA certificate trusted by an MCP tunnel when connecting to MCP servers. A tunnel holds at most two active certificates. Replacement creates the new certificate before archiving the old one, so rotation requires a free certificate slot. Deleting the last active certificate stops MCP traffic until another is registered.
  * 
- * Certificates cannot be updated, so any change replaces the certificate. Deleting this resource archives the certificate. Its ID is `&lt;tunnelId&gt;/&lt;certificateId&gt;`.
+ * Certificates cannot be updated; changing either input replaces the certificate. Deletion archives it. Import uses `&lt;tunnelId&gt;/&lt;certificateId&gt;` and cannot recover the original PEM; supplying a PEM after import replaces the certificate.
  * 
  */
 @ResourceType(type="anthropic:agents:TunnelCertificate")
 public class TunnelCertificate extends com.pulumi.resources.CustomResource {
     /**
-     * A single PEM-encoded CA certificate, up to 8,192 characters.
+     * A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
      * 
      */
     @Export(name="caCertificatePem", refs={String.class}, tree="[0]")
-    private Output<String> caCertificatePem;
+    private Output</* @Nullable */ String> caCertificatePem;
 
     /**
-     * @return A single PEM-encoded CA certificate, up to 8,192 characters.
+     * @return A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
      * 
      */
-    public Output<String> caCertificatePem() {
-        return this.caCertificatePem;
+    public Output<Optional<String>> caCertificatePem() {
+        return Codegen.optional(this.caCertificatePem);
     }
     /**
      * When the certificate was added, in RFC 3339 format.
@@ -50,42 +52,56 @@ public class TunnelCertificate extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * When the certificate expires, in RFC 3339 format.
+     * When the certificate expires, in RFC 3339 format. Absent when the certificate does not expire.
      * 
      */
     @Export(name="expiresAt", refs={String.class}, tree="[0]")
-    private Output<String> expiresAt;
+    private Output</* @Nullable */ String> expiresAt;
 
     /**
-     * @return When the certificate expires, in RFC 3339 format.
+     * @return When the certificate expires, in RFC 3339 format. Absent when the certificate does not expire.
      * 
      */
-    public Output<String> expiresAt() {
-        return this.expiresAt;
+    public Output<Optional<String>> expiresAt() {
+        return Codegen.optional(this.expiresAt);
     }
     /**
-     * The certificate&#39;s SHA-256 fingerprint.
+     * The lowercase hexadecimal SHA-256 fingerprint of the certificate&#39;s DER encoding.
      * 
      */
     @Export(name="fingerprint", refs={String.class}, tree="[0]")
     private Output<String> fingerprint;
 
     /**
-     * @return The certificate&#39;s SHA-256 fingerprint.
+     * @return The lowercase hexadecimal SHA-256 fingerprint of the certificate&#39;s DER encoding.
      * 
      */
     public Output<String> fingerprint() {
         return this.fingerprint;
     }
     /**
-     * The tunnel that trusts the certificate.
+     * Whether the confirmed certificate registration is active or archived. Unavailable when the registration&#39;s identity or trust status cannot be confirmed. Active registration does not verify MCP server reachability.
+     *
+     */
+    @Export(name="status", refs={TunnelCertificateStatus.class}, tree="[0]")
+    private Output</* @Nullable */ TunnelCertificateStatus> status;
+
+    /**
+     * @return Whether the confirmed certificate registration is active or archived. Unavailable when the registration&#39;s identity or trust status cannot be confirmed. Active registration does not verify MCP server reachability.
+     *
+     */
+    public Output<Optional<TunnelCertificateStatus>> status() {
+        return Codegen.optional(this.status);
+    }
+    /**
+     * The tunnel that trusts the certificate. Changing it replaces the certificate.
      * 
      */
     @Export(name="tunnelId", refs={String.class}, tree="[0]")
     private Output<String> tunnelId;
 
     /**
-     * @return The tunnel that trusts the certificate.
+     * @return The tunnel that trusts the certificate. Changing it replaces the certificate.
      * 
      */
     public Output<String> tunnelId() {

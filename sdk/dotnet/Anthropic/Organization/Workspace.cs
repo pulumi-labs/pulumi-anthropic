@@ -31,13 +31,13 @@ namespace Pulumi.Labs.Anthropic.Organization
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// Where the workspace's data is stored and where inference may run.
+        /// Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
         /// </summary>
         [Output("dataResidency")]
         public Output<Outputs.DataResidency?> DataResidency { get; private set; } = null!;
 
         /// <summary>
-        /// The color the Console shows the workspace in, as `#RRGGBB`.
+        /// The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
         /// </summary>
         [Output("displayColor")]
         public Output<string?> DisplayColor { get; private set; } = null!;
@@ -49,16 +49,22 @@ namespace Pulumi.Labs.Anthropic.Organization
         public Output<string?> ExternalKeyId { get; private set; } = null!;
 
         /// <summary>
-        /// The workspace's name, 1 to 40 characters.
+        /// The workspace's nonempty name.
         /// </summary>
         [Output("name")]
         public Output<string> Name { get; private set; } = null!;
 
         /// <summary>
-        /// Tags for the workspace. Keys may not start with `anthropic`.
+        /// Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
         /// </summary>
         [Output("tags")]
         public Output<ImmutableDictionary<string, string>?> Tags { get; private set; } = null!;
+
+        /// <summary>
+        /// The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+        /// </summary>
+        [Output("userProfileId")]
+        public Output<string?> UserProfileId { get; private set; } = null!;
 
 
         /// <summary>
@@ -111,13 +117,13 @@ namespace Pulumi.Labs.Anthropic.Organization
     public sealed class WorkspaceArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Where the workspace's data is stored and where inference may run.
+        /// Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
         /// </summary>
         [Input("dataResidency")]
         public Input<Inputs.DataResidencyArgs>? DataResidency { get; set; }
 
         /// <summary>
-        /// The color the Console shows the workspace in, as `#RRGGBB`.
+        /// The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
         /// </summary>
         [Input("displayColor")]
         public Input<string>? DisplayColor { get; set; }
@@ -129,7 +135,7 @@ namespace Pulumi.Labs.Anthropic.Organization
         public Input<string>? ExternalKeyId { get; set; }
 
         /// <summary>
-        /// The workspace's name, 1 to 40 characters.
+        /// The workspace's nonempty name.
         /// </summary>
         [Input("name", required: true)]
         public Input<string> Name { get; set; } = null!;
@@ -138,13 +144,19 @@ namespace Pulumi.Labs.Anthropic.Organization
         private InputMap<string>? _tags;
 
         /// <summary>
-        /// Tags for the workspace. Keys may not start with `anthropic`.
+        /// Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
         /// </summary>
         public InputMap<string> Tags
         {
             get => _tags ?? (_tags = new InputMap<string>());
             set => _tags = value;
         }
+
+        /// <summary>
+        /// The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+        /// </summary>
+        [Input("userProfileId")]
+        public Input<string>? UserProfileId { get; set; }
 
         public WorkspaceArgs()
         {

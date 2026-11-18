@@ -15,14 +15,14 @@ public final class RbacGroupMemberArgs extends com.pulumi.resources.ResourceArgs
     public static final RbacGroupMemberArgs Empty = new RbacGroupMemberArgs();
 
     /**
-     * The group&#39;s ID.
+     * The group&#39;s ID. Changing this value replaces the membership.
      * 
      */
     @Import(name="rbacGroupId", required=true)
     private Output<String> rbacGroupId;
 
     /**
-     * @return The group&#39;s ID.
+     * @return The group&#39;s ID. Changing this value replaces the membership.
      * 
      */
     public Output<String> rbacGroupId() {
@@ -30,14 +30,14 @@ public final class RbacGroupMemberArgs extends com.pulumi.resources.ResourceArgs
     }
 
     /**
-     * The user&#39;s ID.
+     * The user&#39;s ID. Changing this value replaces the membership.
      * 
      */
     @Import(name="userId", required=true)
     private Output<String> userId;
 
     /**
-     * @return The user&#39;s ID.
+     * @return The user&#39;s ID. Changing this value replaces the membership.
      * 
      */
     public Output<String> userId() {
@@ -70,7 +70,7 @@ public final class RbacGroupMemberArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param rbacGroupId The group&#39;s ID.
+         * @param rbacGroupId The group&#39;s ID. Changing this value replaces the membership.
          * 
          * @return builder
          * 
@@ -81,7 +81,7 @@ public final class RbacGroupMemberArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param rbacGroupId The group&#39;s ID.
+         * @param rbacGroupId The group&#39;s ID. Changing this value replaces the membership.
          * 
          * @return builder
          * 
@@ -91,7 +91,7 @@ public final class RbacGroupMemberArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param userId The user&#39;s ID.
+         * @param userId The user&#39;s ID. Changing this value replaces the membership.
          * 
          * @return builder
          * 
@@ -102,7 +102,7 @@ public final class RbacGroupMemberArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param userId The user&#39;s ID.
+         * @param userId The user&#39;s ID. Changing this value replaces the membership.
          * 
          * @return builder
          * 

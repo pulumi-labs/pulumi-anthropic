@@ -13,7 +13,6 @@ import com.pulumi.labs.anthropic.agents.outputs.AgentReference;
 import com.pulumi.labs.anthropic.agents.outputs.Budget;
 import com.pulumi.labs.anthropic.agents.outputs.DeploymentResource;
 import com.pulumi.labs.anthropic.agents.outputs.Schedule;
-import java.lang.Boolean;
 import java.lang.Object;
 import java.lang.String;
 import java.util.List;
@@ -22,11 +21,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, run on a cron schedule or on demand.
- * 
- * A deployment runs one version of its agent. Set `agent.version` to the agent&#39;s `version` output to roll the deployment forward with every change to the agent, or to a fixed number to hold it back: updating the agent creates a new version, and deployments move to it one at a time as their `agent.version` changes.
- * 
- * The API cannot delete deployments, so deleting this resource archives the deployment, which stops its schedule and cannot be undone.
+ * A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, on demand or on a cron schedule. Set agent.version to pin a version; otherwise the latest version is pinned whenever configuration is applied. This resource does not start on-demand sessions or manage pausing. Deleting it archives the deployment permanently and stops its schedule.
  * 
  */
 @ResourceType(type="anthropic:agents:Deployment")
@@ -46,14 +41,14 @@ public class Deployment extends com.pulumi.resources.CustomResource {
         return this.agent;
     }
     /**
-     * A spending limit for the deployment.
+     * A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
      * 
      */
     @Export(name="budget", refs={Budget.class}, tree="[0]")
     private Output</* @Nullable */ Budget> budget;
 
     /**
-     * @return A spending limit for the deployment.
+     * @return A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
      * 
      */
     public Output<Optional<Budget>> budget() {
@@ -74,14 +69,14 @@ public class Deployment extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * A description of the deployment.
+     * A description of the deployment. Removing a configured description clears it.
      * 
      */
     @Export(name="description", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> description;
 
     /**
-     * @return A description of the deployment.
+     * @return A description of the deployment. Removing a configured description clears it.
      * 
      */
     public Output<Optional<String>> description() {
@@ -102,28 +97,28 @@ public class Deployment extends com.pulumi.resources.CustomResource {
         return this.environmentId;
     }
     /**
-     * The events that start each session, 1 to 50, in the API&#39;s event format. For example: `{type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}`.
+     * The events that start each session, 1 to 50, in the API&#39;s event format. For example: {type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}.
      * 
      */
     @Export(name="initialEvents", refs={List.class,Map.class,String.class,Object.class}, tree="[0,[1,2,3]]")
     private Output<List<Map<String,Object>>> initialEvents;
 
     /**
-     * @return The events that start each session, 1 to 50, in the API&#39;s event format. For example: `{type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}`.
+     * @return The events that start each session, 1 to 50, in the API&#39;s event format. For example: {type: &#34;user.message&#34;, content: [{type: &#34;text&#34;, text: &#34;Triage new issues.&#34;}]}.
      * 
      */
     public Output<List<Map<String,Object>>> initialEvents() {
         return this.initialEvents;
     }
     /**
-     * Arbitrary key-value pairs.
+     * Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
      * 
      */
     @Export(name="metadata", refs={Map.class,String.class}, tree="[0,1,1]")
     private Output</* @Nullable */ Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs.
+     * @return Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
      * 
      */
     public Output<Optional<Map<String,String>>> metadata() {
@@ -144,56 +139,42 @@ public class Deployment extends com.pulumi.resources.CustomResource {
         return this.name;
     }
     /**
-     * Whether the deployment is paused. Omit to leave pausing to other tools.
-     * 
-     */
-    @Export(name="paused", refs={Boolean.class}, tree="[0]")
-    private Output</* @Nullable */ Boolean> paused;
-
-    /**
-     * @return Whether the deployment is paused. Omit to leave pausing to other tools.
-     * 
-     */
-    public Output<Optional<Boolean>> paused() {
-        return Codegen.optional(this.paused);
-    }
-    /**
-     * Repositories, files, and memory stores mounted into each session, up to 500.
+     * Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
      * 
      */
     @Export(name="resources", refs={List.class,DeploymentResource.class}, tree="[0,1]")
     private Output</* @Nullable */ List<DeploymentResource>> resources;
 
     /**
-     * @return Repositories, files, and memory stores mounted into each session, up to 500.
+     * @return Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
      * 
      */
     public Output<Optional<List<DeploymentResource>>> resources() {
         return Codegen.optional(this.resources);
     }
     /**
-     * When to run. Omit to run only on demand.
+     * When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
      * 
      */
     @Export(name="schedule", refs={Schedule.class}, tree="[0]")
     private Output</* @Nullable */ Schedule> schedule;
 
     /**
-     * @return When to run. Omit to run only on demand.
+     * @return When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
      * 
      */
     public Output<Optional<Schedule>> schedule() {
         return Codegen.optional(this.schedule);
     }
     /**
-     * Whether the deployment is `active` or `paused`. The platform also pauses a deployment when it cannot run, for example because its agent was archived.
+     * Whether the deployment is active or paused, as observed on the platform. The platform may pause deployments when dependencies cannot run. This resource does not change pause status.
      * 
      */
     @Export(name="status", refs={String.class}, tree="[0]")
     private Output<String> status;
 
     /**
-     * @return Whether the deployment is `active` or `paused`. The platform also pauses a deployment when it cannot run, for example because its agent was archived.
+     * @return Whether the deployment is active or paused, as observed on the platform. The platform may pause deployments when dependencies cannot run. This resource does not change pause status.
      * 
      */
     public Output<String> status() {
@@ -214,14 +195,14 @@ public class Deployment extends com.pulumi.resources.CustomResource {
         return this.updatedAt;
     }
     /**
-     * Vaults whose credentials sessions can use, up to 50.
+     * Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
      * 
      */
     @Export(name="vaultIds", refs={List.class,String.class}, tree="[0,1]")
     private Output</* @Nullable */ List<String>> vaultIds;
 
     /**
-     * @return Vaults whose credentials sessions can use, up to 50.
+     * @return Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
      * 
      */
     public Output<Optional<List<String>>> vaultIds() {

@@ -1,0 +1,69 @@
+name: deployment-lifecycle
+runtime: yaml
+description: Offline Deployment lifecycle; no on-demand session execution.
+config:
+  seedAgentId:
+    type: string
+  seedEnvironmentId:
+    type: string
+  seedMemoryStoreId:
+    type: string
+  seedVersionInitial:
+    type: integer
+  seedVersionEdited:
+    type: integer
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  apiKey:
+    type: string
+    secret: true
+  workspaceId:
+    type: string
+    default: ""
+  runName:
+    type: string
+    default: synthetic-deployment
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  provider:
+    type: pulumi:providers:anthropic
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+      workspaceId: ${workspaceId}
+    options:
+      version: TEST_PROVIDER_VERSION
+  deployment:
+    type: anthropic:agents:Deployment
+    properties:
+      name: ${runName}
+      agent: {id: '${seedAgentId}', version: '${seedVersionInitial}'}
+      environmentId: ${seedEnvironmentId}
+      initialEvents:
+        - type: user.message
+          content: [{type: text, text: Synthetic configuration only.}]
+      description: clear me
+      resources:
+        - type: memory_store
+          memoryStoreId: ${seedMemoryStoreId}
+          access: read_only
+      budget:
+        maxListCost: {amount: "2500", currency: USD}
+      metadata: {owner: test, remove: old}
+    options:
+      provider: ${provider}
+      version: TEST_PROVIDER_VERSION
+outputs:
+  deploymentId: ${deployment.id}
+  status: ${deployment.status}

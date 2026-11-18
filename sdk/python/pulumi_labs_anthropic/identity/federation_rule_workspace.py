@@ -24,8 +24,8 @@ class FederationRuleWorkspaceArgs:
         """
         The set of arguments for constructing a FederationRuleWorkspace resource.
 
-        :param pulumi.Input[_builtins.str] federation_rule_id: The federation rule's ID.
-        :param pulumi.Input[_builtins.str] workspace_id: The workspace's ID.
+        :param pulumi.Input[_builtins.str] federation_rule_id: The federation rule's nonempty ID. Changing it replaces the binding.
+        :param pulumi.Input[_builtins.str] workspace_id: The workspace's nonempty ID. Changing it replaces the binding.
         """
         pulumi.set(__self__, "federation_rule_id", federation_rule_id)
         pulumi.set(__self__, "workspace_id", workspace_id)
@@ -34,7 +34,7 @@ class FederationRuleWorkspaceArgs:
     @pulumi.getter(name="federationRuleId")
     def federation_rule_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The federation rule's ID.
+        The federation rule's nonempty ID. Changing it replaces the binding.
         """
         return pulumi.get(self, "federation_rule_id")
 
@@ -46,7 +46,7 @@ class FederationRuleWorkspaceArgs:
     @pulumi.getter(name="workspaceId")
     def workspace_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The workspace's ID.
+        The workspace's nonempty ID. Changing it replaces the binding.
         """
         return pulumi.get(self, "workspace_id")
 
@@ -65,16 +65,16 @@ class FederationRuleWorkspace(pulumi.CustomResource):
                  workspace_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
-        Binds a federation rule to a workspace, so that the rule's access tokens can act in it. The resource's ID is `<federation-rule-id>/<workspace-id>`.
+        Binds a federation rule to an additional workspace. The resource ID is `<federation-rule-id>/<workspace-id>` and supports import. Changing either ID replaces the binding. Deleting the resource removes this explicit binding, not the rule or workspace. Other grants, including all-workspace access, are unaffected.
 
-        Do not also bind the workspace the rule was created in (its `workspaceId`): that binding belongs to the rule.
+        Do not also manage the workspace the rule was created in with this resource. Manage each rule/workspace pair with only one resource: deleting either duplicate removes the shared binding.
 
-        Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+        Requires an OAuth token with `org:admin` (`anthropic:authToken`). The rule and workspace must belong to your organization; the rule must grant `workspace:developer` or `workspace:inference`. Enabling a workspace does not enroll the target service account: token exchange requires its membership in that workspace.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] federation_rule_id: The federation rule's ID.
-        :param pulumi.Input[_builtins.str] workspace_id: The workspace's ID.
+        :param pulumi.Input[_builtins.str] federation_rule_id: The federation rule's nonempty ID. Changing it replaces the binding.
+        :param pulumi.Input[_builtins.str] workspace_id: The workspace's nonempty ID. Changing it replaces the binding.
         """
         ...
     @overload
@@ -83,11 +83,11 @@ class FederationRuleWorkspace(pulumi.CustomResource):
                  args: FederationRuleWorkspaceArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Binds a federation rule to a workspace, so that the rule's access tokens can act in it. The resource's ID is `<federation-rule-id>/<workspace-id>`.
+        Binds a federation rule to an additional workspace. The resource ID is `<federation-rule-id>/<workspace-id>` and supports import. Changing either ID replaces the binding. Deleting the resource removes this explicit binding, not the rule or workspace. Other grants, including all-workspace access, are unaffected.
 
-        Do not also bind the workspace the rule was created in (its `workspaceId`): that binding belongs to the rule.
+        Do not also manage the workspace the rule was created in with this resource. Manage each rule/workspace pair with only one resource: deleting either duplicate removes the shared binding.
 
-        Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+        Requires an OAuth token with `org:admin` (`anthropic:authToken`). The rule and workspace must belong to your organization; the rule must grant `workspace:developer` or `workspace:inference`. Enabling a workspace does not enroll the target service account: token exchange requires its membership in that workspace.
 
         :param str resource_name: The name of the resource.
         :param FederationRuleWorkspaceArgs args: The arguments to use to populate this resource's properties.
@@ -161,9 +161,9 @@ class FederationRuleWorkspace(pulumi.CustomResource):
 
     @_builtins.property
     @pulumi.getter(name="createdAt")
-    def created_at(self) -> pulumi.Output[_builtins.str]:
+    def created_at(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        When the binding was created, in RFC 3339 format.
+        When the binding was created, in RFC 3339 format, when available.
         """
         return pulumi.get(self, "created_at")
 
@@ -171,7 +171,7 @@ class FederationRuleWorkspace(pulumi.CustomResource):
     @pulumi.getter(name="federationRuleId")
     def federation_rule_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The federation rule's ID.
+        The federation rule's nonempty ID. Changing it replaces the binding.
         """
         return pulumi.get(self, "federation_rule_id")
 
@@ -179,15 +179,15 @@ class FederationRuleWorkspace(pulumi.CustomResource):
     @pulumi.getter(name="workspaceId")
     def workspace_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The workspace's ID.
+        The workspace's nonempty ID. Changing it replaces the binding.
         """
         return pulumi.get(self, "workspace_id")
 
     @_builtins.property
     @pulumi.getter(name="workspaceName")
-    def workspace_name(self) -> pulumi.Output[_builtins.str]:
+    def workspace_name(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        The workspace's name when the binding was created.
+        The workspace name reported when the binding is read. Not available immediately after enabling the binding.
         """
         return pulumi.get(self, "workspace_name")
 

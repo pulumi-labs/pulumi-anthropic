@@ -15,34 +15,34 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 /**
- * A user&#39;s membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource&#39;s ID is `&lt;workspaceId&gt;/&lt;userId&gt;`.
+ * A user&#39;s membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource&#39;s ID is `&lt;workspaceId&gt;/&lt;userId&gt;`. Deleting this resource removes the workspace membership, not the user or workspace.
  * 
  */
 @ResourceType(type="anthropic:organization:WorkspaceMember")
 public class WorkspaceMember extends com.pulumi.resources.CustomResource {
     /**
-     * The user&#39;s ID.
+     * The user&#39;s ID. Changing this value replaces the membership.
      * 
      */
     @Export(name="userId", refs={String.class}, tree="[0]")
     private Output<String> userId;
 
     /**
-     * @return The user&#39;s ID.
+     * @return The user&#39;s ID. Changing this value replaces the membership.
      * 
      */
     public Output<String> userId() {
         return this.userId;
     }
     /**
-     * The workspace&#39;s ID.
+     * The workspace&#39;s ID. Changing this value replaces the membership.
      * 
      */
     @Export(name="workspaceId", refs={String.class}, tree="[0]")
     private Output<String> workspaceId;
 
     /**
-     * @return The workspace&#39;s ID.
+     * @return The workspace&#39;s ID. Changing this value replaces the membership.
      * 
      */
     public Output<String> workspaceId() {

@@ -15,7 +15,7 @@ namespace Pulumi.Labs.Anthropic.Agents
     /// 
     /// Agents are versioned. Every update that changes the configuration creates a new version, reported by the `version` output; sessions and deployments can pin a version, which makes canary and staged rollouts a matter of which version each deployment references.
     /// 
-    /// The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Running sessions continue; new sessions cannot use it.
+    /// The API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Archiving retains historical agent records and versions; this resource does not manage running sessions.
     /// </summary>
     [AnthropicResourceType("anthropic:agents:Agent")]
     public partial class Agent : global::Pulumi.CustomResource
@@ -27,10 +27,16 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// A description of the agent, up to 2,048 characters.
+        /// A description of the agent, up to 2,048 characters. Removing a configured description clears it.
         /// </summary>
         [Output("description")]
         public Output<string?> Description { get; private set; } = null!;
+
+        /// <summary>
+        /// Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+        /// </summary>
+        [Output("executionIdentity")]
+        public Output<Outputs.ExecutionIdentity?> ExecutionIdentity { get; private set; } = null!;
 
         /// <summary>
         /// The MCP servers the agent can connect to, up to 20. Each must be referenced by an `mcp_toolset` tool.
@@ -39,7 +45,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<ImmutableArray<Outputs.MCPServer>> McpServers { get; private set; } = null!;
 
         /// <summary>
-        /// Arbitrary key-value pairs, up to 16.
+        /// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
         /// </summary>
         [Output("metadata")]
         public Output<ImmutableDictionary<string, string>?> Metadata { get; private set; } = null!;
@@ -51,7 +57,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<Outputs.Model> Model { get; private set; } = null!;
 
         /// <summary>
-        /// Makes the agent a coordinator that delegates to other agents.
+        /// Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
         /// </summary>
         [Output("multiagent")]
         public Output<Outputs.Multiagent?> Multiagent { get; private set; } = null!;
@@ -69,13 +75,13 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<ImmutableArray<Outputs.SkillRef>> Skills { get; private set; } = null!;
 
         /// <summary>
-        /// The system prompt, up to 100,000 characters.
+        /// The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
         /// </summary>
         [Output("system")]
         public Output<string?> System { get; private set; } = null!;
 
         /// <summary>
-        /// The tools the agent can use, up to 128.
+        /// The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
         /// </summary>
         [Output("tools")]
         public Output<ImmutableArray<Outputs.Tool>> Tools { get; private set; } = null!;
@@ -139,10 +145,16 @@ namespace Pulumi.Labs.Anthropic.Agents
     public sealed class AgentArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// A description of the agent, up to 2,048 characters.
+        /// A description of the agent, up to 2,048 characters. Removing a configured description clears it.
         /// </summary>
         [Input("description")]
         public Input<string>? Description { get; set; }
+
+        /// <summary>
+        /// Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default.
+        /// </summary>
+        [Input("executionIdentity")]
+        public Input<Inputs.ExecutionIdentityArgs>? ExecutionIdentity { get; set; }
 
         [Input("mcpServers")]
         private InputList<Inputs.MCPServerArgs>? _mcpServers;
@@ -160,7 +172,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         private InputMap<string>? _metadata;
 
         /// <summary>
-        /// Arbitrary key-value pairs, up to 16.
+        /// Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
         /// </summary>
         public InputMap<string> Metadata
         {
@@ -175,7 +187,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Input<Inputs.ModelArgs> Model { get; set; } = null!;
 
         /// <summary>
-        /// Makes the agent a coordinator that delegates to other agents.
+        /// Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent.
         /// </summary>
         [Input("multiagent")]
         public Input<Inputs.MultiagentArgs>? Multiagent { get; set; }
@@ -199,7 +211,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         }
 
         /// <summary>
-        /// The system prompt, up to 100,000 characters.
+        /// The system prompt, up to 100,000 characters. Removing a configured prompt clears it.
         /// </summary>
         [Input("system")]
         public Input<string>? System { get; set; }
@@ -208,7 +220,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         private InputList<Inputs.ToolArgs>? _tools;
 
         /// <summary>
-        /// The tools the agent can use, up to 128.
+        /// The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it.
         /// </summary>
         public InputList<Inputs.ToolArgs> Tools
         {

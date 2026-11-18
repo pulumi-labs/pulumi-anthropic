@@ -15,14 +15,14 @@ public final class ScheduleArgs extends com.pulumi.resources.ResourceArgs {
     public static final ScheduleArgs Empty = new ScheduleArgs();
 
     /**
-     * A cron expression, such as `0 9 * * 1-5`.
+     * A cron expression, such as 0 9 * * 1-5.
      * 
      */
     @Import(name="expression", required=true)
     private Output<String> expression;
 
     /**
-     * @return A cron expression, such as `0 9 * * 1-5`.
+     * @return A cron expression, such as 0 9 * * 1-5.
      * 
      */
     public Output<String> expression() {
@@ -30,14 +30,14 @@ public final class ScheduleArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The IANA time zone the expression is evaluated in, such as `America/New_York`.
+     * The IANA time zone the expression is evaluated in, such as America/New_York.
      * 
      */
     @Import(name="timezone", required=true)
     private Output<String> timezone;
 
     /**
-     * @return The IANA time zone the expression is evaluated in, such as `America/New_York`.
+     * @return The IANA time zone the expression is evaluated in, such as America/New_York.
      * 
      */
     public Output<String> timezone() {
@@ -70,7 +70,7 @@ public final class ScheduleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param expression A cron expression, such as `0 9 * * 1-5`.
+         * @param expression A cron expression, such as 0 9 * * 1-5.
          * 
          * @return builder
          * 
@@ -81,7 +81,7 @@ public final class ScheduleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param expression A cron expression, such as `0 9 * * 1-5`.
+         * @param expression A cron expression, such as 0 9 * * 1-5.
          * 
          * @return builder
          * 
@@ -91,7 +91,7 @@ public final class ScheduleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timezone The IANA time zone the expression is evaluated in, such as `America/New_York`.
+         * @param timezone The IANA time zone the expression is evaluated in, such as America/New_York.
          * 
          * @return builder
          * 
@@ -102,7 +102,7 @@ public final class ScheduleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timezone The IANA time zone the expression is evaluated in, such as `America/New_York`.
+         * @param timezone The IANA time zone the expression is evaluated in, such as America/New_York.
          * 
          * @return builder
          * 

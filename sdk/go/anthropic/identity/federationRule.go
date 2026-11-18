@@ -16,17 +16,17 @@ import (
 //
 // A rule applies either to all workspaces (`appliesToAllWorkspaces`) or to the workspace it is created in (`workspaceId`); bind it to further workspaces with `FederationRuleWorkspace`.
 //
-// Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+// Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. OAuth callers can configure only `workspace:developer` or `workspace:inference` scopes; higher-privilege rules require the Console. Creating a rule does not verify token exchange.
 //
-// The API cannot delete rules, so deleting this resource archives the rule.
+// Deleting this resource archives the rule, preventing new exchanges but not revoking tokens already issued. Changing the issuer or creation workspace replaces the rule by archiving it before creating its replacement; this interrupts new exchanges. Optional settings omitted from the start remain unconfigured, preserving later external changes. Import by rule ID recovers current settings but cannot recover the original creation workspace; configure workspace bindings separately with FederationRuleWorkspace.
 type FederationRule struct {
 	pulumi.CustomResourceState
 
-	// Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+	// Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
 	AppliesToAllWorkspaces pulumi.BoolPtrOutput `pulumi:"appliesToAllWorkspaces"`
 	// When the rule was created, in RFC 3339 format.
 	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// A description of the rule, up to 2,000 characters.
+	// A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
 	Description pulumi.StringPtrOutput `pulumi:"description"`
 	// The ID of the issuer whose tokens the rule accepts. Changing it replaces the rule.
 	IssuerId pulumi.StringOutput `pulumi:"issuerId"`
@@ -34,13 +34,13 @@ type FederationRule struct {
 	IssuerName pulumi.StringOutput `pulumi:"issuerName"`
 	// The conditions a token must satisfy. At least one of `subjectPrefix`, `claims`, or `condition` is required.
 	Match FederationMatchOutput `pulumi:"match"`
-	// A lowercase slug that uniquely names the rule in the organization.
+	// A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
 	Name pulumi.StringOutput `pulumi:"name"`
 	// The space-separated OAuth scopes of the access tokens the rule issues, such as `workspace:developer`.
 	OauthScope pulumi.StringOutput `pulumi:"oauthScope"`
 	// The service account the rule's access tokens act as.
 	Target FederationTargetOutput `pulumi:"target"`
-	// The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+	// The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
 	TokenLifetimeSeconds pulumi.IntPtrOutput `pulumi:"tokenLifetimeSeconds"`
 	// When the rule was last updated, in RFC 3339 format.
 	UpdatedAt pulumi.StringOutput `pulumi:"updatedAt"`
@@ -116,21 +116,21 @@ func FederationRuleExists(ctx *pulumi.Context,
 }
 
 type federationRuleArgs struct {
-	// Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+	// Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
 	AppliesToAllWorkspaces *bool `pulumi:"appliesToAllWorkspaces"`
-	// A description of the rule, up to 2,000 characters.
+	// A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
 	Description *string `pulumi:"description"`
 	// The ID of the issuer whose tokens the rule accepts. Changing it replaces the rule.
 	IssuerId string `pulumi:"issuerId"`
 	// The conditions a token must satisfy. At least one of `subjectPrefix`, `claims`, or `condition` is required.
 	Match FederationMatch `pulumi:"match"`
-	// A lowercase slug that uniquely names the rule in the organization.
+	// A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
 	Name string `pulumi:"name"`
 	// The space-separated OAuth scopes of the access tokens the rule issues, such as `workspace:developer`.
 	OauthScope string `pulumi:"oauthScope"`
 	// The service account the rule's access tokens act as.
 	Target FederationTarget `pulumi:"target"`
-	// The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+	// The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
 	TokenLifetimeSeconds *int `pulumi:"tokenLifetimeSeconds"`
 	// The workspace the rule is created in, required unless `appliesToAllWorkspaces` is set. Changing it replaces the rule; to bind the rule to further workspaces, use `FederationRuleWorkspace`.
 	WorkspaceId *string `pulumi:"workspaceId"`
@@ -138,21 +138,21 @@ type federationRuleArgs struct {
 
 // The set of arguments for constructing a FederationRule resource.
 type FederationRuleArgs struct {
-	// Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+	// Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
 	AppliesToAllWorkspaces pulumi.BoolPtrInput
-	// A description of the rule, up to 2,000 characters.
+	// A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
 	Description pulumi.StringPtrInput
 	// The ID of the issuer whose tokens the rule accepts. Changing it replaces the rule.
 	IssuerId pulumi.StringInput
 	// The conditions a token must satisfy. At least one of `subjectPrefix`, `claims`, or `condition` is required.
 	Match FederationMatchInput
-	// A lowercase slug that uniquely names the rule in the organization.
+	// A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
 	Name pulumi.StringInput
 	// The space-separated OAuth scopes of the access tokens the rule issues, such as `workspace:developer`.
 	OauthScope pulumi.StringInput
 	// The service account the rule's access tokens act as.
 	Target FederationTargetInput
-	// The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+	// The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
 	TokenLifetimeSeconds pulumi.IntPtrInput
 	// The workspace the rule is created in, required unless `appliesToAllWorkspaces` is set. Changing it replaces the rule; to bind the rule to further workspaces, use `FederationRuleWorkspace`.
 	WorkspaceId pulumi.StringPtrInput
@@ -245,7 +245,7 @@ func (o FederationRuleOutput) ToFederationRuleOutputWithContext(ctx context.Cont
 	return o
 }
 
-// Whether the rule applies to every workspace. Otherwise `workspaceId` is required.
+// Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains.
 func (o FederationRuleOutput) AppliesToAllWorkspaces() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v *FederationRule) pulumi.BoolPtrOutput { return v.AppliesToAllWorkspaces }).(pulumi.BoolPtrOutput)
 }
@@ -255,7 +255,7 @@ func (o FederationRuleOutput) CreatedAt() pulumi.StringOutput {
 	return o.ApplyT(func(v *FederationRule) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
 }
 
-// A description of the rule, up to 2,000 characters.
+// A description of the rule, up to 2,000 characters. Removing a previously configured description clears it.
 func (o FederationRuleOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *FederationRule) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
 }
@@ -275,7 +275,7 @@ func (o FederationRuleOutput) Match() FederationMatchOutput {
 	return o.ApplyT(func(v *FederationRule) FederationMatchOutput { return v.Match }).(FederationMatchOutput)
 }
 
-// A lowercase slug that uniquely names the rule in the organization.
+// A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule.
 func (o FederationRuleOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *FederationRule) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
@@ -290,7 +290,7 @@ func (o FederationRuleOutput) Target() FederationTargetOutput {
 	return o.ApplyT(func(v *FederationRule) FederationTargetOutput { return v.Target }).(FederationTargetOutput)
 }
 
-// The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600.
+// The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600.
 func (o FederationRuleOutput) TokenLifetimeSeconds() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *FederationRule) pulumi.IntPtrOutput { return v.TokenLifetimeSeconds }).(pulumi.IntPtrOutput)
 }

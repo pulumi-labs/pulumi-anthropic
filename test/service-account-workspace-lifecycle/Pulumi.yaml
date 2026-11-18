@@ -1,0 +1,45 @@
+name: service-account-workspace-lifecycle
+runtime: yaml
+config:
+  seedWorkspaceId:
+    type: string
+  firstAccountId:
+    type: string
+  secondAccountId:
+    type: string
+  adminKey:
+    type: string
+    secret: true
+    default: ""
+  authToken:
+    type: string
+    secret: true
+    default: ""
+  apiKey:
+    type: string
+    secret: true
+  federation:
+    type: string
+    secret: true
+    default: "null"
+resources:
+  anthropic:
+    type: pulumi:providers:anthropic
+    properties:
+      apiKey: ${apiKey}
+      adminKey: ${adminKey}
+      authToken: ${authToken}
+      federation: ${federation}
+    options:
+      version: TEST_PROVIDER_VERSION
+  grant:
+    type: anthropic:identity:ServiceAccountWorkspace
+    properties:
+      workspaceId: ${seedWorkspaceId}
+      serviceAccountId: ${firstAccountId}
+      workspaceRole: workspace_user
+    options:
+      provider: ${anthropic}
+outputs:
+  grantId: ${grant.id}
+  role: ${grant.workspaceRole}

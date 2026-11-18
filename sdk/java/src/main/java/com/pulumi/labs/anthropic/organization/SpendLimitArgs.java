@@ -19,14 +19,14 @@ public final class SpendLimitArgs extends com.pulumi.resources.ResourceArgs {
     public static final SpendLimitArgs Empty = new SpendLimitArgs();
 
     /**
-     * The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. Omit for an explicit &#34;no limit&#34; override of this scope and period.
+     * The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
      * 
      */
     @Import(name="amount")
     private @Nullable Output<String> amount;
 
     /**
-     * @return The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. Omit for an explicit &#34;no limit&#34; override of this scope and period.
+     * @return The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
      * 
      */
     public Optional<Output<String>> amount() {
@@ -90,7 +90,7 @@ public final class SpendLimitArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param amount The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. Omit for an explicit &#34;no limit&#34; override of this scope and period.
+         * @param amount The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
          * 
          * @return builder
          * 
@@ -101,7 +101,7 @@ public final class SpendLimitArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param amount The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. Omit for an explicit &#34;no limit&#34; override of this scope and period.
+         * @param amount The limit, as a non-negative integer string in the minor unit of the organization&#39;s billing currency: `&#34;50000&#34;` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
          * 
          * @return builder
          * 

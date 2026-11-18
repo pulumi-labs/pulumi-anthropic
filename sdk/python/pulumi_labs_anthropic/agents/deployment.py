@@ -29,7 +29,6 @@ class DeploymentArgs:
                  budget: pulumi.Input[Optional['BudgetArgs']] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
-                 paused: pulumi.Input[Optional[_builtins.bool]] = None,
                  resources: pulumi.Input[Optional[Sequence[pulumi.Input['DeploymentResourceArgs']]]] = None,
                  schedule: pulumi.Input[Optional['ScheduleArgs']] = None,
                  vault_ids: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None):
@@ -38,15 +37,14 @@ class DeploymentArgs:
 
         :param pulumi.Input['AgentReferenceArgs'] agent: The agent to run, and optionally the version to pin.
         :param pulumi.Input[_builtins.str] environment_id: The environment sessions run in.
-        :param pulumi.Input[Sequence[pulumi.Input[Mapping[str, Any]]]] initial_events: The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+        :param pulumi.Input[Sequence[pulumi.Input[Mapping[str, Any]]]] initial_events: The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
         :param pulumi.Input[_builtins.str] name: The deployment's name.
-        :param pulumi.Input['BudgetArgs'] budget: A spending limit for the deployment.
-        :param pulumi.Input[_builtins.str] description: A description of the deployment.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
-        :param pulumi.Input[_builtins.bool] paused: Whether the deployment is paused. Omit to leave pausing to other tools.
-        :param pulumi.Input[Sequence[pulumi.Input['DeploymentResourceArgs']]] resources: Repositories, files, and memory stores mounted into each session, up to 500.
-        :param pulumi.Input['ScheduleArgs'] schedule: When to run. Omit to run only on demand.
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] vault_ids: Vaults whose credentials sessions can use, up to 50.
+        :param pulumi.Input['BudgetArgs'] budget: A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
+        :param pulumi.Input[_builtins.str] description: A description of the deployment. Removing a configured description clears it.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
+        :param pulumi.Input[Sequence[pulumi.Input['DeploymentResourceArgs']]] resources: Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
+        :param pulumi.Input['ScheduleArgs'] schedule: When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] vault_ids: Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
         """
         pulumi.set(__self__, "agent", agent)
         pulumi.set(__self__, "environment_id", environment_id)
@@ -58,8 +56,6 @@ class DeploymentArgs:
             pulumi.set(__self__, "description", description)
         if metadata is not None:
             pulumi.set(__self__, "metadata", metadata)
-        if paused is not None:
-            pulumi.set(__self__, "paused", paused)
         if resources is not None:
             pulumi.set(__self__, "resources", resources)
         if schedule is not None:
@@ -95,7 +91,7 @@ class DeploymentArgs:
     @pulumi.getter(name="initialEvents")
     def initial_events(self) -> pulumi.Input[Sequence[pulumi.Input[Mapping[str, Any]]]]:
         """
-        The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+        The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
         """
         return pulumi.get(self, "initial_events")
 
@@ -119,7 +115,7 @@ class DeploymentArgs:
     @pulumi.getter
     def budget(self) -> pulumi.Input[Optional['BudgetArgs']]:
         """
-        A spending limit for the deployment.
+        A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
         """
         return pulumi.get(self, "budget")
 
@@ -131,7 +127,7 @@ class DeploymentArgs:
     @pulumi.getter
     def description(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        A description of the deployment.
+        A description of the deployment. Removing a configured description clears it.
         """
         return pulumi.get(self, "description")
 
@@ -143,7 +139,7 @@ class DeploymentArgs:
     @pulumi.getter
     def metadata(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Arbitrary key-value pairs.
+        Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
         """
         return pulumi.get(self, "metadata")
 
@@ -153,21 +149,9 @@ class DeploymentArgs:
 
     @_builtins.property
     @pulumi.getter
-    def paused(self) -> pulumi.Input[Optional[_builtins.bool]]:
-        """
-        Whether the deployment is paused. Omit to leave pausing to other tools.
-        """
-        return pulumi.get(self, "paused")
-
-    @paused.setter
-    def paused(self, value: pulumi.Input[Optional[_builtins.bool]]):
-        pulumi.set(self, "paused", value)
-
-    @_builtins.property
-    @pulumi.getter
     def resources(self) -> pulumi.Input[Optional[Sequence[pulumi.Input['DeploymentResourceArgs']]]]:
         """
-        Repositories, files, and memory stores mounted into each session, up to 500.
+        Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
         """
         return pulumi.get(self, "resources")
 
@@ -179,7 +163,7 @@ class DeploymentArgs:
     @pulumi.getter
     def schedule(self) -> pulumi.Input[Optional['ScheduleArgs']]:
         """
-        When to run. Omit to run only on demand.
+        When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
         """
         return pulumi.get(self, "schedule")
 
@@ -191,7 +175,7 @@ class DeploymentArgs:
     @pulumi.getter(name="vaultIds")
     def vault_ids(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
         """
-        Vaults whose credentials sessions can use, up to 50.
+        Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
         """
         return pulumi.get(self, "vault_ids")
 
@@ -213,31 +197,25 @@ class Deployment(pulumi.CustomResource):
                  initial_events: pulumi.Input[Optional[Sequence[pulumi.Input[Mapping[str, Any]]]]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
-                 paused: pulumi.Input[Optional[_builtins.bool]] = None,
                  resources: pulumi.Input[Optional[Sequence[pulumi.Input[Union['DeploymentResourceArgs', 'DeploymentResourceArgsDict', 'outputs.DeploymentResource']]]]] = None,
                  schedule: pulumi.Input[Optional[Union['ScheduleArgs', 'ScheduleArgsDict', 'outputs.Schedule']]] = None,
                  vault_ids: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  __props__=None):
         """
-        A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, run on a cron schedule or on demand.
-
-        A deployment runs one version of its agent. Set `agent.version` to the agent's `version` output to roll the deployment forward with every change to the agent, or to a fixed number to hold it back: updating the agent creates a new version, and deployments move to it one at a time as their `agent.version` changes.
-
-        The API cannot delete deployments, so deleting this resource archives the deployment, which stops its schedule and cannot be undone.
+        A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, on demand or on a cron schedule. Set agent.version to pin a version; otherwise the latest version is pinned whenever configuration is applied. This resource does not start on-demand sessions or manage pausing. Deleting it archives the deployment permanently and stops its schedule.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[Union['AgentReferenceArgs', 'AgentReferenceArgsDict', 'outputs.AgentReference']] agent: The agent to run, and optionally the version to pin.
-        :param pulumi.Input[Union['BudgetArgs', 'BudgetArgsDict', 'outputs.Budget']] budget: A spending limit for the deployment.
-        :param pulumi.Input[_builtins.str] description: A description of the deployment.
+        :param pulumi.Input[Union['BudgetArgs', 'BudgetArgsDict', 'outputs.Budget']] budget: A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
+        :param pulumi.Input[_builtins.str] description: A description of the deployment. Removing a configured description clears it.
         :param pulumi.Input[_builtins.str] environment_id: The environment sessions run in.
-        :param pulumi.Input[Sequence[pulumi.Input[Mapping[str, Any]]]] initial_events: The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
+        :param pulumi.Input[Sequence[pulumi.Input[Mapping[str, Any]]]] initial_events: The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
         :param pulumi.Input[_builtins.str] name: The deployment's name.
-        :param pulumi.Input[_builtins.bool] paused: Whether the deployment is paused. Omit to leave pausing to other tools.
-        :param pulumi.Input[Sequence[pulumi.Input[Union['DeploymentResourceArgs', 'DeploymentResourceArgsDict', 'outputs.DeploymentResource']]]] resources: Repositories, files, and memory stores mounted into each session, up to 500.
-        :param pulumi.Input[Union['ScheduleArgs', 'ScheduleArgsDict', 'outputs.Schedule']] schedule: When to run. Omit to run only on demand.
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] vault_ids: Vaults whose credentials sessions can use, up to 50.
+        :param pulumi.Input[Sequence[pulumi.Input[Union['DeploymentResourceArgs', 'DeploymentResourceArgsDict', 'outputs.DeploymentResource']]]] resources: Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
+        :param pulumi.Input[Union['ScheduleArgs', 'ScheduleArgsDict', 'outputs.Schedule']] schedule: When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] vault_ids: Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
         """
         ...
     @overload
@@ -246,11 +224,7 @@ class Deployment(pulumi.CustomResource):
                  args: DeploymentArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, run on a cron schedule or on demand.
-
-        A deployment runs one version of its agent. Set `agent.version` to the agent's `version` output to roll the deployment forward with every change to the agent, or to a fixed number to hold it back: updating the agent creates a new version, and deployments move to it one at a time as their `agent.version` changes.
-
-        The API cannot delete deployments, so deleting this resource archives the deployment, which stops its schedule and cannot be undone.
+        A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, on demand or on a cron schedule. Set agent.version to pin a version; otherwise the latest version is pinned whenever configuration is applied. This resource does not start on-demand sessions or manage pausing. Deleting it archives the deployment permanently and stops its schedule.
 
         :param str resource_name: The name of the resource.
         :param DeploymentArgs args: The arguments to use to populate this resource's properties.
@@ -274,7 +248,6 @@ class Deployment(pulumi.CustomResource):
                  initial_events: pulumi.Input[Optional[Sequence[pulumi.Input[Mapping[str, Any]]]]] = None,
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
-                 paused: pulumi.Input[Optional[_builtins.bool]] = None,
                  resources: pulumi.Input[Optional[Sequence[pulumi.Input[Union['DeploymentResourceArgs', 'DeploymentResourceArgsDict', 'outputs.DeploymentResource']]]]] = None,
                  schedule: pulumi.Input[Optional[Union['ScheduleArgs', 'ScheduleArgsDict', 'outputs.Schedule']]] = None,
                  vault_ids: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
@@ -302,7 +275,6 @@ class Deployment(pulumi.CustomResource):
             if name is None and not opts.urn:
                 raise TypeError("Missing required property 'name'")
             __props__.__dict__["name"] = name
-            __props__.__dict__["paused"] = paused
             __props__.__dict__["resources"] = resources
             __props__.__dict__["schedule"] = schedule
             __props__.__dict__["vault_ids"] = vault_ids
@@ -339,7 +311,6 @@ class Deployment(pulumi.CustomResource):
         __props__.__dict__["initial_events"] = None
         __props__.__dict__["metadata"] = None
         __props__.__dict__["name"] = None
-        __props__.__dict__["paused"] = None
         __props__.__dict__["resources"] = None
         __props__.__dict__["schedule"] = None
         __props__.__dict__["status"] = None
@@ -365,7 +336,7 @@ class Deployment(pulumi.CustomResource):
     @pulumi.getter
     def budget(self) -> pulumi.Output[Optional['outputs.Budget']]:
         """
-        A spending limit for the deployment.
+        A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped.
         """
         return pulumi.get(self, "budget")
 
@@ -381,7 +352,7 @@ class Deployment(pulumi.CustomResource):
     @pulumi.getter
     def description(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        A description of the deployment.
+        A description of the deployment. Removing a configured description clears it.
         """
         return pulumi.get(self, "description")
 
@@ -397,7 +368,7 @@ class Deployment(pulumi.CustomResource):
     @pulumi.getter(name="initialEvents")
     def initial_events(self) -> pulumi.Output[Sequence[Mapping[str, Any]]]:
         """
-        The events that start each session, 1 to 50, in the API's event format. For example: `{type: "user.message", content: [{type: "text", text: "Triage new issues."}]}`.
+        The events that start each session, 1 to 50, in the API's event format. For example: {type: "user.message", content: [{type: "text", text: "Triage new issues."}]}.
         """
         return pulumi.get(self, "initial_events")
 
@@ -405,7 +376,7 @@ class Deployment(pulumi.CustomResource):
     @pulumi.getter
     def metadata(self) -> pulumi.Output[Optional[Mapping[str, _builtins.str]]]:
         """
-        Arbitrary key-value pairs.
+        Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged.
         """
         return pulumi.get(self, "metadata")
 
@@ -419,17 +390,9 @@ class Deployment(pulumi.CustomResource):
 
     @_builtins.property
     @pulumi.getter
-    def paused(self) -> pulumi.Output[Optional[_builtins.bool]]:
-        """
-        Whether the deployment is paused. Omit to leave pausing to other tools.
-        """
-        return pulumi.get(self, "paused")
-
-    @_builtins.property
-    @pulumi.getter
     def resources(self) -> pulumi.Output[Optional[Sequence['outputs.DeploymentResource']]]:
         """
-        Repositories, files, and memory stores mounted into each session, up to 500.
+        Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import.
         """
         return pulumi.get(self, "resources")
 
@@ -437,7 +400,7 @@ class Deployment(pulumi.CustomResource):
     @pulumi.getter
     def schedule(self) -> pulumi.Output[Optional['outputs.Schedule']]:
         """
-        When to run. Omit to run only on demand.
+        When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing.
         """
         return pulumi.get(self, "schedule")
 
@@ -445,7 +408,7 @@ class Deployment(pulumi.CustomResource):
     @pulumi.getter
     def status(self) -> pulumi.Output[_builtins.str]:
         """
-        Whether the deployment is `active` or `paused`. The platform also pauses a deployment when it cannot run, for example because its agent was archived.
+        Whether the deployment is active or paused, as observed on the platform. The platform may pause deployments when dependencies cannot run. This resource does not change pause status.
         """
         return pulumi.get(self, "status")
 
@@ -461,7 +424,7 @@ class Deployment(pulumi.CustomResource):
     @pulumi.getter(name="vaultIds")
     def vault_ids(self) -> pulumi.Output[Optional[Sequence[_builtins.str]]]:
         """
-        Vaults whose credentials sessions can use, up to 50.
+        Vaults whose credentials sessions can use, up to 50. Removing the list clears it.
         """
         return pulumi.get(self, "vault_ids")
 

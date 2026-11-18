@@ -8,11 +8,7 @@ import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 /**
- * A user of the organization, and their organization role.
- *
- * Users cannot be created through the API: people join by accepting an `anthropic.organization.Invite`. Creating this resource adopts an existing user by ID and sets their role.
- *
- * Deleting this resource removes the user from the organization. To stop managing a user without removing them, set the `retainOnDelete` resource option.
+ * Manages an existing user's organization membership and role. People join by accepting an `anthropic.organization.Invite`; creating this resource adopts an existing user by ID and assigns the configured role. Deleting this resource removes the user from the organization, including when replacing userId. Use retainOnDelete to stop managing a user without removing them. Import uses the user ID; privileged roles can be observed but cannot be assigned, so select an assignable role before managing an imported privileged user.
  */
 export class User extends pulumi.CustomResource {
     /**
@@ -54,21 +50,21 @@ export class User extends pulumi.CustomResource {
     /**
      * When the user joined the organization, in RFC 3339 format.
      */
-    declare public /*out*/ readonly addedAt: pulumi.Output<string>;
+    declare public /*out*/ readonly addedAt: pulumi.Output<string | undefined>;
     /**
      * The user's email address.
      */
-    declare public /*out*/ readonly email: pulumi.Output<string>;
+    declare public /*out*/ readonly email: pulumi.Output<string | undefined>;
     /**
      * The user's name.
      */
-    declare public /*out*/ readonly name: pulumi.Output<string>;
+    declare public /*out*/ readonly name: pulumi.Output<string | undefined>;
     /**
-     * The user's organization role. The `admin` role cannot be granted through the API.
+     * The observed organization role, including privileged administrator or owner roles that cannot be assigned.
      */
-    declare public readonly role: pulumi.Output<enums.organization.OrganizationRole>;
+    declare public readonly role: pulumi.Output<string>;
     /**
-     * The ID of the existing user to manage.
+     * The existing user's ID.
      */
     declare public readonly userId: pulumi.Output<string>;
 
@@ -102,8 +98,6 @@ export class User extends pulumi.CustomResource {
             resourceInputs["userId"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        const replaceOnChanges = { replaceOnChanges: ["userId"] };
-        opts = pulumi.mergeOptions(opts, replaceOnChanges);
         super(User.__pulumiType, name, resourceInputs, opts);
     }
 }
@@ -113,11 +107,11 @@ export class User extends pulumi.CustomResource {
  */
 export interface UserArgs {
     /**
-     * The user's organization role. The `admin` role cannot be granted through the API.
+     * The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
      */
     role: pulumi.Input<enums.organization.OrganizationRole>;
     /**
-     * The ID of the existing user to manage.
+     * The existing user's ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
      */
     userId: pulumi.Input<string>;
 }

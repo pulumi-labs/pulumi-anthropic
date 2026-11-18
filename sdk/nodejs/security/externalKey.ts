@@ -10,9 +10,9 @@ import * as utilities from "../utilities";
 /**
  * A customer-managed encryption key (CMEK) held in AWS KMS, Google Cloud KMS, or Azure Key Vault. A workspace encrypts its data with the key once the workspace's `externalKeyId` refers to it.
  *
- * Creating the key validates it with a round trip to the KMS, and fails, leaving nothing behind, if Anthropic cannot use it. The key's provider configuration and geography cannot change once a workspace uses the key, so changing either replaces the key.
+ * Creating the key validates it with a round trip to the KMS. Failed validation attempts to delete the configuration. If deletion also fails, the configuration may remain and require manual cleanup. Changing the provider configuration, geography or customer binding replaces the configuration.
  *
- * Deleting the key is refused while a workspace uses it.
+ * Deleting this resource deletes only the configuration, never the underlying cloud key. Deletion is refused while a live or archived workspace uses it.
  */
 export class ExternalKey extends pulumi.CustomResource {
     /**
@@ -60,7 +60,7 @@ export class ExternalKey extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * A display name for the key, 1 to 255 characters.
+     * A display name for the key, 1 to 255 characters. Removing a configured name clears it.
      */
     declare public readonly displayName: pulumi.Output<string | undefined>;
     /**
@@ -68,13 +68,17 @@ export class ExternalKey extends pulumi.CustomResource {
      */
     declare public readonly geo: pulumi.Output<string | undefined>;
     /**
-     * Where the key is held.
+     * Where the key is held. Changing any of these coordinates replaces the configuration.
      */
     declare public readonly providerConfig: pulumi.Output<outputs.security.ProviderConfig>;
     /**
      * When the key was last updated, in RFC 3339 format.
      */
     declare public /*out*/ readonly updatedAt: pulumi.Output<string>;
+    /**
+     * The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
+     */
+    declare public readonly userProfileId: pulumi.Output<string | undefined>;
 
     /**
      * Create a ExternalKey resource with the given unique name, arguments, and options.
@@ -93,6 +97,7 @@ export class ExternalKey extends pulumi.CustomResource {
             resourceInputs["displayName"] = args?.displayName;
             resourceInputs["geo"] = args?.geo;
             resourceInputs["providerConfig"] = args?.providerConfig;
+            resourceInputs["userProfileId"] = args?.userProfileId;
             resourceInputs["attachment"] = undefined /*out*/;
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["updatedAt"] = undefined /*out*/;
@@ -103,9 +108,10 @@ export class ExternalKey extends pulumi.CustomResource {
             resourceInputs["geo"] = undefined /*out*/;
             resourceInputs["providerConfig"] = undefined /*out*/;
             resourceInputs["updatedAt"] = undefined /*out*/;
+            resourceInputs["userProfileId"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        const replaceOnChanges = { replaceOnChanges: ["geo", "providerConfig"] };
+        const replaceOnChanges = { replaceOnChanges: ["geo", "providerConfig", "userProfileId"] };
         opts = pulumi.mergeOptions(opts, replaceOnChanges);
         super(ExternalKey.__pulumiType, name, resourceInputs, opts);
     }
@@ -116,7 +122,7 @@ export class ExternalKey extends pulumi.CustomResource {
  */
 export interface ExternalKeyArgs {
     /**
-     * A display name for the key, 1 to 255 characters.
+     * A display name for the key, 1 to 255 characters. Removing a configured name clears it.
      */
     displayName?: pulumi.Input<string | undefined>;
     /**
@@ -124,7 +130,11 @@ export interface ExternalKeyArgs {
      */
     geo?: pulumi.Input<string | undefined>;
     /**
-     * Where the key is held.
+     * Where the key is held. Changing any of these coordinates replaces the configuration.
      */
     providerConfig: pulumi.Input<inputs.security.ProviderConfigArgs>;
+    /**
+     * The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
+     */
+    userProfileId?: pulumi.Input<string | undefined>;
 }

@@ -19,17 +19,17 @@ public final class OAuthRefresh {
      */
     private String clientId;
     /**
-     * @return The OAuth refresh token.
+     * @return The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
      * 
      */
-    private String refreshToken;
+    private @Nullable String refreshToken;
     /**
      * @return The OAuth resource indicator. Changing it replaces the credential.
      * 
      */
     private @Nullable String resource;
     /**
-     * @return The OAuth scope to request.
+     * @return The OAuth scope to request. Removing this setting clears the stored scope.
      * 
      */
     private @Nullable String scope;
@@ -53,11 +53,11 @@ public final class OAuthRefresh {
         return this.clientId;
     }
     /**
-     * @return The OAuth refresh token.
+     * @return The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.
      * 
      */
-    public String refreshToken() {
-        return this.refreshToken;
+    public Optional<String> refreshToken() {
+        return Optional.ofNullable(this.refreshToken);
     }
     /**
      * @return The OAuth resource indicator. Changing it replaces the credential.
@@ -67,7 +67,7 @@ public final class OAuthRefresh {
         return Optional.ofNullable(this.resource);
     }
     /**
-     * @return The OAuth scope to request.
+     * @return The OAuth scope to request. Removing this setting clears the stored scope.
      * 
      */
     public Optional<String> scope() {
@@ -98,7 +98,7 @@ public final class OAuthRefresh {
     @CustomType.Builder
     public static final class Builder {
         private String clientId;
-        private String refreshToken;
+        private @Nullable String refreshToken;
         private @Nullable String resource;
         private @Nullable String scope;
         private String tokenEndpoint;
@@ -123,10 +123,8 @@ public final class OAuthRefresh {
             return this;
         }
         @CustomType.Setter
-        public Builder refreshToken(String refreshToken) {
-            if (refreshToken == null) {
-              throw new MissingRequiredPropertyException("OAuthRefresh", "refreshToken");
-            }
+        public Builder refreshToken(@Nullable String refreshToken) {
+
             this.refreshToken = refreshToken;
             return this;
         }

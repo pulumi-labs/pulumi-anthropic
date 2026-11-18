@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Identity.Outputs
 {
 
+    /// <summary>
+    /// The health and schedule of automatic signing-key polling, when available.
+    /// </summary>
     [OutputType]
     public sealed class PollStatus
     {

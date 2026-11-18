@@ -12,23 +12,19 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// A user of the organization, and their organization role.
-//
-// Users cannot be created through the API: people join by accepting an `anthropic.organization.Invite`. Creating this resource adopts an existing user by ID and sets their role.
-//
-// Deleting this resource removes the user from the organization. To stop managing a user without removing them, set the `retainOnDelete` resource option.
+// Manages an existing user's organization membership and role. People join by accepting an `anthropic.organization.Invite`; creating this resource adopts an existing user by ID and assigns the configured role. Deleting this resource removes the user from the organization, including when replacing userId. Use retainOnDelete to stop managing a user without removing them. Import uses the user ID; privileged roles can be observed but cannot be assigned, so select an assignable role before managing an imported privileged user.
 type User struct {
 	pulumi.CustomResourceState
 
 	// When the user joined the organization, in RFC 3339 format.
-	AddedAt pulumi.StringOutput `pulumi:"addedAt"`
+	AddedAt pulumi.StringPtrOutput `pulumi:"addedAt"`
 	// The user's email address.
-	Email pulumi.StringOutput `pulumi:"email"`
+	Email pulumi.StringPtrOutput `pulumi:"email"`
 	// The user's name.
-	Name pulumi.StringOutput `pulumi:"name"`
-	// The user's organization role. The `admin` role cannot be granted through the API.
-	Role OrganizationRoleOutput `pulumi:"role"`
-	// The ID of the existing user to manage.
+	Name pulumi.StringPtrOutput `pulumi:"name"`
+	// The observed organization role, including privileged administrator or owner roles that cannot be assigned.
+	Role pulumi.StringOutput `pulumi:"role"`
+	// The existing user's ID.
 	UserId pulumi.StringOutput `pulumi:"userId"`
 }
 
@@ -45,10 +41,6 @@ func NewUser(ctx *pulumi.Context,
 	if args.UserId == nil {
 		return nil, errors.New("invalid value for required argument 'UserId'")
 	}
-	replaceOnChanges := pulumi.ReplaceOnChanges([]string{
-		"userId",
-	})
-	opts = append(opts, replaceOnChanges)
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource User
 	err := ctx.RegisterResource("anthropic:organization:User", name, args, &resource, opts...)
@@ -88,17 +80,17 @@ func UserExists(ctx *pulumi.Context,
 }
 
 type userArgs struct {
-	// The user's organization role. The `admin` role cannot be granted through the API.
+	// The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
 	Role OrganizationRole `pulumi:"role"`
-	// The ID of the existing user to manage.
+	// The existing user's ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
 	UserId string `pulumi:"userId"`
 }
 
 // The set of arguments for constructing a User resource.
 type UserArgs struct {
-	// The user's organization role. The `admin` role cannot be granted through the API.
+	// The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned.
 	Role OrganizationRoleInput
-	// The ID of the existing user to manage.
+	// The existing user's ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.
 	UserId pulumi.StringInput
 }
 
@@ -190,26 +182,26 @@ func (o UserOutput) ToUserOutputWithContext(ctx context.Context) UserOutput {
 }
 
 // When the user joined the organization, in RFC 3339 format.
-func (o UserOutput) AddedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v *User) pulumi.StringOutput { return v.AddedAt }).(pulumi.StringOutput)
+func (o UserOutput) AddedAt() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *User) pulumi.StringPtrOutput { return v.AddedAt }).(pulumi.StringPtrOutput)
 }
 
 // The user's email address.
-func (o UserOutput) Email() pulumi.StringOutput {
-	return o.ApplyT(func(v *User) pulumi.StringOutput { return v.Email }).(pulumi.StringOutput)
+func (o UserOutput) Email() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *User) pulumi.StringPtrOutput { return v.Email }).(pulumi.StringPtrOutput)
 }
 
 // The user's name.
-func (o UserOutput) Name() pulumi.StringOutput {
-	return o.ApplyT(func(v *User) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
+func (o UserOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *User) pulumi.StringPtrOutput { return v.Name }).(pulumi.StringPtrOutput)
 }
 
-// The user's organization role. The `admin` role cannot be granted through the API.
-func (o UserOutput) Role() OrganizationRoleOutput {
-	return o.ApplyT(func(v *User) OrganizationRoleOutput { return v.Role }).(OrganizationRoleOutput)
+// The observed organization role, including privileged administrator or owner roles that cannot be assigned.
+func (o UserOutput) Role() pulumi.StringOutput {
+	return o.ApplyT(func(v *User) pulumi.StringOutput { return v.Role }).(pulumi.StringOutput)
 }
 
-// The ID of the existing user to manage.
+// The existing user's ID.
 func (o UserOutput) UserId() pulumi.StringOutput {
 	return o.ApplyT(func(v *User) pulumi.StringOutput { return v.UserId }).(pulumi.StringOutput)
 }

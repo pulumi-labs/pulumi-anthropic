@@ -19,30 +19,17 @@ package organization
 
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
-
-	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // Resources returns the module's resources.
 func Resources() []infer.InferredResource {
 	return []infer.InferredResource{
-		infer.Resource(NewWorkspace()),
-		infer.Resource(NewWorkspaceMember()),
-		infer.Resource(NewInvite()),
-		infer.Resource(NewUser()),
-		infer.Resource(NewApiKey()),
-		infer.Resource(NewSpendLimit()),
-		infer.Resource(NewComplianceSettings()),
+		NewWorkspace(),
+		NewWorkspaceMember(),
+		NewInvite(),
+		NewUser(),
+		NewApiKey(),
+		NewSpendLimit(),
+		NewComplianceSettings(),
 	}
 }
-
-// The module's collections, all of which accept an Admin API key.
-var (
-	apiKeyCollection             = rest.Collection{Plane: config.Admin, Path: "v1/organizations/api_keys"}
-	complianceSettingsCollection = rest.Collection{Plane: config.Admin, Path: "v1/organizations/compliance_settings"}
-	inviteCollection             = rest.Collection{Plane: config.Admin, Path: "v1/organizations/invites"}
-	spendLimitCollection         = rest.Collection{Plane: config.Admin, Path: "v1/organizations/spend_limits"}
-	userCollection               = rest.Collection{Plane: config.Admin, Path: "v1/organizations/users"}
-	workspaceCollection          = rest.Collection{Plane: config.Admin, Path: "v1/organizations/workspaces"}
-)

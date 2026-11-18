@@ -5,11 +5,11 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "../utilities";
 
 /**
- * Binds a federation rule to a workspace, so that the rule's access tokens can act in it. The resource's ID is `<federation-rule-id>/<workspace-id>`.
+ * Binds a federation rule to an additional workspace. The resource ID is `<federation-rule-id>/<workspace-id>` and supports import. Changing either ID replaces the binding. Deleting the resource removes this explicit binding, not the rule or workspace. Other grants, including all-workspace access, are unaffected.
  *
- * Do not also bind the workspace the rule was created in (its `workspaceId`): that binding belongs to the rule.
+ * Do not also manage the workspace the rule was created in with this resource. Manage each rule/workspace pair with only one resource: deleting either duplicate removes the shared binding.
  *
- * Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+ * Requires an OAuth token with `org:admin` (`anthropic:authToken`). The rule and workspace must belong to your organization; the rule must grant `workspace:developer` or `workspace:inference`. Enabling a workspace does not enroll the target service account: token exchange requires its membership in that workspace.
  */
 export class FederationRuleWorkspace extends pulumi.CustomResource {
     /**
@@ -49,21 +49,21 @@ export class FederationRuleWorkspace extends pulumi.CustomResource {
     }
 
     /**
-     * When the binding was created, in RFC 3339 format.
+     * When the binding was created, in RFC 3339 format, when available.
      */
-    declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    declare public /*out*/ readonly createdAt: pulumi.Output<string | undefined>;
     /**
-     * The federation rule's ID.
+     * The federation rule's nonempty ID. Changing it replaces the binding.
      */
     declare public readonly federationRuleId: pulumi.Output<string>;
     /**
-     * The workspace's ID.
+     * The workspace's nonempty ID. Changing it replaces the binding.
      */
     declare public readonly workspaceId: pulumi.Output<string>;
     /**
-     * The workspace's name when the binding was created.
+     * The workspace name reported when the binding is read. Not available immediately after enabling the binding.
      */
-    declare public /*out*/ readonly workspaceName: pulumi.Output<string>;
+    declare public /*out*/ readonly workspaceName: pulumi.Output<string | undefined>;
 
     /**
      * Create a FederationRuleWorkspace resource with the given unique name, arguments, and options.
@@ -104,11 +104,11 @@ export class FederationRuleWorkspace extends pulumi.CustomResource {
  */
 export interface FederationRuleWorkspaceArgs {
     /**
-     * The federation rule's ID.
+     * The federation rule's nonempty ID. Changing it replaces the binding.
      */
     federationRuleId: pulumi.Input<string>;
     /**
-     * The workspace's ID.
+     * The workspace's nonempty ID. Changing it replaces the binding.
      */
     workspaceId: pulumi.Input<string>;
 }

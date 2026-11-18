@@ -50,7 +50,7 @@ class AwaitableGetRateLimitsResult(GetRateLimitsResult):
 def get_rate_limits(workspace_id: Optional[_builtins.str] = None,
                     opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableGetRateLimitsResult:
     """
-    Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+    Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
 
     :param _builtins.str workspace_id: The workspace to read limits for. Omit for the organization's limits.
     """
@@ -64,7 +64,7 @@ def get_rate_limits(workspace_id: Optional[_builtins.str] = None,
 def get_rate_limits_output(workspace_id: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                            opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[GetRateLimitsResult]:
     """
-    Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+    Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
 
     :param _builtins.str workspace_id: The workspace to read limits for. Omit for the organization's limits.
     """

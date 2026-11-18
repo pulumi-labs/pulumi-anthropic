@@ -17,17 +17,11 @@ package security
 
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
-
-	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // Resources returns the module's resources.
 func Resources() []infer.InferredResource {
 	return []infer.InferredResource{
-		infer.Resource(NewExternalKey()),
+		NewExternalKey(),
 	}
 }
-
-// The module's collections, which accept an Admin API key.
-var externalKeyCollection = rest.Collection{Plane: config.Admin, Path: "v1/organizations/external_keys"}

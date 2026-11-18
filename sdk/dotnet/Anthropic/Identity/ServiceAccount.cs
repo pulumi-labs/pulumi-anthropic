@@ -27,19 +27,19 @@ namespace Pulumi.Labs.Anthropic.Identity
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// A description of the service account, up to 2,000 characters.
+        /// A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
         /// </summary>
         [Output("description")]
         public Output<string?> Description { get; private set; } = null!;
 
         /// <summary>
-        /// A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+        /// A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
         /// </summary>
         [Output("name")]
         public Output<string> Name { get; private set; } = null!;
 
         /// <summary>
-        /// The service account's organization role. Defaults to `developer`.
+        /// The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
         /// </summary>
         [Output("organizationRole")]
         public Output<Pulumi.Labs.Anthropic.Identity.ServiceAccountRole?> OrganizationRole { get; private set; } = null!;
@@ -101,19 +101,19 @@ namespace Pulumi.Labs.Anthropic.Identity
     public sealed class ServiceAccountArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// A description of the service account, up to 2,000 characters.
+        /// A description of the service account, up to 2,000 characters. Removing a previously configured description clears it.
         /// </summary>
         [Input("description")]
         public Input<string>? Description { get; set; }
 
         /// <summary>
-        /// A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.
+        /// A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.
         /// </summary>
         [Input("name", required: true)]
         public Input<string> Name { get; set; } = null!;
 
         /// <summary>
-        /// The service account's organization role. Defaults to `developer`.
+        /// The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits.
         /// </summary>
         [Input("organizationRole")]
         public Input<Pulumi.Labs.Anthropic.Identity.ServiceAccountRole>? OrganizationRole { get; set; }

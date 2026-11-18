@@ -11,14 +11,14 @@ import java.util.Objects;
 @CustomType
 public final class Budget {
     /**
-     * @return The most the deployment may spend, at list price.
+     * @return The most each future session may spend at public list prices, rather than negotiated prices.
      * 
      */
     private MonetaryAmount maxListCost;
 
     private Budget() {}
     /**
-     * @return The most the deployment may spend, at list price.
+     * @return The most each future session may spend at public list prices, rather than negotiated prices.
      * 
      */
     public MonetaryAmount maxListCost() {

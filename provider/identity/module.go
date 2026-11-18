@@ -18,31 +18,17 @@ package identity
 
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
-
-	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // Resources returns the module's resources.
 func Resources() []infer.InferredResource {
 	return []infer.InferredResource{
-		infer.Resource(NewServiceAccount()),
-		infer.Resource(NewServiceAccountWorkspace()),
-		infer.Resource(NewFederationIssuer()),
-		infer.Resource(NewFederationRule()),
-		infer.Resource(NewFederationRuleWorkspace()),
-		infer.Resource(NewRbacGroup()),
-		infer.Resource(NewRbacGroupMember()),
+		NewServiceAccount(),
+		NewServiceAccountWorkspace(),
+		NewFederationIssuer(),
+		NewFederationRule(),
+		NewFederationRuleWorkspace(),
+		NewRbacGroup(),
+		NewRbacGroupMember(),
 	}
 }
-
-// The module's collections. Service accounts and workload identity federation accept only
-// an OAuth token with the org:admin scope, including where they are managed beneath
-// workspaces; RBAC groups accept an Admin API key.
-var (
-	federationIssuerCollection = rest.Collection{Plane: config.OrgAdminOAuth, Path: "v1/organizations/federation_issuers"}
-	federationRuleCollection   = rest.Collection{Plane: config.OrgAdminOAuth, Path: "v1/organizations/federation_rules"}
-	rbacGroupCollection        = rest.Collection{Plane: config.Admin, Path: "v1/organizations/rbac_groups"}
-	serviceAccountCollection   = rest.Collection{Plane: config.OrgAdminOAuth, Path: "v1/organizations/service_accounts"}
-	workspaceCollection        = rest.Collection{Plane: config.OrgAdminOAuth, Path: "v1/organizations/workspaces"}
-)

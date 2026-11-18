@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Outputs
 {
 
+    /// <summary>
+    /// Default settings for tools without an individual override.
+    /// </summary>
     [OutputType]
     public sealed class ToolDefaults
     {

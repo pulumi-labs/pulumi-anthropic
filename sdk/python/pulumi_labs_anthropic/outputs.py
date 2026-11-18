@@ -16,11 +16,118 @@ from . import _utilities
 from . import outputs
 
 __all__ = [
+    'Federation',
+    'IdentityToken',
     'ModelInfo',
     'RateLimit',
     'RateLimitGroup',
     'RateLimitValue',
 ]
+
+@pulumi.output_type
+class Federation(dict):
+    """
+    Workload identity federation using an explicitly configured OIDC identity token source. Files are reread and commands are rerun when a new access token is needed. No default token file or authentication profile is used.
+    """
+    def __init__(__self__, *,
+                 identity_token: 'outputs.IdentityToken',
+                 organization_id: _builtins.str,
+                 rule_id: _builtins.str,
+                 service_account_id: Optional[_builtins.str] = None):
+        """
+        Workload identity federation using an explicitly configured OIDC identity token source. Files are reread and commands are rerun when a new access token is needed. No default token file or authentication profile is used.
+
+        :param 'IdentityToken' identity_token: The OIDC assertion source. Specify exactly one of token, file or command. This configuration is secret; file contents and command output are not saved in provider state. Assertions with a jti claim must be fresh for each exchange; use a command that obtains a new assertion rather than sharing a previously exchanged token.
+        :param _builtins.str organization_id: The organization the federation rule belongs to. Required for the token exchange; this value does not select an organization for API-key operations.
+        :param _builtins.str rule_id: Federation rule ID (fdrl_...). The server's rule determines granted scopes; OAuth-only identity operations require org:admin.
+        :param _builtins.str service_account_id: Optional expected service-account target (svac_...). Omit for user-targeted rules.
+        """
+        pulumi.set(__self__, "identity_token", identity_token)
+        pulumi.set(__self__, "organization_id", organization_id)
+        pulumi.set(__self__, "rule_id", rule_id)
+        if service_account_id is not None:
+            pulumi.set(__self__, "service_account_id", service_account_id)
+
+    @_builtins.property
+    @pulumi.getter(name="identityToken")
+    def identity_token(self) -> 'outputs.IdentityToken':
+        """
+        The OIDC assertion source. Specify exactly one of token, file or command. This configuration is secret; file contents and command output are not saved in provider state. Assertions with a jti claim must be fresh for each exchange; use a command that obtains a new assertion rather than sharing a previously exchanged token.
+        """
+        return pulumi.get(self, "identity_token")
+
+    @_builtins.property
+    @pulumi.getter(name="organizationId")
+    def organization_id(self) -> _builtins.str:
+        """
+        The organization the federation rule belongs to. Required for the token exchange; this value does not select an organization for API-key operations.
+        """
+        return pulumi.get(self, "organization_id")
+
+    @_builtins.property
+    @pulumi.getter(name="ruleId")
+    def rule_id(self) -> _builtins.str:
+        """
+        Federation rule ID (fdrl_...). The server's rule determines granted scopes; OAuth-only identity operations require org:admin.
+        """
+        return pulumi.get(self, "rule_id")
+
+    @_builtins.property
+    @pulumi.getter(name="serviceAccountId")
+    def service_account_id(self) -> Optional[_builtins.str]:
+        """
+        Optional expected service-account target (svac_...). Omit for user-targeted rules.
+        """
+        return pulumi.get(self, "service_account_id")
+
+
+@pulumi.output_type
+class IdentityToken(dict):
+    """
+    An OIDC identity token source. Specify exactly one of token, file or command.
+    """
+    def __init__(__self__, *,
+                 command: Optional[Sequence[_builtins.str]] = None,
+                 file: Optional[_builtins.str] = None,
+                 token: Optional[_builtins.str] = None):
+        """
+        An OIDC identity token source. Specify exactly one of token, file or command.
+
+        :param Sequence[_builtins.str] command: Executable followed by zero or more arguments, invoked whenever a new access token is needed. Must print one nonempty JWT to stdout, at most 64 KiB; surrounding whitespace is trimmed. Runs directly without a shell, inherits the provider process environment and working directory, and is stopped after 30 seconds or operation cancellation. Specify a shell explicitly for shell syntax. Command stdout and stderr are never logged or saved in provider state.
+        :param _builtins.str file: Absolute path to an OIDC JWT file, reread whenever a new access token is needed. Rotate the file before each exchange if its JWT carries a single-use jti claim. The file contents are not saved in provider state.
+        :param _builtins.str token: A literal OIDC JWT. It is reused for each exchange and cannot be renewed by the provider. A JWT with a jti claim can be exchanged only once when issuer replay protection is enabled.
+        """
+        if command is not None:
+            pulumi.set(__self__, "command", command)
+        if file is not None:
+            pulumi.set(__self__, "file", file)
+        if token is not None:
+            pulumi.set(__self__, "token", token)
+
+    @_builtins.property
+    @pulumi.getter
+    def command(self) -> Optional[Sequence[_builtins.str]]:
+        """
+        Executable followed by zero or more arguments, invoked whenever a new access token is needed. Must print one nonempty JWT to stdout, at most 64 KiB; surrounding whitespace is trimmed. Runs directly without a shell, inherits the provider process environment and working directory, and is stopped after 30 seconds or operation cancellation. Specify a shell explicitly for shell syntax. Command stdout and stderr are never logged or saved in provider state.
+        """
+        return pulumi.get(self, "command")
+
+    @_builtins.property
+    @pulumi.getter
+    def file(self) -> Optional[_builtins.str]:
+        """
+        Absolute path to an OIDC JWT file, reread whenever a new access token is needed. Rotate the file before each exchange if its JWT carries a single-use jti claim. The file contents are not saved in provider state.
+        """
+        return pulumi.get(self, "file")
+
+    @_builtins.property
+    @pulumi.getter
+    def token(self) -> Optional[_builtins.str]:
+        """
+        A literal OIDC JWT. It is reused for each exchange and cannot be renewed by the provider. A JWT with a jti claim can be exchanged only once when issuer replay protection is enabled.
+        """
+        return pulumi.get(self, "token")
+
 
 @pulumi.output_type
 class ModelInfo(dict):

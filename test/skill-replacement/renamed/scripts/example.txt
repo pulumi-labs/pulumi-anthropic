@@ -1,0 +1,1 @@
+This nested file tests preservation of archive-relative filenames. It is not executable.

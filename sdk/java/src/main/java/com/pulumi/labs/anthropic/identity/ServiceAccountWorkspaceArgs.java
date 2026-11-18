@@ -16,14 +16,14 @@ public final class ServiceAccountWorkspaceArgs extends com.pulumi.resources.Reso
     public static final ServiceAccountWorkspaceArgs Empty = new ServiceAccountWorkspaceArgs();
 
     /**
-     * The service account&#39;s ID.
+     * The service account&#39;s nonempty ID. Changing it replaces the grant.
      * 
      */
     @Import(name="serviceAccountId", required=true)
     private Output<String> serviceAccountId;
 
     /**
-     * @return The service account&#39;s ID.
+     * @return The service account&#39;s nonempty ID. Changing it replaces the grant.
      * 
      */
     public Output<String> serviceAccountId() {
@@ -31,14 +31,14 @@ public final class ServiceAccountWorkspaceArgs extends com.pulumi.resources.Reso
     }
 
     /**
-     * The workspace&#39;s ID.
+     * The workspace&#39;s nonempty ID. Changing it replaces the grant.
      * 
      */
     @Import(name="workspaceId", required=true)
     private Output<String> workspaceId;
 
     /**
-     * @return The workspace&#39;s ID.
+     * @return The workspace&#39;s nonempty ID. Changing it replaces the grant.
      * 
      */
     public Output<String> workspaceId() {
@@ -46,14 +46,14 @@ public final class ServiceAccountWorkspaceArgs extends com.pulumi.resources.Reso
     }
 
     /**
-     * The service account&#39;s role in the workspace.
+     * The service account&#39;s role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant&#39;s role.
      * 
      */
     @Import(name="workspaceRole", required=true)
     private Output<WorkspaceRole> workspaceRole;
 
     /**
-     * @return The service account&#39;s role in the workspace.
+     * @return The service account&#39;s role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant&#39;s role.
      * 
      */
     public Output<WorkspaceRole> workspaceRole() {
@@ -87,7 +87,7 @@ public final class ServiceAccountWorkspaceArgs extends com.pulumi.resources.Reso
         }
 
         /**
-         * @param serviceAccountId The service account&#39;s ID.
+         * @param serviceAccountId The service account&#39;s nonempty ID. Changing it replaces the grant.
          * 
          * @return builder
          * 
@@ -98,7 +98,7 @@ public final class ServiceAccountWorkspaceArgs extends com.pulumi.resources.Reso
         }
 
         /**
-         * @param serviceAccountId The service account&#39;s ID.
+         * @param serviceAccountId The service account&#39;s nonempty ID. Changing it replaces the grant.
          * 
          * @return builder
          * 
@@ -108,7 +108,7 @@ public final class ServiceAccountWorkspaceArgs extends com.pulumi.resources.Reso
         }
 
         /**
-         * @param workspaceId The workspace&#39;s ID.
+         * @param workspaceId The workspace&#39;s nonempty ID. Changing it replaces the grant.
          * 
          * @return builder
          * 
@@ -119,7 +119,7 @@ public final class ServiceAccountWorkspaceArgs extends com.pulumi.resources.Reso
         }
 
         /**
-         * @param workspaceId The workspace&#39;s ID.
+         * @param workspaceId The workspace&#39;s nonempty ID. Changing it replaces the grant.
          * 
          * @return builder
          * 
@@ -129,7 +129,7 @@ public final class ServiceAccountWorkspaceArgs extends com.pulumi.resources.Reso
         }
 
         /**
-         * @param workspaceRole The service account&#39;s role in the workspace.
+         * @param workspaceRole The service account&#39;s role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant&#39;s role.
          * 
          * @return builder
          * 
@@ -140,7 +140,7 @@ public final class ServiceAccountWorkspaceArgs extends com.pulumi.resources.Reso
         }
 
         /**
-         * @param workspaceRole The service account&#39;s role in the workspace.
+         * @param workspaceRole The service account&#39;s role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant&#39;s role.
          * 
          * @return builder
          * 

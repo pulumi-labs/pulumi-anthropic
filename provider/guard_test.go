@@ -16,6 +16,9 @@ package provider
 
 import (
 	"encoding/json"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -37,6 +40,31 @@ import (
 
 // These tests guard whole classes of defect across every resource, rather than one
 // resource at a time, so that a new resource cannot quietly reintroduce them.
+
+// This source-policy guard prevents reintroducing initialization checkpoint
+// markers or processing without an explicit decision to support their lifecycle.
+// Resource tests separately assert ordinary errors and successful-state mapping.
+func TestProviderSourcesDoNotUseInitializationCheckpoints(t *testing.T) {
+	require.NoError(t, filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") {
+			return err
+		}
+		file, err := parser.ParseFile(token.NewFileSet(), path, nil, 0)
+		if err != nil {
+			return err
+		}
+		ast.Inspect(file, func(node ast.Node) bool {
+			if selector, ok := node.(*ast.SelectorExpr); ok {
+				switch selector.Sel.Name {
+				case "ResourceInitFailedError", "InitializationFailed", "PartialState":
+					t.Errorf("%s uses initialization checkpoint API %s", path, selector.Sel.Name)
+				}
+			}
+			return true
+		})
+		return nil
+	}))
+}
 
 type schemaProperty struct {
 	Type             string          `json:"type"`
@@ -195,18 +223,28 @@ func TestEveryReplaceOnChangesReplaces(t *testing.T) {
 			if !assert.NoError(t, err, name) {
 				continue
 			}
-			kind := d.DetailedDiff[rp.path[0]].Kind
-			assert.Contains(t, []p.DiffKind{p.UpdateReplace, p.AddReplace, p.DeleteReplace}, kind,
-				"changing %s must replace the resource", name)
+			// Diff may report an immutable leaf or an enclosing object.
+			// Only the changed immutable path or an ancestor
+			// may establish replacement, never an unrelated sibling's diff.
+			replaces := false
+			for depth := len(rp.path); depth > 0; depth-- {
+				kind := d.DetailedDiff[strings.Join(rp.path[:depth], ".")].Kind
+				if kind == p.UpdateReplace || kind == p.AddReplace || kind == p.DeleteReplace {
+					replaces = true
+					break
+				}
+			}
+			assert.True(t, replaces, "changing %s must replace that path or an ancestor; diff=%v", name, d.DetailedDiff)
 			probed++
 		}
 	}
 	assert.NotZero(t, probed)
 }
 
-// TestEveryResourceHasALifecycleTest requires each resource to be exercised through a
-// full create, update, and delete lifecycle against the fake API.
-func TestEveryResourceHasALifecycleTest(t *testing.T) {
+// TestEveryResourceHasLifecycleTestSourceReference checks for a resource token in
+// a file containing lifecycle-test source. This is a source inventory check, not
+// proof that a particular lifecycle executes or that its assertions are adequate.
+func TestEveryResourceHasLifecycleTestSourceReference(t *testing.T) {
 	t.Parallel()
 	doc := loadSchema(t)
 	var tests strings.Builder
@@ -215,12 +253,18 @@ func TestEveryResourceHasALifecycleTest(t *testing.T) {
 	for _, f := range files {
 		src, err := os.ReadFile(f)
 		require.NoError(t, err)
-		if strings.Contains(string(src), "integration.LifeCycleTest{") {
+		// Workspace drives the same Check/Create/Diff/Update/Delete protocol
+		// explicitly: LifeCycleTest omits OldInputs, which are essential for
+		// deleting only previously configured merged-map keys. TunnelCertificate
+		// also drives its lifecycle explicitly to verify import and write-only PEM.
+		if strings.Contains(string(src), "integration.LifeCycleTest{") ||
+			(filepath.ToSlash(f) == "organization/workspace_test.go" && strings.Contains(string(src), "func TestWorkspaceLifecycle(")) ||
+			(filepath.ToSlash(f) == "agents/tunnel_certificate_test.go" && strings.Contains(string(src), "func TestTunnelCertificateLifecycle(")) {
 			tests.Write(src)
 		}
 	}
 	for token := range doc.Resources {
-		assert.Contains(t, tests.String(), `"`+token+`"`, "%s has no LifeCycleTest", token)
+		assert.Contains(t, tests.String(), `"`+token+`"`, "%s has no lifecycle-test source reference", token)
 	}
 }
 
@@ -273,10 +317,10 @@ func TestCredentialsAreSecret(t *testing.T) {
 	}
 }
 
-// TestEveryResourceDeclaresItsEndOfLife deletes every resource type against an API with
-// nothing in it. Deleting what is already gone succeeds, so the only way this fails is a
-// resource that never declared what deletion means, which must not default to anything.
-func TestEveryResourceDeclaresItsEndOfLife(t *testing.T) {
+// TestEveryResourceDeleteAcceptsMissingObject checks Delete against the empty fake
+// API. It covers absence handling only; resource-specific lifecycle tests must
+// assert the requested delete/archive/revoke operation and its effects.
+func TestEveryResourceDeleteAcceptsMissingObject(t *testing.T) {
 	t.Parallel()
 	doc := loadSchema(t)
 	api := fakeapi.New(t)

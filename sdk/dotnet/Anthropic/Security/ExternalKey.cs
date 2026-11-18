@@ -13,9 +13,9 @@ namespace Pulumi.Labs.Anthropic.Security
     /// <summary>
     /// A customer-managed encryption key (CMEK) held in AWS KMS, Google Cloud KMS, or Azure Key Vault. A workspace encrypts its data with the key once the workspace's `externalKeyId` refers to it.
     /// 
-    /// Creating the key validates it with a round trip to the KMS, and fails, leaving nothing behind, if Anthropic cannot use it. The key's provider configuration and geography cannot change once a workspace uses the key, so changing either replaces the key.
+    /// Creating the key validates it with a round trip to the KMS. Failed validation attempts to delete the configuration. If deletion also fails, the configuration may remain and require manual cleanup. Changing the provider configuration, geography or customer binding replaces the configuration.
     /// 
-    /// Deleting the key is refused while a workspace uses it.
+    /// Deleting this resource deletes only the configuration, never the underlying cloud key. Deletion is refused while a live or archived workspace uses it.
     /// </summary>
     [AnthropicResourceType("anthropic:security:ExternalKey")]
     public partial class ExternalKey : global::Pulumi.CustomResource
@@ -33,7 +33,7 @@ namespace Pulumi.Labs.Anthropic.Security
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// A display name for the key, 1 to 255 characters.
+        /// A display name for the key, 1 to 255 characters. Removing a configured name clears it.
         /// </summary>
         [Output("displayName")]
         public Output<string?> DisplayName { get; private set; } = null!;
@@ -45,7 +45,7 @@ namespace Pulumi.Labs.Anthropic.Security
         public Output<string?> Geo { get; private set; } = null!;
 
         /// <summary>
-        /// Where the key is held.
+        /// Where the key is held. Changing any of these coordinates replaces the configuration.
         /// </summary>
         [Output("providerConfig")]
         public Output<Outputs.ProviderConfig> ProviderConfig { get; private set; } = null!;
@@ -55,6 +55,12 @@ namespace Pulumi.Labs.Anthropic.Security
         /// </summary>
         [Output("updatedAt")]
         public Output<string> UpdatedAt { get; private set; } = null!;
+
+        /// <summary>
+        /// The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
+        /// </summary>
+        [Output("userProfileId")]
+        public Output<string?> UserProfileId { get; private set; } = null!;
 
 
         /// <summary>
@@ -84,6 +90,7 @@ namespace Pulumi.Labs.Anthropic.Security
                 {
                     "geo",
                     "providerConfig",
+                    "userProfileId",
                 },
             };
             var merged = CustomResourceOptions.Merge(defaultOptions, options);
@@ -108,7 +115,7 @@ namespace Pulumi.Labs.Anthropic.Security
     public sealed class ExternalKeyArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// A display name for the key, 1 to 255 characters.
+        /// A display name for the key, 1 to 255 characters. Removing a configured name clears it.
         /// </summary>
         [Input("displayName")]
         public Input<string>? DisplayName { get; set; }
@@ -120,10 +127,16 @@ namespace Pulumi.Labs.Anthropic.Security
         public Input<string>? Geo { get; set; }
 
         /// <summary>
-        /// Where the key is held.
+        /// Where the key is held. Changing any of these coordinates replaces the configuration.
         /// </summary>
         [Input("providerConfig", required: true)]
         public Input<Inputs.ProviderConfigArgs> ProviderConfig { get; set; } = null!;
+
+        /// <summary>
+        /// The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
+        /// </summary>
+        [Input("userProfileId")]
+        public Input<string>? UserProfileId { get; set; }
 
         public ExternalKeyArgs()
         {

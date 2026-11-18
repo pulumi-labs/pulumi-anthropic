@@ -13,20 +13,24 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 
+/**
+ * An Anthropic-provided or organization-uploaded skill available to an agent.
+ *
+ */
 public final class SkillRefArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final SkillRefArgs Empty = new SkillRefArgs();
 
     /**
      * The skill&#39;s ID.
-     * 
+     *
      */
     @Import(name="skillId", required=true)
     private Output<String> skillId;
 
     /**
      * @return The skill&#39;s ID.
-     * 
+     *
      */
     public Output<String> skillId() {
         return this.skillId;
@@ -34,14 +38,14 @@ public final class SkillRefArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Whether the skill is provided by Anthropic or uploaded to the organization.
-     * 
+     *
      */
     @Import(name="type", required=true)
     private Output<SkillType> type;
 
     /**
      * @return Whether the skill is provided by Anthropic or uploaded to the organization.
-     * 
+     *
      */
     public Output<SkillType> type() {
         return this.type;
@@ -49,14 +53,14 @@ public final class SkillRefArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The skill version to pin. Omit to always use the latest version.
-     * 
+     *
      */
     @Import(name="version")
     private @Nullable Output<String> version;
 
     /**
      * @return The skill version to pin. Omit to always use the latest version.
-     * 
+     *
      */
     public Optional<Output<String>> version() {
         return Optional.ofNullable(this.version);
@@ -90,9 +94,9 @@ public final class SkillRefArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param skillId The skill&#39;s ID.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder skillId(Output<String> skillId) {
             $.skillId = skillId;
@@ -101,9 +105,9 @@ public final class SkillRefArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param skillId The skill&#39;s ID.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder skillId(String skillId) {
             return skillId(Output.of(skillId));
@@ -111,9 +115,9 @@ public final class SkillRefArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param type Whether the skill is provided by Anthropic or uploaded to the organization.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder type(Output<SkillType> type) {
             $.type = type;
@@ -122,9 +126,9 @@ public final class SkillRefArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param type Whether the skill is provided by Anthropic or uploaded to the organization.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder type(SkillType type) {
             return type(Output.of(type));
@@ -132,9 +136,9 @@ public final class SkillRefArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param version The skill version to pin. Omit to always use the latest version.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder version(@Nullable Output<String> version) {
             $.version = version;
@@ -143,9 +147,9 @@ public final class SkillRefArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param version The skill version to pin. Omit to always use the latest version.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder version(String version) {
             return version(Output.of(version));

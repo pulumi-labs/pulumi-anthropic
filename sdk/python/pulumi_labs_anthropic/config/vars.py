@@ -13,6 +13,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
+from .. import outputs as _root_outputs
 
 import types
 
@@ -23,21 +24,21 @@ class _ExportableConfig(types.ModuleType):
     @_builtins.property
     def admin_key(self) -> str:
         """
-        An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+        An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
         """
         return __config__.get('adminKey') or (_utilities.get_env('ANTHROPIC_ADMIN_KEY') or '')
 
     @_builtins.property
     def api_key(self) -> str:
         """
-        An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+        An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
         """
         return __config__.get('apiKey') or (_utilities.get_env('ANTHROPIC_API_KEY') or '')
 
     @_builtins.property
     def auth_token(self) -> str:
         """
-        An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+        An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
         """
         return __config__.get('authToken') or (_utilities.get_env('ANTHROPIC_AUTH_TOKEN') or '')
 
@@ -49,9 +50,16 @@ class _ExportableConfig(types.ModuleType):
         return __config__.get('baseUrl') or (_utilities.get_env('ANTHROPIC_BASE_URL') or '')
 
     @_builtins.property
+    def federation(self) -> Optional[str]:
+        """
+        Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+        """
+        return __config__.get('federation')
+
+    @_builtins.property
     def workspace_id(self) -> Optional[str]:
         """
-        The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+        The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
         """
         return __config__.get('workspaceId')
 

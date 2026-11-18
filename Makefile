@@ -4,6 +4,7 @@ PROVIDER_DIR := provider
 LDFLAGS      := -X github.com/pulumi-labs/pulumi-anthropic/provider/pkg/version.Version=$(VERSION)
 SCHEMA       := provider/schema.json
 LANGUAGES    := nodejs python go dotnet java
+ACCEPTANCE_CREDENTIAL_ENV ?= ANTHROPIC_API_KEY
 
 .PHONY: build
 build: ## Build the provider plugin into bin/.
@@ -12,6 +13,12 @@ build: ## Build the provider plugin into bin/.
 .PHONY: install
 install: build ## Install the locally built plugin for use by Pulumi programs.
 	pulumi plugin install resource anthropic $(VERSION) --file bin/$(PROVIDER) --reinstall
+
+.PHONY: test_engine
+test_engine: ## Run one approved live YAML engine scenario: make test_engine RESOURCE=Agent LIVE=1.
+	@test "$(LIVE)" = "1" || { echo 'live scope must be approved; pass LIVE=1 explicitly'; exit 1; }
+	@printf '%s\n' "$(RESOURCE)" | grep -Eq '^[A-Z][A-Za-z0-9]*$$' || { echo 'set RESOURCE to an exact resource member or Models'; exit 1; }
+	cd test && go test -mod=readonly -tags acceptance -count=1 -timeout 30m -run '^TestLive$(RESOURCE)$$' . -live -provider-version "$(VERSION)" $(ARGS)
 
 .PHONY: test
 test: ## Run the unit and lifecycle tests against the fake API.
@@ -28,7 +35,7 @@ GOLANGCI := $(shell command -v mise >/dev/null 2>&1 && echo "mise exec golangci-
 
 .PHONY: lint
 lint: ## Lint the Go code.
-	gofmt -l provider examples | tee /dev/stderr | (! read)
+	gofmt -l provider test | tee /dev/stderr | (! read)
 	go vet ./...
 	$(GOLANGCI) run --timeout 5m
 
@@ -51,8 +58,7 @@ sdk_go: $(SCHEMA)
 build_nodejs: sdk_nodejs ## Build the Node.js SDK into sdk/nodejs/bin.
 	cd sdk/nodejs && npm install && npx tsc && cp package.json ../../README.md bin/
 
-# Compiling each SDK catches a generated SDK that is well-formed but does not
-# build, which a byte comparison against the committed SDK never does.
+# Compile each generated SDK to validate its language-specific build.
 .PHONY: build_go
 build_go: sdk_go ## Compile the Go SDK.
 	cd sdk/go/anthropic && go build ./...
@@ -73,21 +79,6 @@ build_java: sdk_java ## Build the Java SDK. Gradle 9 needs JDK 17 or newer to ru
 
 .PHONY: build_sdks
 build_sdks: $(foreach lang,$(LANGUAGES),build_$(lang)) ## Generate and compile every language SDK.
-
-# Live trials against the real API, behind a build tag so that `make test` and CI never
-# reach them. They answer questions a refresh cannot: see provider/internal/livetrial.
-#
-# CAUTION: each trial creates real objects in the workspace the key belongs to, and
-# deletes them again. A failed delete logs "LEAKED" with the object's ID. List what the
-# workspace holds before the first run, and keep that list, so a cleanup can delete only
-# what the list does not name.
-TRIAL_KEY_FILE ?= $(HOME)/.config/anthropic/trial-key
-
-.PHONY: trial
-trial: ## Run the live trials. Needs TRIAL_KEY_FILE to hold an Anthropic API key.
-	@test -f $(TRIAL_KEY_FILE) || { echo "no key file at $(TRIAL_KEY_FILE)"; exit 1; }
-	ANTHROPIC_API_KEY=$$(cat $(TRIAL_KEY_FILE)) \
-		go test -tags livetrial -count=1 -v -timeout 20m ./provider/internal/livetrial/...
 
 # Substitute VERSION into the language-SDK manifests. In the normal flow
 # `make sdks VERSION=...` already bakes the right version in, because the
@@ -111,9 +102,16 @@ set_version: ## Stamp VERSION into the generated SDK manifests.
 # version from the PACKAGE_VERSION environment variable, which the release
 # workflow sets on the publish step.
 
+# Explicit non-admin allowlist: new scenarios do not enter live CI automatically.
+# Tunnel scenarios require separately verified Tunnels API access and remain manual.
 .PHONY: test_acceptance
-test_acceptance: build build_nodejs sdk_python ## Run the examples against the live Anthropic API (needs credentials).
-	cd examples && go test -v -timeout 60m -tags acceptance ./...
+test_acceptance: build build_nodejs ## Run the approved workspace live scenarios and AgentDelivery.
+	@cd test && go test -mod=readonly -count=1 -v -timeout 60m -tags acceptance -run '^Test(AgentDelivery|Live(Agent|Deployment|Environment|MemoryStore|Models|Skill|UserProfile|Vault|VaultCredential))$$' . -live -live-examples -credential-env "$(ACCEPTANCE_CREDENTIAL_ENV)" -provider-version "$(VERSION)" $(ARGS)
+
+.PHONY: test_examples
+test_examples: build build_nodejs sdk_python ## Run all three live sample programs: make test_examples LIVE=1.
+	@test "$(LIVE)" = "1" || { echo 'live scope must be approved; pass LIVE=1 explicitly'; exit 1; }
+	cd test && go test -mod=readonly -count=1 -v -timeout 60m -tags acceptance -run '^Test(AgentDelivery|OrgBootstrap|WorkloadIdentity)$$' . -live-examples
 
 .PHONY: help
 help:

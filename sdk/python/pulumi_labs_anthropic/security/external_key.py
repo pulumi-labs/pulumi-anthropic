@@ -24,25 +24,29 @@ class ExternalKeyArgs:
     def __init__(__self__, *,
                  provider_config: pulumi.Input['ProviderConfigArgs'],
                  display_name: pulumi.Input[Optional[_builtins.str]] = None,
-                 geo: pulumi.Input[Optional[_builtins.str]] = None):
+                 geo: pulumi.Input[Optional[_builtins.str]] = None,
+                 user_profile_id: pulumi.Input[Optional[_builtins.str]] = None):
         """
         The set of arguments for constructing a ExternalKey resource.
 
-        :param pulumi.Input['ProviderConfigArgs'] provider_config: Where the key is held.
-        :param pulumi.Input[_builtins.str] display_name: A display name for the key, 1 to 255 characters.
+        :param pulumi.Input['ProviderConfigArgs'] provider_config: Where the key is held. Changing any of these coordinates replaces the configuration.
+        :param pulumi.Input[_builtins.str] display_name: A display name for the key, 1 to 255 characters. Removing a configured name clears it.
         :param pulumi.Input[_builtins.str] geo: The geography the key serves. The only accepted value is `us`.
+        :param pulumi.Input[_builtins.str] user_profile_id: The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
         """
         pulumi.set(__self__, "provider_config", provider_config)
         if display_name is not None:
             pulumi.set(__self__, "display_name", display_name)
         if geo is not None:
             pulumi.set(__self__, "geo", geo)
+        if user_profile_id is not None:
+            pulumi.set(__self__, "user_profile_id", user_profile_id)
 
     @_builtins.property
     @pulumi.getter(name="providerConfig")
     def provider_config(self) -> pulumi.Input['ProviderConfigArgs']:
         """
-        Where the key is held.
+        Where the key is held. Changing any of these coordinates replaces the configuration.
         """
         return pulumi.get(self, "provider_config")
 
@@ -54,7 +58,7 @@ class ExternalKeyArgs:
     @pulumi.getter(name="displayName")
     def display_name(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        A display name for the key, 1 to 255 characters.
+        A display name for the key, 1 to 255 characters. Removing a configured name clears it.
         """
         return pulumi.get(self, "display_name")
 
@@ -74,6 +78,18 @@ class ExternalKeyArgs:
     def geo(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "geo", value)
 
+    @_builtins.property
+    @pulumi.getter(name="userProfileId")
+    def user_profile_id(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
+        """
+        return pulumi.get(self, "user_profile_id")
+
+    @user_profile_id.setter
+    def user_profile_id(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "user_profile_id", value)
+
 
 @pulumi.type_token("anthropic:security:ExternalKey")
 class ExternalKey(pulumi.CustomResource):
@@ -84,19 +100,21 @@ class ExternalKey(pulumi.CustomResource):
                  display_name: pulumi.Input[Optional[_builtins.str]] = None,
                  geo: pulumi.Input[Optional[_builtins.str]] = None,
                  provider_config: pulumi.Input[Optional[Union['ProviderConfigArgs', 'ProviderConfigArgsDict', 'outputs.ProviderConfig']]] = None,
+                 user_profile_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
         A customer-managed encryption key (CMEK) held in AWS KMS, Google Cloud KMS, or Azure Key Vault. A workspace encrypts its data with the key once the workspace's `externalKeyId` refers to it.
 
-        Creating the key validates it with a round trip to the KMS, and fails, leaving nothing behind, if Anthropic cannot use it. The key's provider configuration and geography cannot change once a workspace uses the key, so changing either replaces the key.
+        Creating the key validates it with a round trip to the KMS. Failed validation attempts to delete the configuration. If deletion also fails, the configuration may remain and require manual cleanup. Changing the provider configuration, geography or customer binding replaces the configuration.
 
-        Deleting the key is refused while a workspace uses it.
+        Deleting this resource deletes only the configuration, never the underlying cloud key. Deletion is refused while a live or archived workspace uses it.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] display_name: A display name for the key, 1 to 255 characters.
+        :param pulumi.Input[_builtins.str] display_name: A display name for the key, 1 to 255 characters. Removing a configured name clears it.
         :param pulumi.Input[_builtins.str] geo: The geography the key serves. The only accepted value is `us`.
-        :param pulumi.Input[Union['ProviderConfigArgs', 'ProviderConfigArgsDict', 'outputs.ProviderConfig']] provider_config: Where the key is held.
+        :param pulumi.Input[Union['ProviderConfigArgs', 'ProviderConfigArgsDict', 'outputs.ProviderConfig']] provider_config: Where the key is held. Changing any of these coordinates replaces the configuration.
+        :param pulumi.Input[_builtins.str] user_profile_id: The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
         """
         ...
     @overload
@@ -107,9 +125,9 @@ class ExternalKey(pulumi.CustomResource):
         """
         A customer-managed encryption key (CMEK) held in AWS KMS, Google Cloud KMS, or Azure Key Vault. A workspace encrypts its data with the key once the workspace's `externalKeyId` refers to it.
 
-        Creating the key validates it with a round trip to the KMS, and fails, leaving nothing behind, if Anthropic cannot use it. The key's provider configuration and geography cannot change once a workspace uses the key, so changing either replaces the key.
+        Creating the key validates it with a round trip to the KMS. Failed validation attempts to delete the configuration. If deletion also fails, the configuration may remain and require manual cleanup. Changing the provider configuration, geography or customer binding replaces the configuration.
 
-        Deleting the key is refused while a workspace uses it.
+        Deleting this resource deletes only the configuration, never the underlying cloud key. Deletion is refused while a live or archived workspace uses it.
 
         :param str resource_name: The name of the resource.
         :param ExternalKeyArgs args: The arguments to use to populate this resource's properties.
@@ -129,6 +147,7 @@ class ExternalKey(pulumi.CustomResource):
                  display_name: pulumi.Input[Optional[_builtins.str]] = None,
                  geo: pulumi.Input[Optional[_builtins.str]] = None,
                  provider_config: pulumi.Input[Optional[Union['ProviderConfigArgs', 'ProviderConfigArgsDict', 'outputs.ProviderConfig']]] = None,
+                 user_profile_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -143,10 +162,11 @@ class ExternalKey(pulumi.CustomResource):
             if provider_config is None and not opts.urn:
                 raise TypeError("Missing required property 'provider_config'")
             __props__.__dict__["provider_config"] = provider_config
+            __props__.__dict__["user_profile_id"] = user_profile_id
             __props__.__dict__["attachment"] = None
             __props__.__dict__["created_at"] = None
             __props__.__dict__["updated_at"] = None
-        replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["geo", "providerConfig"])
+        replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["geo", "providerConfig", "userProfileId"])
         opts = pulumi.ResourceOptions.merge(opts, replace_on_changes)
         super(ExternalKey, __self__).__init__(
             'anthropic:security:ExternalKey',
@@ -176,6 +196,7 @@ class ExternalKey(pulumi.CustomResource):
         __props__.__dict__["geo"] = None
         __props__.__dict__["provider_config"] = None
         __props__.__dict__["updated_at"] = None
+        __props__.__dict__["user_profile_id"] = None
         return ExternalKey(resource_name, opts=opts, __props__=__props__)
 
     @staticmethod
@@ -204,7 +225,7 @@ class ExternalKey(pulumi.CustomResource):
     @pulumi.getter(name="displayName")
     def display_name(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        A display name for the key, 1 to 255 characters.
+        A display name for the key, 1 to 255 characters. Removing a configured name clears it.
         """
         return pulumi.get(self, "display_name")
 
@@ -220,7 +241,7 @@ class ExternalKey(pulumi.CustomResource):
     @pulumi.getter(name="providerConfig")
     def provider_config(self) -> pulumi.Output['outputs.ProviderConfig']:
         """
-        Where the key is held.
+        Where the key is held. Changing any of these coordinates replaces the configuration.
         """
         return pulumi.get(self, "provider_config")
 
@@ -231,4 +252,12 @@ class ExternalKey(pulumi.CustomResource):
         When the key was last updated, in RFC 3339 format.
         """
         return pulumi.get(self, "updated_at")
+
+    @_builtins.property
+    @pulumi.getter(name="userProfileId")
+    def user_profile_id(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.
+        """
+        return pulumi.get(self, "user_profile_id")
 

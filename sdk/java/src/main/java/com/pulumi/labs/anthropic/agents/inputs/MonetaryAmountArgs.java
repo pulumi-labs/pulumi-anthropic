@@ -15,14 +15,14 @@ public final class MonetaryAmountArgs extends com.pulumi.resources.ResourceArgs 
     public static final MonetaryAmountArgs Empty = new MonetaryAmountArgs();
 
     /**
-     * The amount in the currency&#39;s minor units, as an integer string: `2500` is $25.00.
+     * The amount in the currency&#39;s minor units, as an integer string: 2500 is $25.00.
      * 
      */
     @Import(name="amount", required=true)
     private Output<String> amount;
 
     /**
-     * @return The amount in the currency&#39;s minor units, as an integer string: `2500` is $25.00.
+     * @return The amount in the currency&#39;s minor units, as an integer string: 2500 is $25.00.
      * 
      */
     public Output<String> amount() {
@@ -30,14 +30,14 @@ public final class MonetaryAmountArgs extends com.pulumi.resources.ResourceArgs 
     }
 
     /**
-     * The ISO 4217 currency code. Only `USD` is supported.
+     * The ISO 4217 currency code. Only USD is supported.
      * 
      */
     @Import(name="currency", required=true)
     private Output<String> currency;
 
     /**
-     * @return The ISO 4217 currency code. Only `USD` is supported.
+     * @return The ISO 4217 currency code. Only USD is supported.
      * 
      */
     public Output<String> currency() {
@@ -70,7 +70,7 @@ public final class MonetaryAmountArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param amount The amount in the currency&#39;s minor units, as an integer string: `2500` is $25.00.
+         * @param amount The amount in the currency&#39;s minor units, as an integer string: 2500 is $25.00.
          * 
          * @return builder
          * 
@@ -81,7 +81,7 @@ public final class MonetaryAmountArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param amount The amount in the currency&#39;s minor units, as an integer string: `2500` is $25.00.
+         * @param amount The amount in the currency&#39;s minor units, as an integer string: 2500 is $25.00.
          * 
          * @return builder
          * 
@@ -91,7 +91,7 @@ public final class MonetaryAmountArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param currency The ISO 4217 currency code. Only `USD` is supported.
+         * @param currency The ISO 4217 currency code. Only USD is supported.
          * 
          * @return builder
          * 
@@ -102,7 +102,7 @@ public final class MonetaryAmountArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param currency The ISO 4217 currency code. Only `USD` is supported.
+         * @param currency The ISO 4217 currency code. Only USD is supported.
          * 
          * @return builder
          * 

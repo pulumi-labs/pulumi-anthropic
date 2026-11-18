@@ -14,20 +14,24 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 
+/**
+ * An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.
+ *
+ */
 public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final RosterEntryArgs Empty = new RosterEntryArgs();
 
     /**
      * The agent&#39;s ID. Required for `agent`.
-     * 
+     *
      */
     @Import(name="id")
     private @Nullable Output<String> id;
 
     /**
      * @return The agent&#39;s ID. Required for `agent`.
-     * 
+     *
      */
     public Optional<Output<String>> id() {
         return Optional.ofNullable(this.id);
@@ -35,14 +39,14 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The advisor&#39;s model ID. Required for `advisor`.
-     * 
+     *
      */
     @Import(name="model")
     private @Nullable Output<String> model;
 
     /**
      * @return The advisor&#39;s model ID. Required for `advisor`.
-     * 
+     *
      */
     public Optional<Output<String>> model() {
         return Optional.ofNullable(this.model);
@@ -50,14 +54,14 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The kind of roster entry.
-     * 
+     *
      */
     @Import(name="type", required=true)
     private Output<RosterEntryType> type;
 
     /**
      * @return The kind of roster entry.
-     * 
+     *
      */
     public Output<RosterEntryType> type() {
         return this.type;
@@ -65,14 +69,14 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * The agent version to delegate to. If omitted, the version current when the coordinator is saved is pinned; later versions are not picked up.
-     * 
+     *
      */
     @Import(name="version")
     private @Nullable Output<Integer> version;
 
     /**
      * @return The agent version to delegate to. If omitted, the version current when the coordinator is saved is pinned; later versions are not picked up.
-     * 
+     *
      */
     public Optional<Output<Integer>> version() {
         return Optional.ofNullable(this.version);
@@ -107,9 +111,9 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param id The agent&#39;s ID. Required for `agent`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder id(@Nullable Output<String> id) {
             $.id = id;
@@ -118,9 +122,9 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param id The agent&#39;s ID. Required for `agent`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder id(String id) {
             return id(Output.of(id));
@@ -128,9 +132,9 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param model The advisor&#39;s model ID. Required for `advisor`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder model(@Nullable Output<String> model) {
             $.model = model;
@@ -139,9 +143,9 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param model The advisor&#39;s model ID. Required for `advisor`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder model(String model) {
             return model(Output.of(model));
@@ -149,9 +153,9 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param type The kind of roster entry.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder type(Output<RosterEntryType> type) {
             $.type = type;
@@ -160,9 +164,9 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param type The kind of roster entry.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder type(RosterEntryType type) {
             return type(Output.of(type));
@@ -170,9 +174,9 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param version The agent version to delegate to. If omitted, the version current when the coordinator is saved is pinned; later versions are not picked up.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder version(@Nullable Output<Integer> version) {
             $.version = version;
@@ -181,9 +185,9 @@ public final class RosterEntryArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param version The agent version to delegate to. If omitted, the version current when the coordinator is saved is pinned; later versions are not picked up.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder version(Integer version) {
             return version(Output.of(version));

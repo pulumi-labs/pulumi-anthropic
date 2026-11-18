@@ -14,7 +14,7 @@ namespace Pulumi.Labs.Anthropic.Agents.Inputs
     public sealed class BudgetArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The most the deployment may spend, at list price.
+        /// The most each future session may spend at public list prices, rather than negotiated prices.
         /// </summary>
         [Input("maxListCost", required: true)]
         public Input<Inputs.MonetaryAmountArgs> MaxListCost { get; set; } = null!;

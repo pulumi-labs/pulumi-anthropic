@@ -10,7 +10,7 @@ import * as utilities from "../utilities";
 /**
  * A user profile: an entity your platform serves through the Anthropic API, such as an end user of your product or a company you resell Claude access to. Send its ID in the `anthropic-user-profile-id` header of Messages, Message Batches, and token counting requests to attribute them to the entity.
  *
- * The API cannot delete user profiles, so deleting this resource only removes it from the stack; the profile remains.
+ * Deleting this resource deletes the profile. Anthropic keeps the trust and safety records attached to the profile's ID.
  */
 export class UserProfile extends pulumi.CustomResource {
     /**
@@ -50,7 +50,7 @@ export class UserProfile extends pulumi.CustomResource {
     }
 
     /**
-     * How your platform uses the API on the entity's behalf. Defaults to `application`.
+     * How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
      */
     declare public readonly accessType: pulumi.Output<enums.agents.AccessType | undefined>;
     /**
@@ -58,19 +58,19 @@ export class UserProfile extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * Your platform's own identifier for the entity, up to 255 characters.
+     * Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
      */
     declare public readonly externalId: pulumi.Output<string | undefined>;
     /**
-     * When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+     * When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
      */
     declare public readonly externalUserOnboardedAt: pulumi.Output<string | undefined>;
     /**
-     * Arbitrary key-value pairs, up to 16.
+     * Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
      */
     declare public readonly metadata: pulumi.Output<{[key: string]: string} | undefined>;
     /**
-     * The entity's name, 1 to 255 characters.
+     * The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
      */
     declare public readonly name: pulumi.Output<string | undefined>;
     /**
@@ -121,23 +121,23 @@ export class UserProfile extends pulumi.CustomResource {
  */
 export interface UserProfileArgs {
     /**
-     * How your platform uses the API on the entity's behalf. Defaults to `application`.
+     * How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`.
      */
     accessType?: pulumi.Input<enums.agents.AccessType | undefined>;
     /**
-     * Your platform's own identifier for the entity, up to 255 characters.
+     * Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID.
      */
     externalId?: pulumi.Input<string | undefined>;
     /**
-     * When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared.
+     * When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID.
      */
     externalUserOnboardedAt?: pulumi.Input<string | undefined>;
     /**
-     * Arbitrary key-value pairs, up to 16.
+     * Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry.
      */
     metadata?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
-     * The entity's name, 1 to 255 characters.
+     * The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID.
      */
     name?: pulumi.Input<string | undefined>;
 }

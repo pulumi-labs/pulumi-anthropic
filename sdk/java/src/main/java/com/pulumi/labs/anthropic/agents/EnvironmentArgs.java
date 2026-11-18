@@ -20,14 +20,14 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
     public static final EnvironmentArgs Empty = new EnvironmentArgs();
 
     /**
-     * Where and how sessions run. Defaults to a cloud sandbox.
+     * Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
      * 
      */
     @Import(name="config")
     private @Nullable Output<EnvironmentConfigArgs> config;
 
     /**
-     * @return Where and how sessions run. Defaults to a cloud sandbox.
+     * @return Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
      * 
      */
     public Optional<Output<EnvironmentConfigArgs>> config() {
@@ -35,14 +35,14 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * A description of the environment, up to 1,024 characters.
+     * A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
      * 
      */
     @Import(name="description")
     private @Nullable Output<String> description;
 
     /**
-     * @return A description of the environment, up to 1,024 characters.
+     * @return A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
      * 
      */
     public Optional<Output<String>> description() {
@@ -50,14 +50,14 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Arbitrary key-value pairs.
+     * Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
      * 
      */
     @Import(name="metadata")
     private @Nullable Output<Map<String,String>> metadata;
 
     /**
-     * @return Arbitrary key-value pairs.
+     * @return Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
      * 
      */
     public Optional<Output<Map<String,String>>> metadata() {
@@ -80,14 +80,14 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Who can use the environment. API organizations accept only `organization`.
+     * Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
      * 
      */
     @Import(name="scope")
     private @Nullable Output<EnvironmentScope> scope;
 
     /**
-     * @return Who can use the environment. API organizations accept only `organization`.
+     * @return Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
      * 
      */
     public Optional<Output<EnvironmentScope>> scope() {
@@ -123,7 +123,7 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param config Where and how sessions run. Defaults to a cloud sandbox.
+         * @param config Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
          * 
          * @return builder
          * 
@@ -134,7 +134,7 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param config Where and how sessions run. Defaults to a cloud sandbox.
+         * @param config Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment.
          * 
          * @return builder
          * 
@@ -144,7 +144,7 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param description A description of the environment, up to 1,024 characters.
+         * @param description A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
          * 
          * @return builder
          * 
@@ -155,7 +155,7 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param description A description of the environment, up to 1,024 characters.
+         * @param description A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it.
          * 
          * @return builder
          * 
@@ -165,7 +165,7 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs.
+         * @param metadata Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
          * 
          * @return builder
          * 
@@ -176,7 +176,7 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param metadata Arbitrary key-value pairs.
+         * @param metadata Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged.
          * 
          * @return builder
          * 
@@ -207,7 +207,7 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param scope Who can use the environment. API organizations accept only `organization`.
+         * @param scope Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
          * 
          * @return builder
          * 
@@ -218,7 +218,7 @@ public final class EnvironmentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param scope Who can use the environment. API organizations accept only `organization`.
+         * @param scope Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment.
          * 
          * @return builder
          * 

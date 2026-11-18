@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 /**
  * Adds a user to an RBAC group. The resource&#39;s ID is `&lt;rbac-group-id&gt;/&lt;user-id&gt;`.
  * 
- * RBAC groups are available to Claude Enterprise organizations.
+ * RBAC groups are available to Claude Enterprise organizations. Deleting this resource removes only the membership, not the user or group. Membership of SCIM-provisioned groups cannot be changed while SCIM provisioning is active in the tenant. Owner-access protections can prevent adding or removing members.
  * 
  */
 @ResourceType(type="anthropic:identity:RbacGroupMember")
@@ -50,28 +50,28 @@ public class RbacGroupMember extends com.pulumi.resources.CustomResource {
         return this.email;
     }
     /**
-     * The group&#39;s ID.
+     * The group&#39;s ID. Changing this value replaces the membership.
      * 
      */
     @Export(name="rbacGroupId", refs={String.class}, tree="[0]")
     private Output<String> rbacGroupId;
 
     /**
-     * @return The group&#39;s ID.
+     * @return The group&#39;s ID. Changing this value replaces the membership.
      * 
      */
     public Output<String> rbacGroupId() {
         return this.rbacGroupId;
     }
     /**
-     * The user&#39;s ID.
+     * The user&#39;s ID. Changing this value replaces the membership.
      * 
      */
     @Export(name="userId", refs={String.class}, tree="[0]")
     private Output<String> userId;
 
     /**
-     * @return The user&#39;s ID.
+     * @return The user&#39;s ID. Changing this value replaces the membership.
      * 
      */
     public Output<String> userId() {

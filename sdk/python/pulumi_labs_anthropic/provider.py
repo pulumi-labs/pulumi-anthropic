@@ -13,6 +13,8 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
+from . import outputs
+from ._inputs import *
 
 __all__ = ['ProviderArgs', 'Provider']
 
@@ -23,15 +25,17 @@ class ProviderArgs:
                  api_key: pulumi.Input[Optional[_builtins.str]] = None,
                  auth_token: pulumi.Input[Optional[_builtins.str]] = None,
                  base_url: pulumi.Input[Optional[_builtins.str]] = None,
+                 federation: pulumi.Input[Optional['FederationArgs']] = None,
                  workspace_id: pulumi.Input[Optional[_builtins.str]] = None):
         """
         The set of arguments for constructing a Provider resource.
 
-        :param pulumi.Input[_builtins.str] admin_key: An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
-        :param pulumi.Input[_builtins.str] api_key: An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
-        :param pulumi.Input[_builtins.str] auth_token: An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+        :param pulumi.Input[_builtins.str] admin_key: An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
+        :param pulumi.Input[_builtins.str] api_key: An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
+        :param pulumi.Input[_builtins.str] auth_token: An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
         :param pulumi.Input[_builtins.str] base_url: The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.
-        :param pulumi.Input[_builtins.str] workspace_id: The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+        :param pulumi.Input['FederationArgs'] federation: Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+        :param pulumi.Input[_builtins.str] workspace_id: undefined
         """
         if admin_key is None:
             admin_key = (_utilities.get_env('ANTHROPIC_ADMIN_KEY') or '')
@@ -49,6 +53,8 @@ class ProviderArgs:
             base_url = (_utilities.get_env('ANTHROPIC_BASE_URL') or '')
         if base_url is not None:
             pulumi.set(__self__, "base_url", base_url)
+        if federation is not None:
+            pulumi.set(__self__, "federation", federation)
         if workspace_id is not None:
             pulumi.set(__self__, "workspace_id", workspace_id)
 
@@ -56,7 +62,7 @@ class ProviderArgs:
     @pulumi.getter(name="adminKey")
     def admin_key(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+        An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
         """
         return pulumi.get(self, "admin_key")
 
@@ -68,7 +74,7 @@ class ProviderArgs:
     @pulumi.getter(name="apiKey")
     def api_key(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+        An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
         """
         return pulumi.get(self, "api_key")
 
@@ -80,7 +86,7 @@ class ProviderArgs:
     @pulumi.getter(name="authToken")
     def auth_token(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+        An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
         """
         return pulumi.get(self, "auth_token")
 
@@ -101,10 +107,22 @@ class ProviderArgs:
         pulumi.set(self, "base_url", value)
 
     @_builtins.property
+    @pulumi.getter
+    def federation(self) -> pulumi.Input[Optional['FederationArgs']]:
+        """
+        Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+        """
+        return pulumi.get(self, "federation")
+
+    @federation.setter
+    def federation(self, value: pulumi.Input[Optional['FederationArgs']]):
+        pulumi.set(self, "federation", value)
+
+    @_builtins.property
     @pulumi.getter(name="workspaceId")
     def workspace_id(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+        undefined
         """
         return pulumi.get(self, "workspace_id")
 
@@ -123,18 +141,20 @@ class Provider(pulumi.ProviderResource):
                  api_key: pulumi.Input[Optional[_builtins.str]] = None,
                  auth_token: pulumi.Input[Optional[_builtins.str]] = None,
                  base_url: pulumi.Input[Optional[_builtins.str]] = None,
+                 federation: pulumi.Input[Optional[Union['FederationArgs', 'FederationArgsDict', 'outputs.Federation']]] = None,
                  workspace_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
-        Create a Anthropic resource with the given unique name, props, and options.
+        Authentication and organization/workspace settings for the Anthropic provider.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] admin_key: An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
-        :param pulumi.Input[_builtins.str] api_key: An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
-        :param pulumi.Input[_builtins.str] auth_token: An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+        :param pulumi.Input[_builtins.str] admin_key: An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
+        :param pulumi.Input[_builtins.str] api_key: An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
+        :param pulumi.Input[_builtins.str] auth_token: An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
         :param pulumi.Input[_builtins.str] base_url: The Anthropic API base URL. Falls back to `ANTHROPIC_BASE_URL`, then to `https://api.anthropic.com`.
-        :param pulumi.Input[_builtins.str] workspace_id: The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+        :param pulumi.Input[Union['FederationArgs', 'FederationArgsDict', 'outputs.Federation']] federation: Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+        :param pulumi.Input[_builtins.str] workspace_id: undefined
         """
         ...
     @overload
@@ -143,7 +163,7 @@ class Provider(pulumi.ProviderResource):
                  args: Optional[ProviderArgs] = None,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Create a Anthropic resource with the given unique name, props, and options.
+        Authentication and organization/workspace settings for the Anthropic provider.
 
         :param str resource_name: The name of the resource.
         :param ProviderArgs args: The arguments to use to populate this resource's properties.
@@ -164,6 +184,7 @@ class Provider(pulumi.ProviderResource):
                  api_key: pulumi.Input[Optional[_builtins.str]] = None,
                  auth_token: pulumi.Input[Optional[_builtins.str]] = None,
                  base_url: pulumi.Input[Optional[_builtins.str]] = None,
+                 federation: pulumi.Input[Optional[Union['FederationArgs', 'FederationArgsDict', 'outputs.Federation']]] = None,
                  workspace_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
@@ -186,6 +207,7 @@ class Provider(pulumi.ProviderResource):
             if base_url is None:
                 base_url = (_utilities.get_env('ANTHROPIC_BASE_URL') or '')
             __props__.__dict__["base_url"] = base_url
+            __props__.__dict__["federation"] = pulumi.Output.from_input(federation).apply(pulumi.runtime.to_json) if federation is not None else None
             __props__.__dict__["workspace_id"] = workspace_id
         secret_opts = pulumi.ResourceOptions(additional_secret_outputs=["adminKey", "apiKey", "authToken"])
         opts = pulumi.ResourceOptions.merge(opts, secret_opts)
@@ -199,7 +221,7 @@ class Provider(pulumi.ProviderResource):
     @pulumi.getter(name="adminKey")
     def admin_key(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+        An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
         """
         return pulumi.get(self, "admin_key")
 
@@ -207,7 +229,7 @@ class Provider(pulumi.ProviderResource):
     @pulumi.getter(name="apiKey")
     def api_key(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+        An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
         """
         return pulumi.get(self, "api_key")
 
@@ -215,7 +237,7 @@ class Provider(pulumi.ProviderResource):
     @pulumi.getter(name="authToken")
     def auth_token(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+        An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
         """
         return pulumi.get(self, "auth_token")
 
@@ -231,7 +253,7 @@ class Provider(pulumi.ProviderResource):
     @pulumi.getter(name="workspaceId")
     def workspace_id(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+        undefined
         """
         return pulumi.get(self, "workspace_id")
 

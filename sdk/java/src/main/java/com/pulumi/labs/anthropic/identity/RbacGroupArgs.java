@@ -15,14 +15,14 @@ public final class RbacGroupArgs extends com.pulumi.resources.ResourceArgs {
     public static final RbacGroupArgs Empty = new RbacGroupArgs();
 
     /**
-     * The group&#39;s name, 1 to 255 characters. Names need not be unique.
+     * The group&#39;s name. Names need not be unique and can be changed without replacing the group.
      * 
      */
     @Import(name="name", required=true)
     private Output<String> name;
 
     /**
-     * @return The group&#39;s name, 1 to 255 characters. Names need not be unique.
+     * @return The group&#39;s name. Names need not be unique and can be changed without replacing the group.
      * 
      */
     public Output<String> name() {
@@ -54,7 +54,7 @@ public final class RbacGroupArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The group&#39;s name, 1 to 255 characters. Names need not be unique.
+         * @param name The group&#39;s name. Names need not be unique and can be changed without replacing the group.
          * 
          * @return builder
          * 
@@ -65,7 +65,7 @@ public final class RbacGroupArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The group&#39;s name, 1 to 255 characters. Names need not be unique.
+         * @param name The group&#39;s name. Names need not be unique and can be changed without replacing the group.
          * 
          * @return builder
          * 

@@ -16,21 +16,22 @@ package organization
 
 import (
 	"context"
-	"encoding/json"
-	"net/http"
+	"fmt"
 
+	sdk "github.com/anthropics/anthropic-sdk-go/v2"
+	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
+	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
-
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
-// ComplianceSettings is the organization's compliance settings, a singleton.
+// ComplianceSettings manages the organization's existing singleton.
 type ComplianceSettings struct{}
 
-// NewComplianceSettings returns the ComplianceSettings resource controller.
-func NewComplianceSettings() *ComplianceSettings { return &ComplianceSettings{} }
+// NewComplianceSettings returns the complete ComplianceSettings resource.
+func NewComplianceSettings() infer.InferredResource {
+	return complianceSettingsResource{infer.Resource(&ComplianceSettings{})}
+}
 
-// complianceSettingsID is the ID of the organization's one set of compliance settings.
 const complianceSettingsID = "compliance-settings"
 
 func (c *ComplianceSettings) Annotate(a infer.Annotator) {
@@ -49,73 +50,120 @@ func (c *ComplianceSettingsArgs) Annotate(a infer.Annotator) {
 	a.Describe(&c.Enabled, "Whether the Compliance API is enabled.")
 }
 
-type ComplianceSettingsState struct {
-	ComplianceSettingsArgs
-}
+type ComplianceSettingsState struct{ ComplianceSettingsArgs }
 
-var (
-	_ infer.CustomUpdate[ComplianceSettingsArgs, ComplianceSettingsState] = (*ComplianceSettings)(nil)
-	_ infer.CustomRead[ComplianceSettingsArgs, ComplianceSettingsState]   = (*ComplianceSettings)(nil)
-	_ infer.CustomDelete[ComplianceSettingsState]                         = (*ComplianceSettings)(nil)
-)
-
-func (c *ComplianceSettings) Create(
-	ctx context.Context, req infer.CreateRequest[ComplianceSettingsArgs],
-) (infer.CreateResponse[ComplianceSettingsState], error) {
-	out := ComplianceSettingsState{req.Inputs}
+func (c *ComplianceSettings) Create(ctx context.Context, req infer.CreateRequest[ComplianceSettingsArgs]) (infer.CreateResponse[ComplianceSettingsState], error) {
 	if req.DryRun {
-		return infer.CreateResponse[ComplianceSettingsState]{ID: complianceSettingsID, Output: out}, nil
+		return infer.CreateResponse[ComplianceSettingsState]{ID: complianceSettingsID, Output: ComplianceSettingsState{req.Inputs}}, nil
 	}
-	return infer.CreateResponse[ComplianceSettingsState]{ID: complianceSettingsID, Output: out},
-		setComplianceSettings(ctx, req.Inputs)
+	client, err := config.ClientFor(ctx, config.Admin)
+	if err != nil {
+		return infer.CreateResponse[ComplianceSettingsState]{}, err
+	}
+	v, err := client.Organization.ComplianceSettings.Update(ctx, complianceParams(req.Inputs))
+	if err != nil {
+		return infer.CreateResponse[ComplianceSettingsState]{}, err
+	}
+	out, err := complianceState(v)
+	if err != nil {
+		return infer.CreateResponse[ComplianceSettingsState]{}, err
+	}
+	return infer.CreateResponse[ComplianceSettingsState]{ID: complianceSettingsID, Output: out}, nil
 }
 
-func (c *ComplianceSettings) Read(
-	ctx context.Context, req infer.ReadRequest[ComplianceSettingsArgs, ComplianceSettingsState],
-) (infer.ReadResponse[ComplianceSettingsArgs, ComplianceSettingsState], error) {
-	var raw []byte
-	if err := complianceSettingsCollection.Do(ctx, http.MethodGet, complianceSettingsCollection.Path, nil, &raw); err != nil {
-		return infer.ReadResponse[ComplianceSettingsArgs, ComplianceSettingsState]{}, err
-	}
-	var settings struct {
-		State json.RawMessage `json:"state"`
-	}
-	if err := json.Unmarshal(raw, &settings); err != nil {
-		return infer.ReadResponse[ComplianceSettingsArgs, ComplianceSettingsState]{}, err
-	}
-	state, err := rest.UnmarshalTypeTag(settings.State)
+func (c *ComplianceSettings) Read(ctx context.Context, req infer.ReadRequest[ComplianceSettingsArgs, ComplianceSettingsState]) (infer.ReadResponse[ComplianceSettingsArgs, ComplianceSettingsState], error) {
+	client, err := config.ClientFor(ctx, config.Admin)
 	if err != nil {
 		return infer.ReadResponse[ComplianceSettingsArgs, ComplianceSettingsState]{}, err
 	}
-	in := ComplianceSettingsArgs{Enabled: state == "enabled"}
-	return infer.ReadResponse[ComplianceSettingsArgs, ComplianceSettingsState]{
-		ID: complianceSettingsID, Inputs: in, State: ComplianceSettingsState{in},
-	}, nil
+	v, err := client.Organization.ComplianceSettings.Get(ctx)
+	if err != nil {
+		return infer.ReadResponse[ComplianceSettingsArgs, ComplianceSettingsState]{}, err
+	}
+	out, err := complianceState(v)
+	if err != nil {
+		return infer.ReadResponse[ComplianceSettingsArgs, ComplianceSettingsState]{}, err
+	}
+	return infer.ReadResponse[ComplianceSettingsArgs, ComplianceSettingsState]{ID: complianceSettingsID, Inputs: out.ComplianceSettingsArgs, State: out}, nil
 }
 
-func (c *ComplianceSettings) Update(
-	ctx context.Context, req infer.UpdateRequest[ComplianceSettingsArgs, ComplianceSettingsState],
-) (infer.UpdateResponse[ComplianceSettingsState], error) {
-	out := ComplianceSettingsState{req.Inputs}
+func (c *ComplianceSettings) Update(ctx context.Context, req infer.UpdateRequest[ComplianceSettingsArgs, ComplianceSettingsState]) (infer.UpdateResponse[ComplianceSettingsState], error) {
 	if req.DryRun {
-		return infer.UpdateResponse[ComplianceSettingsState]{Output: out}, nil
+		return infer.UpdateResponse[ComplianceSettingsState]{Output: ComplianceSettingsState{req.Inputs}}, nil
 	}
-	return infer.UpdateResponse[ComplianceSettingsState]{Output: out}, setComplianceSettings(ctx, req.Inputs)
+	client, err := config.ClientFor(ctx, config.Admin)
+	if err != nil {
+		return infer.UpdateResponse[ComplianceSettingsState]{}, err
+	}
+	v, err := client.Organization.ComplianceSettings.Update(ctx, complianceParams(req.Inputs))
+	if err != nil {
+		return infer.UpdateResponse[ComplianceSettingsState]{}, err
+	}
+	out, err := complianceState(v)
+	if err != nil {
+		return infer.UpdateResponse[ComplianceSettingsState]{}, err
+	}
+	return infer.UpdateResponse[ComplianceSettingsState]{Output: out}, nil
 }
 
-func (c *ComplianceSettings) Delete(
-	ctx context.Context, req infer.DeleteRequest[ComplianceSettingsState],
-) (infer.DeleteResponse, error) {
-	return infer.DeleteResponse{}, rest.End(ctx, complianceSettingsCollection, req.ID, rest.Forget)
+func (c *ComplianceSettings) Delete(ctx context.Context, req infer.DeleteRequest[ComplianceSettingsState]) (infer.DeleteResponse, error) {
+	p.GetLogger(ctx).Warningf("Compliance settings cannot be deleted; leaving the organization's settings unchanged.")
+	return infer.DeleteResponse{}, nil
 }
 
-// setComplianceSettings sets the settings, which the API encodes as
-// {"state": {"type": "enabled"}}.
-func setComplianceSettings(ctx context.Context, in ComplianceSettingsArgs) error {
-	state := "disabled"
+// Preserve validated input metadata across infer's typed codec.
+type complianceSettingsResource struct{ infer.InferredResource }
+
+// The default typed Check drops output-value dependencies. No normalization is
+// needed for this boolean; preserve the validated bag verbatim.
+func (r complianceSettingsResource) Check(ctx context.Context, req p.CheckRequest) (p.CheckResponse, error) {
+	out, err := infer.Resource(&ComplianceSettings{}).Check(ctx, req)
+	if err == nil && len(out.Failures) == 0 {
+		out.Inputs = req.Inputs
+	}
+	return out, err
+}
+
+func (r complianceSettingsResource) Diff(ctx context.Context, req p.DiffRequest) (p.DiffResponse, error) {
+	return infer.Resource(&ComplianceSettings{}).Diff(ctx, req)
+}
+
+func (r complianceSettingsResource) Create(ctx context.Context, req p.CreateRequest) (p.CreateResponse, error) {
+	return infer.Resource(&ComplianceSettings{}).Create(ctx, req)
+}
+
+func (r complianceSettingsResource) Read(ctx context.Context, req p.ReadRequest) (p.ReadResponse, error) {
+	return infer.Resource(&ComplianceSettings{}).Read(ctx, req)
+}
+
+func (r complianceSettingsResource) Update(ctx context.Context, req p.UpdateRequest) (p.UpdateResponse, error) {
+	return infer.Resource(&ComplianceSettings{}).Update(ctx, req)
+}
+
+func (r complianceSettingsResource) Delete(ctx context.Context, req p.DeleteRequest) error {
+	return infer.Resource(&ComplianceSettings{}).Delete(ctx, req)
+}
+
+func complianceParams(in ComplianceSettingsArgs) sdk.OrganizationComplianceSettingUpdateParams {
+	state := sdk.ComplianceSettingsStateParamUnion{}
 	if in.Enabled {
-		state = "enabled"
+		v := sdk.NewComplianceSettingsStateEnabledParam()
+		state.OfEnabled = &v
+	} else {
+		v := sdk.NewComplianceSettingsStateDisabledParam()
+		state.OfDisabled = &v
 	}
-	body := map[string]any{"state": map[string]any{"type": state}}
-	return complianceSettingsCollection.Do(ctx, http.MethodPost, complianceSettingsCollection.Path, body, nil)
+	return sdk.OrganizationComplianceSettingUpdateParams{State: state}
+}
+
+func complianceState(v *sdk.OrganizationComplianceSettings) (ComplianceSettingsState, error) {
+	if v != nil && v.JSON.State.Valid() && v.State.JSON.Type.Valid() {
+		switch v.State.Type {
+		case "enabled":
+			return ComplianceSettingsState{ComplianceSettingsArgs{Enabled: true}}, nil
+		case "disabled":
+			return ComplianceSettingsState{ComplianceSettingsArgs{Enabled: false}}, nil
+		}
+	}
+	return ComplianceSettingsState{}, fmt.Errorf("compliance settings response has missing or unsupported state")
 }

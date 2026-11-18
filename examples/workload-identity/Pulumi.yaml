@@ -5,6 +5,9 @@ description: >
   workload identity federation, instead of stored API keys.
 
 config:
+  namePrefix:
+    type: string
+    default: github-actions
   repository:
     type: string
     default: pulumi-labs/pulumi-anthropic
@@ -15,13 +18,13 @@ resources:
   github:
     type: anthropic:identity:FederationIssuer
     properties:
-      name: github-actions
+      name: ${namePrefix}
       issuerUrl: https://token.actions.githubusercontent.com
 
   deployer:
     type: anthropic:identity:ServiceAccount
     properties:
-      name: github-actions-deployer
+      name: ${namePrefix}-deployer
       description: Deploys agents from GitHub Actions.
 
   deployerAccess:
@@ -34,7 +37,7 @@ resources:
   mainBranch:
     type: anthropic:identity:FederationRule
     properties:
-      name: github-actions-main
+      name: ${namePrefix}-main
       description: Workflows on the main branch act as the deployer.
       issuerId: ${github.id}
       workspaceId: ${workspaceId}

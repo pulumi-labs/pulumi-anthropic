@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Identity.Inputs
 {
 
+    /// <summary>
+    /// The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.
+    /// </summary>
     public sealed class JwksArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
@@ -20,7 +23,7 @@ namespace Pulumi.Labs.Anthropic.Identity.Inputs
         public Input<string>? CaCertPem { get; set; }
 
         /// <summary>
-        /// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+        /// The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
         /// </summary>
         [Input("discoveryBase")]
         public Input<string>? DiscoveryBase { get; set; }
@@ -29,7 +32,7 @@ namespace Pulumi.Labs.Anthropic.Identity.Inputs
         private InputList<ImmutableDictionary<string, object>>? _keys;
 
         /// <summary>
-        /// The signing keys, as JSON Web Keys. Required for `inline`.
+        /// A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
         /// </summary>
         public InputList<ImmutableDictionary<string, object>> Keys
         {
@@ -44,7 +47,7 @@ namespace Pulumi.Labs.Anthropic.Identity.Inputs
         public Input<Pulumi.Labs.Anthropic.Identity.JwksType> Type { get; set; } = null!;
 
         /// <summary>
-        /// The JWKS URL. Required for `explicit_url`.
+        /// The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
         /// </summary>
         [Input("url")]
         public Input<string>? Url { get; set; }

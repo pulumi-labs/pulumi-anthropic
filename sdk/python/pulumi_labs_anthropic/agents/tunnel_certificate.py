@@ -13,46 +13,48 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
+from ._enums import *
 
 __all__ = ['TunnelCertificateArgs', 'TunnelCertificate']
 
 @pulumi.input_type
 class TunnelCertificateArgs:
     def __init__(__self__, *,
-                 ca_certificate_pem: pulumi.Input[_builtins.str],
-                 tunnel_id: pulumi.Input[_builtins.str]):
+                 tunnel_id: pulumi.Input[_builtins.str],
+                 ca_certificate_pem: pulumi.Input[Optional[_builtins.str]] = None):
         """
         The set of arguments for constructing a TunnelCertificate resource.
 
-        :param pulumi.Input[_builtins.str] ca_certificate_pem: A single PEM-encoded CA certificate, up to 8,192 characters.
-        :param pulumi.Input[_builtins.str] tunnel_id: The tunnel that trusts the certificate.
+        :param pulumi.Input[_builtins.str] tunnel_id: The tunnel that trusts the certificate. Changing it replaces the certificate.
+        :param pulumi.Input[_builtins.str] ca_certificate_pem: A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
         """
-        pulumi.set(__self__, "ca_certificate_pem", ca_certificate_pem)
         pulumi.set(__self__, "tunnel_id", tunnel_id)
-
-    @_builtins.property
-    @pulumi.getter(name="caCertificatePem")
-    def ca_certificate_pem(self) -> pulumi.Input[_builtins.str]:
-        """
-        A single PEM-encoded CA certificate, up to 8,192 characters.
-        """
-        return pulumi.get(self, "ca_certificate_pem")
-
-    @ca_certificate_pem.setter
-    def ca_certificate_pem(self, value: pulumi.Input[_builtins.str]):
-        pulumi.set(self, "ca_certificate_pem", value)
+        if ca_certificate_pem is not None:
+            pulumi.set(__self__, "ca_certificate_pem", ca_certificate_pem)
 
     @_builtins.property
     @pulumi.getter(name="tunnelId")
     def tunnel_id(self) -> pulumi.Input[_builtins.str]:
         """
-        The tunnel that trusts the certificate.
+        The tunnel that trusts the certificate. Changing it replaces the certificate.
         """
         return pulumi.get(self, "tunnel_id")
 
     @tunnel_id.setter
     def tunnel_id(self, value: pulumi.Input[_builtins.str]):
         pulumi.set(self, "tunnel_id", value)
+
+    @_builtins.property
+    @pulumi.getter(name="caCertificatePem")
+    def ca_certificate_pem(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
+        """
+        return pulumi.get(self, "ca_certificate_pem")
+
+    @ca_certificate_pem.setter
+    def ca_certificate_pem(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "ca_certificate_pem", value)
 
 
 @pulumi.type_token("anthropic:agents:TunnelCertificate")
@@ -65,14 +67,14 @@ class TunnelCertificate(pulumi.CustomResource):
                  tunnel_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
-        A CA certificate for an MCP tunnel, used to verify the certificates of MCP servers behind the tunnel. A tunnel holds at most two active certificates, which allows rotation.
+        A CA certificate trusted by an MCP tunnel when connecting to MCP servers. A tunnel holds at most two active certificates. Replacement creates the new certificate before archiving the old one, so rotation requires a free certificate slot. Deleting the last active certificate stops MCP traffic until another is registered.
 
-        Certificates cannot be updated, so any change replaces the certificate. Deleting this resource archives the certificate. Its ID is `<tunnelId>/<certificateId>`.
+        Certificates cannot be updated; changing either input replaces the certificate. Deletion archives it. Import uses `<tunnelId>/<certificateId>` and cannot recover the original PEM; supplying a PEM after import replaces the certificate.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] ca_certificate_pem: A single PEM-encoded CA certificate, up to 8,192 characters.
-        :param pulumi.Input[_builtins.str] tunnel_id: The tunnel that trusts the certificate.
+        :param pulumi.Input[_builtins.str] ca_certificate_pem: A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
+        :param pulumi.Input[_builtins.str] tunnel_id: The tunnel that trusts the certificate. Changing it replaces the certificate.
         """
         ...
     @overload
@@ -81,9 +83,9 @@ class TunnelCertificate(pulumi.CustomResource):
                  args: TunnelCertificateArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        A CA certificate for an MCP tunnel, used to verify the certificates of MCP servers behind the tunnel. A tunnel holds at most two active certificates, which allows rotation.
+        A CA certificate trusted by an MCP tunnel when connecting to MCP servers. A tunnel holds at most two active certificates. Replacement creates the new certificate before archiving the old one, so rotation requires a free certificate slot. Deleting the last active certificate stops MCP traffic until another is registered.
 
-        Certificates cannot be updated, so any change replaces the certificate. Deleting this resource archives the certificate. Its ID is `<tunnelId>/<certificateId>`.
+        Certificates cannot be updated; changing either input replaces the certificate. Deletion archives it. Import uses `<tunnelId>/<certificateId>` and cannot recover the original PEM; supplying a PEM after import replaces the certificate.
 
         :param str resource_name: The name of the resource.
         :param TunnelCertificateArgs args: The arguments to use to populate this resource's properties.
@@ -111,8 +113,6 @@ class TunnelCertificate(pulumi.CustomResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = TunnelCertificateArgs.__new__(TunnelCertificateArgs)
 
-            if ca_certificate_pem is None and not opts.urn:
-                raise TypeError("Missing required property 'ca_certificate_pem'")
             __props__.__dict__["ca_certificate_pem"] = ca_certificate_pem
             if tunnel_id is None and not opts.urn:
                 raise TypeError("Missing required property 'tunnel_id'")
@@ -120,6 +120,7 @@ class TunnelCertificate(pulumi.CustomResource):
             __props__.__dict__["created_at"] = None
             __props__.__dict__["expires_at"] = None
             __props__.__dict__["fingerprint"] = None
+            __props__.__dict__["status"] = None
         replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["caCertificatePem", "tunnelId"])
         opts = pulumi.ResourceOptions.merge(opts, replace_on_changes)
         super(TunnelCertificate, __self__).__init__(
@@ -148,6 +149,7 @@ class TunnelCertificate(pulumi.CustomResource):
         __props__.__dict__["created_at"] = None
         __props__.__dict__["expires_at"] = None
         __props__.__dict__["fingerprint"] = None
+        __props__.__dict__["status"] = None
         __props__.__dict__["tunnel_id"] = None
         return TunnelCertificate(resource_name, opts=opts, __props__=__props__)
 
@@ -159,9 +161,9 @@ class TunnelCertificate(pulumi.CustomResource):
 
     @_builtins.property
     @pulumi.getter(name="caCertificatePem")
-    def ca_certificate_pem(self) -> pulumi.Output[_builtins.str]:
+    def ca_certificate_pem(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        A single PEM-encoded CA certificate, up to 8,192 characters.
+        A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.
         """
         return pulumi.get(self, "ca_certificate_pem")
 
@@ -175,9 +177,9 @@ class TunnelCertificate(pulumi.CustomResource):
 
     @_builtins.property
     @pulumi.getter(name="expiresAt")
-    def expires_at(self) -> pulumi.Output[_builtins.str]:
+    def expires_at(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        When the certificate expires, in RFC 3339 format.
+        When the certificate expires, in RFC 3339 format. Absent when the certificate does not expire.
         """
         return pulumi.get(self, "expires_at")
 
@@ -185,15 +187,23 @@ class TunnelCertificate(pulumi.CustomResource):
     @pulumi.getter
     def fingerprint(self) -> pulumi.Output[_builtins.str]:
         """
-        The certificate's SHA-256 fingerprint.
+        The lowercase hexadecimal SHA-256 fingerprint of the certificate's DER encoding.
         """
         return pulumi.get(self, "fingerprint")
+
+    @_builtins.property
+    @pulumi.getter
+    def status(self) -> pulumi.Output[Optional['TunnelCertificateStatus']]:
+        """
+        Whether the confirmed certificate registration is active or archived. Unavailable when the registration's identity or trust status cannot be confirmed. Active registration does not verify MCP server reachability.
+        """
+        return pulumi.get(self, "status")
 
     @_builtins.property
     @pulumi.getter(name="tunnelId")
     def tunnel_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The tunnel that trusts the certificate.
+        The tunnel that trusts the certificate. Changing it replaces the certificate.
         """
         return pulumi.get(self, "tunnel_id")
 

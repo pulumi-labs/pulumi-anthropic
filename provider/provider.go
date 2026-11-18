@@ -17,11 +17,13 @@
 package provider
 
 import (
+	"context"
 	"slices"
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
+	"github.com/pulumi/pulumi/sdk/v3/go/property"
 
 	"github.com/pulumi-labs/pulumi-anthropic/provider/agents"
 	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
@@ -37,7 +39,7 @@ const Name = "anthropic"
 
 // Provider builds the Anthropic provider.
 func Provider() (p.Provider, error) {
-	return infer.NewProviderBuilder().
+	provider, err := infer.NewProviderBuilder().
 		WithDisplayName("Anthropic").
 		WithDescription("Manage the Anthropic platform as code: Claude Managed Agents, skills, "+
 			"workspaces, members, service accounts, workload identity federation, and more.").
@@ -88,4 +90,36 @@ func Provider() (p.Provider, error) {
 		// Functions are package-level lookups, so they surface in the index module.
 		WithModuleMap(map[tokens.ModuleName]tokens.ModuleName{"functions": "index"}).
 		Build()
+	if err != nil {
+		return p.Provider{}, err
+	}
+	// Graph dependencies are not platform configuration. Normalize comparison
+	// copies only; Check and the engine's saved input annotations remain intact.
+	diff := provider.Diff
+	provider.Diff = func(ctx context.Context, req p.DiffRequest) (p.DiffResponse, error) {
+		req.Inputs = diffWithoutDependencies(property.New(req.Inputs)).AsMap()
+		req.OldInputs = diffWithoutDependencies(property.New(req.OldInputs)).AsMap()
+		req.State = diffWithoutDependencies(property.New(req.State)).AsMap()
+		return diff(ctx, req)
+	}
+	return config.PreserveConfigMetadata(provider), nil
+}
+
+func diffWithoutDependencies(value property.Value) property.Value {
+	value = value.WithDependencies(nil)
+	if value.IsMap() {
+		m := value.AsMap()
+		for key, child := range m.All {
+			m = m.Set(key, diffWithoutDependencies(child))
+		}
+		return property.WithGoValue(value, m)
+	}
+	if value.IsArray() {
+		items := make([]property.Value, value.AsArray().Len())
+		for i, child := range value.AsArray().All {
+			items[i] = diffWithoutDependencies(child)
+		}
+		return property.WithGoValue(value, items)
+	}
+	return value
 }

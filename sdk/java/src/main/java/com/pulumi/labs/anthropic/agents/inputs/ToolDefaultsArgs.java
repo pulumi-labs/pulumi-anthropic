@@ -12,20 +12,24 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 
+/**
+ * Default settings for tools without an individual override.
+ *
+ */
 public final class ToolDefaultsArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final ToolDefaultsArgs Empty = new ToolDefaultsArgs();
 
     /**
      * Whether the agent may use the tools.
-     * 
+     *
      */
     @Import(name="enabled")
     private @Nullable Output<Boolean> enabled;
 
     /**
      * @return Whether the agent may use the tools.
-     * 
+     *
      */
     public Optional<Output<Boolean>> enabled() {
         return Optional.ofNullable(this.enabled);
@@ -33,14 +37,14 @@ public final class ToolDefaultsArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Whether a tool call needs approval.
-     * 
+     *
      */
     @Import(name="permissionPolicy")
     private @Nullable Output<PermissionPolicy> permissionPolicy;
 
     /**
      * @return Whether a tool call needs approval.
-     * 
+     *
      */
     public Optional<Output<PermissionPolicy>> permissionPolicy() {
         return Optional.ofNullable(this.permissionPolicy);
@@ -73,9 +77,9 @@ public final class ToolDefaultsArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param enabled Whether the agent may use the tools.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder enabled(@Nullable Output<Boolean> enabled) {
             $.enabled = enabled;
@@ -84,9 +88,9 @@ public final class ToolDefaultsArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param enabled Whether the agent may use the tools.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder enabled(Boolean enabled) {
             return enabled(Output.of(enabled));
@@ -94,9 +98,9 @@ public final class ToolDefaultsArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param permissionPolicy Whether a tool call needs approval.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder permissionPolicy(@Nullable Output<PermissionPolicy> permissionPolicy) {
             $.permissionPolicy = permissionPolicy;
@@ -105,9 +109,9 @@ public final class ToolDefaultsArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param permissionPolicy Whether a tool call needs approval.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder permissionPolicy(PermissionPolicy permissionPolicy) {
             return permissionPolicy(Output.of(permissionPolicy));

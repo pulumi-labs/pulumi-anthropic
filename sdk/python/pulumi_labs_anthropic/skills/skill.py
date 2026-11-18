@@ -24,8 +24,8 @@ class SkillArgs:
         """
         The set of arguments for constructing a Skill resource.
 
-        :param pulumi.Input[pulumi.Archive] source: The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
-        :param pulumi.Input[_builtins.str] display_name: A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+        :param pulumi.Input[pulumi.Archive] source: The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
+        :param pulumi.Input[_builtins.str] display_name: A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
         """
         pulumi.set(__self__, "source", source)
         if display_name is not None:
@@ -35,7 +35,7 @@ class SkillArgs:
     @pulumi.getter
     def source(self) -> pulumi.Input[pulumi.Archive]:
         """
-        The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+        The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
         """
         return pulumi.get(self, "source")
 
@@ -47,7 +47,7 @@ class SkillArgs:
     @pulumi.getter(name="displayName")
     def display_name(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+        A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
         """
         return pulumi.get(self, "display_name")
 
@@ -68,12 +68,12 @@ class Skill(pulumi.CustomResource):
         """
         A custom Agent Skill: a directory of instructions, scripts, and resources, with a `SKILL.md` at its root, that Claude loads when relevant. Skills can be attached to Managed Agents and used from the Messages API.
 
-        Skills are versioned. When the content of `source` changes, a new immutable version is uploaded and becomes `latestVersionId`; earlier versions are kept, so agents that pin one keep working. Deleting the resource deletes the skill and all of its versions.
+        Content changes upload a new immutable version; earlier versions remain available to pinned agents. The skill name in SKILL.md is immutable; changing it requires replacing the resource. Deleting the resource deletes the skill and all of its versions. Imported skills require a local source archive before they can be updated; their files cannot be downloaded through this resource.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] display_name: A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
-        :param pulumi.Input[pulumi.Archive] source: The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+        :param pulumi.Input[_builtins.str] display_name: A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
+        :param pulumi.Input[pulumi.Archive] source: The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
         """
         ...
     @overload
@@ -84,7 +84,7 @@ class Skill(pulumi.CustomResource):
         """
         A custom Agent Skill: a directory of instructions, scripts, and resources, with a `SKILL.md` at its root, that Claude loads when relevant. Skills can be attached to Managed Agents and used from the Messages API.
 
-        Skills are versioned. When the content of `source` changes, a new immutable version is uploaded and becomes `latestVersionId`; earlier versions are kept, so agents that pin one keep working. Deleting the resource deletes the skill and all of its versions.
+        Content changes upload a new immutable version; earlier versions remain available to pinned agents. The skill name in SKILL.md is immutable; changing it requires replacing the resource. Deleting the resource deletes the skill and all of its versions. Imported skills require a local source archive before they can be updated; their files cannot be downloaded through this resource.
 
         :param str resource_name: The name of the resource.
         :param SkillArgs args: The arguments to use to populate this resource's properties.
@@ -118,6 +118,7 @@ class Skill(pulumi.CustomResource):
             __props__.__dict__["source"] = source
             __props__.__dict__["created_at"] = None
             __props__.__dict__["latest_version_id"] = None
+            __props__.__dict__["name"] = None
             __props__.__dict__["updated_at"] = None
         replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["displayName"])
         opts = pulumi.ResourceOptions.merge(opts, replace_on_changes)
@@ -146,6 +147,7 @@ class Skill(pulumi.CustomResource):
         __props__.__dict__["created_at"] = None
         __props__.__dict__["display_name"] = None
         __props__.__dict__["latest_version_id"] = None
+        __props__.__dict__["name"] = None
         __props__.__dict__["source"] = None
         __props__.__dict__["updated_at"] = None
         return Skill(resource_name, opts=opts, __props__=__props__)
@@ -168,7 +170,7 @@ class Skill(pulumi.CustomResource):
     @pulumi.getter(name="displayName")
     def display_name(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+        A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
         """
         return pulumi.get(self, "display_name")
 
@@ -176,15 +178,23 @@ class Skill(pulumi.CustomResource):
     @pulumi.getter(name="latestVersionId")
     def latest_version_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The ID of the newest version (`skver_...`), which agents can pin in a skill reference's `version`.
+        The version created by the most recent upload, which agents can pin in a skill reference's `version`. Refresh reports the skill's current newest version.
         """
         return pulumi.get(self, "latest_version_id")
 
     @_builtins.property
     @pulumi.getter
+    def name(self) -> pulumi.Output[_builtins.str]:
+        """
+        The skill's immutable name, taken from the initial SKILL.md frontmatter or its enclosing directory. Changing this name in your source archive replaces the skill.
+        """
+        return pulumi.get(self, "name")
+
+    @_builtins.property
+    @pulumi.getter
     def source(self) -> pulumi.Output[pulumi.Archive]:
         """
-        The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+        The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
         """
         return pulumi.get(self, "source")
 

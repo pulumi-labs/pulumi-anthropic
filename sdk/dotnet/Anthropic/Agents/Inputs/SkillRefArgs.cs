@@ -11,6 +11,9 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Inputs
 {
 
+    /// <summary>
+    /// An Anthropic-provided or organization-uploaded skill available to an agent.
+    /// </summary>
     public sealed class SkillRefArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>

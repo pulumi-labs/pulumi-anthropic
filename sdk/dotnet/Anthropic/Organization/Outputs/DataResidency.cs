@@ -15,15 +15,15 @@ namespace Pulumi.Labs.Anthropic.Organization.Outputs
     public sealed class DataResidency
     {
         /// <summary>
-        /// The geographies inference may run in. Omit to allow any geography.
+        /// The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography.
         /// </summary>
         public readonly ImmutableArray<Pulumi.Labs.Anthropic.Organization.InferenceGeo> AllowedInferenceGeos;
         /// <summary>
-        /// The geography inference runs in when a request doesn't choose one.
+        /// The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list.
         /// </summary>
         public readonly Pulumi.Labs.Anthropic.Organization.InferenceGeo? DefaultInferenceGeo;
         /// <summary>
-        /// Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.
+        /// Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.
         /// </summary>
         public readonly Pulumi.Labs.Anthropic.Organization.WorkspaceGeo? WorkspaceGeo;
 

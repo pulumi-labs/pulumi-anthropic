@@ -11,18 +11,50 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Agents.Outputs
 {
 
+    /// <summary>
+    /// Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.
+    /// </summary>
     [OutputType]
     public sealed class Multiagent
     {
         /// <summary>
-        /// The agents the coordinator can delegate to, between 1 and 20.
+        /// Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default.
+        /// </summary>
+        public readonly Outputs.AgentAdvisor? Advisor;
+        /// <summary>
+        /// The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode.
         /// </summary>
         public readonly ImmutableArray<Outputs.RosterEntry> Agents;
+        /// <summary>
+        /// Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+        /// </summary>
+        public readonly Outputs.AgentDelegation? Subagents;
+        /// <summary>
+        /// Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently.
+        /// </summary>
+        public readonly string? Type;
+        /// <summary>
+        /// Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults.
+        /// </summary>
+        public readonly Outputs.AgentDelegation? Workflows;
 
         [OutputConstructor]
-        private Multiagent(ImmutableArray<Outputs.RosterEntry> agents)
+        private Multiagent(
+            Outputs.AgentAdvisor? advisor,
+
+            ImmutableArray<Outputs.RosterEntry> agents,
+
+            Outputs.AgentDelegation? subagents,
+
+            string? type,
+
+            Outputs.AgentDelegation? workflows)
         {
+            Advisor = advisor;
             Agents = agents;
+            Subagents = subagents;
+            Type = type;
+            Workflows = workflows;
         }
     }
 }

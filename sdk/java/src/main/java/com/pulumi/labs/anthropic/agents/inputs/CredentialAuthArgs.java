@@ -36,14 +36,14 @@ public final class CredentialAuthArgs extends com.pulumi.resources.ResourceArgs 
     }
 
     /**
-     * When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+     * When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
      * 
      */
     @Import(name="expiresAt")
     private @Nullable Output<String> expiresAt;
 
     /**
-     * @return When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+     * @return When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
      * 
      */
     public Optional<Output<String>> expiresAt() {
@@ -225,7 +225,7 @@ public final class CredentialAuthArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param expiresAt When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+         * @param expiresAt When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
          * 
          * @return builder
          * 
@@ -236,7 +236,7 @@ public final class CredentialAuthArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param expiresAt When the access token expires, in RFC 3339 format. For `mcp_oauth`.
+         * @param expiresAt When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential.
          * 
          * @return builder
          * 

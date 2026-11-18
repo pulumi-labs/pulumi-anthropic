@@ -5,9 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "../utilities";
 
 /**
- * A Claude Managed Agents memory store: persistent memory that agents read and write across sessions, attached to sessions or deployments as a resource. The memories themselves are data that agents write at runtime, so they are not managed here.
- *
- * Deleting this resource deletes the store along with all of its memories and their versions.
+ * A workspace-scoped persistent memory store. Runtime memories and versions are not managed here. Deleting this resource permanently deletes the store and all its memories and versions. Externally archived stores are treated as absent.
  */
 export class MemoryStore extends pulumi.CustomResource {
     /**
@@ -47,23 +45,23 @@ export class MemoryStore extends pulumi.CustomResource {
     }
 
     /**
-     * When the store was created, in RFC 3339 format.
+     * When the memory store was created, in RFC 3339 format.
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * What the store holds, up to 1,024 characters. It is shown to the agent.
+     * Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
      */
     declare public readonly description: pulumi.Output<string | undefined>;
     /**
-     * Arbitrary key-value pairs.
+     * At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
      */
     declare public readonly metadata: pulumi.Output<{[key: string]: string} | undefined>;
     /**
-     * The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+     * A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
      */
     declare public readonly name: pulumi.Output<string>;
     /**
-     * When the store was last updated, in RFC 3339 format.
+     * When the memory store's configuration was last changed, in RFC 3339 format.
      */
     declare public /*out*/ readonly updatedAt: pulumi.Output<string>;
 
@@ -103,15 +101,15 @@ export class MemoryStore extends pulumi.CustomResource {
  */
 export interface MemoryStoreArgs {
     /**
-     * What the store holds, up to 1,024 characters. It is shown to the agent.
+     * Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it.
      */
     description?: pulumi.Input<string | undefined>;
     /**
-     * Arbitrary key-value pairs.
+     * At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry.
      */
     metadata?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
-     * The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount.
+     * A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts.
      */
     name: pulumi.Input<string>;
 }

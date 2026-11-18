@@ -19,9 +19,6 @@ package functions
 
 import (
 	"github.com/pulumi/pulumi-go-provider/infer"
-
-	"github.com/pulumi-labs/pulumi-anthropic/provider/config"
-	"github.com/pulumi-labs/pulumi-anthropic/provider/internal/rest"
 )
 
 // Functions returns the provider's functions.
@@ -32,12 +29,3 @@ func Functions() []infer.InferredFunction {
 		infer.Function(&GetRateLimits{}),
 	}
 }
-
-// The collections the functions read.
-var (
-	// modelCollection is generally available, so it takes no beta parameter.
-	modelCollection        = rest.Collection{Plane: config.Workspace, Path: "v1/models", GA: true}
-	organizationCollection = rest.Collection{Plane: config.Admin, Path: "v1/organizations"}
-	rateLimitCollection    = rest.Collection{Plane: config.Admin, Path: "v1/organizations/rate_limits"}
-	workspaceCollection    = rest.Collection{Plane: config.Admin, Path: "v1/organizations/workspaces"}
-)

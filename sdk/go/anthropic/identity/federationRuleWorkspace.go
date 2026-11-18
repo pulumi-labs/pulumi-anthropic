@@ -12,22 +12,22 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Binds a federation rule to a workspace, so that the rule's access tokens can act in it. The resource's ID is `<federation-rule-id>/<workspace-id>`.
+// Binds a federation rule to an additional workspace. The resource ID is `<federation-rule-id>/<workspace-id>` and supports import. Changing either ID replaces the binding. Deleting the resource removes this explicit binding, not the rule or workspace. Other grants, including all-workspace access, are unaffected.
 //
-// Do not also bind the workspace the rule was created in (its `workspaceId`): that binding belongs to the rule.
+// Do not also manage the workspace the rule was created in with this resource. Manage each rule/workspace pair with only one resource: deleting either duplicate removes the shared binding.
 //
-// Managing federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).
+// Requires an OAuth token with `org:admin` (`anthropic:authToken`). The rule and workspace must belong to your organization; the rule must grant `workspace:developer` or `workspace:inference`. Enabling a workspace does not enroll the target service account: token exchange requires its membership in that workspace.
 type FederationRuleWorkspace struct {
 	pulumi.CustomResourceState
 
-	// When the binding was created, in RFC 3339 format.
-	CreatedAt pulumi.StringOutput `pulumi:"createdAt"`
-	// The federation rule's ID.
+	// When the binding was created, in RFC 3339 format, when available.
+	CreatedAt pulumi.StringPtrOutput `pulumi:"createdAt"`
+	// The federation rule's nonempty ID. Changing it replaces the binding.
 	FederationRuleId pulumi.StringOutput `pulumi:"federationRuleId"`
-	// The workspace's ID.
+	// The workspace's nonempty ID. Changing it replaces the binding.
 	WorkspaceId pulumi.StringOutput `pulumi:"workspaceId"`
-	// The workspace's name when the binding was created.
-	WorkspaceName pulumi.StringOutput `pulumi:"workspaceName"`
+	// The workspace name reported when the binding is read. Not available immediately after enabling the binding.
+	WorkspaceName pulumi.StringPtrOutput `pulumi:"workspaceName"`
 }
 
 // NewFederationRuleWorkspace registers a new resource with the given unique name, arguments, and options.
@@ -87,17 +87,17 @@ func FederationRuleWorkspaceExists(ctx *pulumi.Context,
 }
 
 type federationRuleWorkspaceArgs struct {
-	// The federation rule's ID.
+	// The federation rule's nonempty ID. Changing it replaces the binding.
 	FederationRuleId string `pulumi:"federationRuleId"`
-	// The workspace's ID.
+	// The workspace's nonempty ID. Changing it replaces the binding.
 	WorkspaceId string `pulumi:"workspaceId"`
 }
 
 // The set of arguments for constructing a FederationRuleWorkspace resource.
 type FederationRuleWorkspaceArgs struct {
-	// The federation rule's ID.
+	// The federation rule's nonempty ID. Changing it replaces the binding.
 	FederationRuleId pulumi.StringInput
-	// The workspace's ID.
+	// The workspace's nonempty ID. Changing it replaces the binding.
 	WorkspaceId pulumi.StringInput
 }
 
@@ -188,24 +188,24 @@ func (o FederationRuleWorkspaceOutput) ToFederationRuleWorkspaceOutputWithContex
 	return o
 }
 
-// When the binding was created, in RFC 3339 format.
-func (o FederationRuleWorkspaceOutput) CreatedAt() pulumi.StringOutput {
-	return o.ApplyT(func(v *FederationRuleWorkspace) pulumi.StringOutput { return v.CreatedAt }).(pulumi.StringOutput)
+// When the binding was created, in RFC 3339 format, when available.
+func (o FederationRuleWorkspaceOutput) CreatedAt() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *FederationRuleWorkspace) pulumi.StringPtrOutput { return v.CreatedAt }).(pulumi.StringPtrOutput)
 }
 
-// The federation rule's ID.
+// The federation rule's nonempty ID. Changing it replaces the binding.
 func (o FederationRuleWorkspaceOutput) FederationRuleId() pulumi.StringOutput {
 	return o.ApplyT(func(v *FederationRuleWorkspace) pulumi.StringOutput { return v.FederationRuleId }).(pulumi.StringOutput)
 }
 
-// The workspace's ID.
+// The workspace's nonempty ID. Changing it replaces the binding.
 func (o FederationRuleWorkspaceOutput) WorkspaceId() pulumi.StringOutput {
 	return o.ApplyT(func(v *FederationRuleWorkspace) pulumi.StringOutput { return v.WorkspaceId }).(pulumi.StringOutput)
 }
 
-// The workspace's name when the binding was created.
-func (o FederationRuleWorkspaceOutput) WorkspaceName() pulumi.StringOutput {
-	return o.ApplyT(func(v *FederationRuleWorkspace) pulumi.StringOutput { return v.WorkspaceName }).(pulumi.StringOutput)
+// The workspace name reported when the binding is read. Not available immediately after enabling the binding.
+func (o FederationRuleWorkspaceOutput) WorkspaceName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *FederationRuleWorkspace) pulumi.StringPtrOutput { return v.WorkspaceName }).(pulumi.StringPtrOutput)
 }
 
 type FederationRuleWorkspaceArrayOutput struct{ *pulumi.OutputState }

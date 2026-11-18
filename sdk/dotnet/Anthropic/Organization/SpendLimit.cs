@@ -15,13 +15,13 @@ namespace Pulumi.Labs.Anthropic.Organization
     /// 
     /// There is at most one limit per scope and period, and the API sets a limit by overwriting whatever limit that scope and period already has, so creating this resource takes over an existing limit rather than failing. Changing the scope or period replaces the limit.
     /// 
-    /// User limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount.
+    /// User limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount. Deleting a user limit restores any inherited cap for that period; deleting a limit may increase permitted spending. Import accepts a writable limit's spl_ ID.
     /// </summary>
     [AnthropicResourceType("anthropic:organization:SpendLimit")]
     public partial class SpendLimit : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
+        /// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
         /// </summary>
         [Output("amount")]
         public Output<string?> Amount { get; private set; } = null!;
@@ -37,6 +37,12 @@ namespace Pulumi.Labs.Anthropic.Organization
         /// </summary>
         [Output("currency")]
         public Output<string> Currency { get; private set; } = null!;
+
+        /// <summary>
+        /// Whether the configured limit is enabled. Organization limits are disabled while extra usage is off; the amount is retained for when extra usage is enabled again. Other periods and inherited limits may still apply.
+        /// </summary>
+        [Output("isEnabled")]
+        public Output<bool> IsEnabled { get; private set; } = null!;
 
         /// <summary>
         /// The period the limit applies over. If omitted, the API's default applies.
@@ -108,7 +114,7 @@ namespace Pulumi.Labs.Anthropic.Organization
     public sealed class SpendLimitArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. Omit for an explicit "no limit" override of this scope and period.
+        /// The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `"50000"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount.
         /// </summary>
         [Input("amount")]
         public Input<string>? Amount { get; set; }

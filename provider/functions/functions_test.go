@@ -46,7 +46,7 @@ func TestGetOrganization(t *testing.T) {
 	assert.Equal(t, "8f9e", out.Get("organizationId").AsString())
 	assert.Equal(t, "Acme", out.Get("name").AsString())
 	req := api.LastRequest(t, http.MethodGet, "/v1/organizations/me")
-	assert.Equal(t, "sk-ant-admin-test", req.Header.Get("X-Api-Key"), "organization reads use the Admin key")
+	assert.Equal(t, "sk-ant-admin-test", req.Header.Get("x-api-key"), "organization reads use the Admin key")
 }
 
 // getModels follows the after_id pagination style.

@@ -13,7 +13,7 @@ namespace Pulumi.Labs.Anthropic.Agents
     /// <summary>
     /// A credential in a Claude Managed Agents vault: an OAuth grant or bearer token for an MCP server, or a secret injected into outbound requests as an environment variable.
     /// 
-    /// Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `&lt;vaultId&gt;/&lt;credentialId&gt;`.
+    /// Secret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `&lt;vaultId&gt;/&lt;credentialId&gt;`. Deletion permanently removes the credential, not archives it. Running sessions periodically re-resolve credentials; immediate revocation is not guaranteed.
     /// </summary>
     [AnthropicResourceType("anthropic:agents:VaultCredential")]
     public partial class VaultCredential : global::Pulumi.CustomResource
@@ -31,7 +31,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Output<string> CreatedAt { get; private set; } = null!;
 
         /// <summary>
-        /// The credential's display name.
+        /// The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
         /// </summary>
         [Output("displayName")]
         public Output<string?> DisplayName { get; private set; } = null!;
@@ -117,7 +117,7 @@ namespace Pulumi.Labs.Anthropic.Agents
         public Input<Inputs.CredentialAuthArgs> Auth { get; set; } = null!;
 
         /// <summary>
-        /// The credential's display name.
+        /// The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential.
         /// </summary>
         [Input("displayName")]
         public Input<string>? DisplayName { get; set; }

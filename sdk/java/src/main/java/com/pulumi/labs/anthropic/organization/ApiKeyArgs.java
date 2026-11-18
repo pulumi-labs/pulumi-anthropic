@@ -18,14 +18,14 @@ public final class ApiKeyArgs extends com.pulumi.resources.ResourceArgs {
     public static final ApiKeyArgs Empty = new ApiKeyArgs();
 
     /**
-     * The ID of the existing API key to manage.
+     * The existing key&#39;s nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
      * 
      */
     @Import(name="apiKeyId", required=true)
     private Output<String> apiKeyId;
 
     /**
-     * @return The ID of the existing API key to manage.
+     * @return The existing key&#39;s nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
      * 
      */
     public Output<String> apiKeyId() {
@@ -33,14 +33,14 @@ public final class ApiKeyArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The key&#39;s name, 1 to 500 characters.
+     * The key&#39;s name, 1 to 500 characters. Omission leaves the current name unchanged.
      * 
      */
     @Import(name="name")
     private @Nullable Output<String> name;
 
     /**
-     * @return The key&#39;s name, 1 to 500 characters.
+     * @return The key&#39;s name, 1 to 500 characters. Omission leaves the current name unchanged.
      * 
      */
     public Optional<Output<String>> name() {
@@ -48,14 +48,14 @@ public final class ApiKeyArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The key&#39;s status. An archived key cannot be reactivated.
+     * The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
      * 
      */
     @Import(name="status")
     private @Nullable Output<ApiKeyStatus> status;
 
     /**
-     * @return The key&#39;s status. An archived key cannot be reactivated.
+     * @return The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
      * 
      */
     public Optional<Output<ApiKeyStatus>> status() {
@@ -89,7 +89,7 @@ public final class ApiKeyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param apiKeyId The ID of the existing API key to manage.
+         * @param apiKeyId The existing key&#39;s nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
          * 
          * @return builder
          * 
@@ -100,7 +100,7 @@ public final class ApiKeyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param apiKeyId The ID of the existing API key to manage.
+         * @param apiKeyId The existing key&#39;s nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
          * 
          * @return builder
          * 
@@ -110,7 +110,7 @@ public final class ApiKeyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The key&#39;s name, 1 to 500 characters.
+         * @param name The key&#39;s name, 1 to 500 characters. Omission leaves the current name unchanged.
          * 
          * @return builder
          * 
@@ -121,7 +121,7 @@ public final class ApiKeyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param name The key&#39;s name, 1 to 500 characters.
+         * @param name The key&#39;s name, 1 to 500 characters. Omission leaves the current name unchanged.
          * 
          * @return builder
          * 
@@ -131,7 +131,7 @@ public final class ApiKeyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param status The key&#39;s status. An archived key cannot be reactivated.
+         * @param status The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
          * 
          * @return builder
          * 
@@ -142,7 +142,7 @@ public final class ApiKeyArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param status The key&#39;s status. An archived key cannot be reactivated.
+         * @param status The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
          * 
          * @return builder
          * 

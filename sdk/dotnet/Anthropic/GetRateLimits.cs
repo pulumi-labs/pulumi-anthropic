@@ -13,19 +13,19 @@ namespace Pulumi.Labs.Anthropic
     public static class GetRateLimits
     {
         /// <summary>
-        /// Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+        /// Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
         /// </summary>
         public static Task<GetRateLimitsResult> InvokeAsync(GetRateLimitsArgs? args = null, InvokeOptions? options = null)
             => global::Pulumi.Deployment.Instance.InvokeAsync<GetRateLimitsResult>("anthropic:index:getRateLimits", args ?? new GetRateLimitsArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+        /// Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
         /// </summary>
         public static Output<GetRateLimitsResult> Invoke(GetRateLimitsInvokeArgs? args = null, InvokeOptions? options = null)
             => global::Pulumi.Deployment.Instance.Invoke<GetRateLimitsResult>("anthropic:index:getRateLimits", args ?? new GetRateLimitsInvokeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.
+        /// Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.
         /// </summary>
         public static Output<GetRateLimitsResult> Invoke(GetRateLimitsInvokeArgs args, InvokeOutputOptions options)
             => global::Pulumi.Deployment.Instance.Invoke<GetRateLimitsResult>("anthropic:index:getRateLimits", args ?? new GetRateLimitsInvokeArgs(), options.WithDefaults());

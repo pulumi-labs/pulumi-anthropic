@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 /**
  * A role-based access control group of users. Add users with `RbacGroupMember`. Roles are attached to groups in the organization&#39;s admin settings, and are reported by `roleIds`.
  * 
- * RBAC groups are available to Claude Enterprise organizations. Groups provisioned by SCIM cannot be changed or deleted while SCIM provisioning is active.
+ * RBAC groups are available to Claude Enterprise organizations. Groups provisioned by SCIM cannot be changed or deleted while SCIM provisioning is active. Destroying this resource permanently deletes the group; owner-access protections may prevent deletion.
  * 
  */
 @ResourceType(type="anthropic:identity:RbacGroup")
@@ -37,28 +37,28 @@ public class RbacGroup extends com.pulumi.resources.CustomResource {
         return this.createdAt;
     }
     /**
-     * The group&#39;s name, 1 to 255 characters. Names need not be unique.
+     * The group&#39;s name. Names need not be unique and can be changed without replacing the group.
      * 
      */
     @Export(name="name", refs={String.class}, tree="[0]")
     private Output<String> name;
 
     /**
-     * @return The group&#39;s name, 1 to 255 characters. Names need not be unique.
+     * @return The group&#39;s name. Names need not be unique and can be changed without replacing the group.
      * 
      */
     public Output<String> name() {
         return this.name;
     }
     /**
-     * The IDs of the roles attached to the group.
+     * The IDs of the roles attached to the group. An empty list means no roles are attached. If this value is absent, role information is temporarily unavailable; refresh again rather than treating it as an empty list.
      * 
      */
     @Export(name="roleIds", refs={List.class,String.class}, tree="[0,1]")
     private Output</* @Nullable */ List<String>> roleIds;
 
     /**
-     * @return The IDs of the roles attached to the group.
+     * @return The IDs of the roles attached to the group. An empty list means no roles are attached. If this value is absent, role information is temporarily unavailable; refresh again rather than treating it as an empty list.
      * 
      */
     public Output<Optional<List<String>>> roleIds() {

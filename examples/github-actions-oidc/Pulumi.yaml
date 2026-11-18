@@ -1,0 +1,35 @@
+name: github-actions-oidc
+runtime: yaml
+description: Use fresh GitHub Actions OIDC assertions to manage an Anthropic workspace without stored Anthropic credentials.
+
+config:
+  organizationId:
+    type: string
+  workspaceId:
+    type: string
+  federationRuleId:
+    type: string
+  serviceAccountId:
+    type: string
+
+resources:
+  anthropic:
+    type: pulumi:providers:anthropic
+    properties:
+      workspaceId: ${workspaceId}
+      federation:
+        organizationId: ${organizationId}
+        ruleId: ${federationRuleId}
+        serviceAccountId: ${serviceAccountId}
+        identityToken:
+          command: [bash, "${pulumi.cwd}/get-github-oidc-token.sh"]
+
+  vault:
+    type: anthropic:agents:Vault
+    properties:
+      displayName: github-actions-${pulumi.stack}
+    options:
+      provider: ${anthropic}
+
+outputs:
+  vaultId: ${vault.id}

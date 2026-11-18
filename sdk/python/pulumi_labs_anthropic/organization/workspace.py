@@ -26,15 +26,17 @@ class WorkspaceArgs:
                  data_residency: pulumi.Input[Optional['DataResidencyArgs']] = None,
                  display_color: pulumi.Input[Optional[_builtins.str]] = None,
                  external_key_id: pulumi.Input[Optional[_builtins.str]] = None,
-                 tags: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None):
+                 tags: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 user_profile_id: pulumi.Input[Optional[_builtins.str]] = None):
         """
         The set of arguments for constructing a Workspace resource.
 
-        :param pulumi.Input[_builtins.str] name: The workspace's name, 1 to 40 characters.
-        :param pulumi.Input['DataResidencyArgs'] data_residency: Where the workspace's data is stored and where inference may run.
-        :param pulumi.Input[_builtins.str] display_color: The color the Console shows the workspace in, as `#RRGGBB`.
+        :param pulumi.Input[_builtins.str] name: The workspace's nonempty name.
+        :param pulumi.Input['DataResidencyArgs'] data_residency: Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
+        :param pulumi.Input[_builtins.str] display_color: The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
         :param pulumi.Input[_builtins.str] external_key_id: The ID of a customer-managed encryption key (an `anthropic.security.ExternalKey`) that encrypts the workspace's data. It can be set on a workspace that has none, but once set it can never be changed or removed, so any change to it replaces the workspace.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] tags: Tags for the workspace. Keys may not start with `anthropic`.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] tags: Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
+        :param pulumi.Input[_builtins.str] user_profile_id: The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
         """
         pulumi.set(__self__, "name", name)
         if data_residency is not None:
@@ -45,12 +47,14 @@ class WorkspaceArgs:
             pulumi.set(__self__, "external_key_id", external_key_id)
         if tags is not None:
             pulumi.set(__self__, "tags", tags)
+        if user_profile_id is not None:
+            pulumi.set(__self__, "user_profile_id", user_profile_id)
 
     @_builtins.property
     @pulumi.getter
     def name(self) -> pulumi.Input[_builtins.str]:
         """
-        The workspace's name, 1 to 40 characters.
+        The workspace's nonempty name.
         """
         return pulumi.get(self, "name")
 
@@ -62,7 +66,7 @@ class WorkspaceArgs:
     @pulumi.getter(name="dataResidency")
     def data_residency(self) -> pulumi.Input[Optional['DataResidencyArgs']]:
         """
-        Where the workspace's data is stored and where inference may run.
+        Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
         """
         return pulumi.get(self, "data_residency")
 
@@ -74,7 +78,7 @@ class WorkspaceArgs:
     @pulumi.getter(name="displayColor")
     def display_color(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        The color the Console shows the workspace in, as `#RRGGBB`.
+        The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
         """
         return pulumi.get(self, "display_color")
 
@@ -98,13 +102,25 @@ class WorkspaceArgs:
     @pulumi.getter
     def tags(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Tags for the workspace. Keys may not start with `anthropic`.
+        Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
         """
         return pulumi.get(self, "tags")
 
     @tags.setter
     def tags(self, value: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]):
         pulumi.set(self, "tags", value)
+
+    @_builtins.property
+    @pulumi.getter(name="userProfileId")
+    def user_profile_id(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+        """
+        return pulumi.get(self, "user_profile_id")
+
+    @user_profile_id.setter
+    def user_profile_id(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "user_profile_id", value)
 
 
 @pulumi.type_token("anthropic:organization:Workspace")
@@ -118,6 +134,7 @@ class Workspace(pulumi.CustomResource):
                  external_key_id: pulumi.Input[Optional[_builtins.str]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  tags: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 user_profile_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
         A workspace: a unit of isolation for API keys, usage, limits, and workspace-scoped resources such as agents and skills.
@@ -126,11 +143,12 @@ class Workspace(pulumi.CustomResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Union['DataResidencyArgs', 'DataResidencyArgsDict', 'outputs.DataResidency']] data_residency: Where the workspace's data is stored and where inference may run.
-        :param pulumi.Input[_builtins.str] display_color: The color the Console shows the workspace in, as `#RRGGBB`.
+        :param pulumi.Input[Union['DataResidencyArgs', 'DataResidencyArgsDict', 'outputs.DataResidency']] data_residency: Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
+        :param pulumi.Input[_builtins.str] display_color: The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
         :param pulumi.Input[_builtins.str] external_key_id: The ID of a customer-managed encryption key (an `anthropic.security.ExternalKey`) that encrypts the workspace's data. It can be set on a workspace that has none, but once set it can never be changed or removed, so any change to it replaces the workspace.
-        :param pulumi.Input[_builtins.str] name: The workspace's name, 1 to 40 characters.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] tags: Tags for the workspace. Keys may not start with `anthropic`.
+        :param pulumi.Input[_builtins.str] name: The workspace's nonempty name.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] tags: Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
+        :param pulumi.Input[_builtins.str] user_profile_id: The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
         """
         ...
     @overload
@@ -163,6 +181,7 @@ class Workspace(pulumi.CustomResource):
                  external_key_id: pulumi.Input[Optional[_builtins.str]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  tags: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 user_profile_id: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -179,6 +198,7 @@ class Workspace(pulumi.CustomResource):
                 raise TypeError("Missing required property 'name'")
             __props__.__dict__["name"] = name
             __props__.__dict__["tags"] = tags
+            __props__.__dict__["user_profile_id"] = user_profile_id
             __props__.__dict__["compartment_id"] = None
             __props__.__dict__["created_at"] = None
         replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["dataResidency.workspaceGeo"])
@@ -212,6 +232,7 @@ class Workspace(pulumi.CustomResource):
         __props__.__dict__["external_key_id"] = None
         __props__.__dict__["name"] = None
         __props__.__dict__["tags"] = None
+        __props__.__dict__["user_profile_id"] = None
         return Workspace(resource_name, opts=opts, __props__=__props__)
 
     @staticmethod
@@ -240,7 +261,7 @@ class Workspace(pulumi.CustomResource):
     @pulumi.getter(name="dataResidency")
     def data_residency(self) -> pulumi.Output[Optional['outputs.DataResidency']]:
         """
-        Where the workspace's data is stored and where inference may run.
+        Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography.
         """
         return pulumi.get(self, "data_residency")
 
@@ -248,7 +269,7 @@ class Workspace(pulumi.CustomResource):
     @pulumi.getter(name="displayColor")
     def display_color(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        The color the Console shows the workspace in, as `#RRGGBB`.
+        The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared.
         """
         return pulumi.get(self, "display_color")
 
@@ -264,7 +285,7 @@ class Workspace(pulumi.CustomResource):
     @pulumi.getter
     def name(self) -> pulumi.Output[_builtins.str]:
         """
-        The workspace's name, 1 to 40 characters.
+        The workspace's nonempty name.
         """
         return pulumi.get(self, "name")
 
@@ -272,7 +293,15 @@ class Workspace(pulumi.CustomResource):
     @pulumi.getter
     def tags(self) -> pulumi.Output[Optional[Mapping[str, _builtins.str]]]:
         """
-        Tags for the workspace. Keys may not start with `anthropic`.
+        Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved.
         """
         return pulumi.get(self, "tags")
+
+    @_builtins.property
+    @pulumi.getter(name="userProfileId")
+    def user_profile_id(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment.
+        """
+        return pulumi.get(self, "user_profile_id")
 

@@ -24,8 +24,8 @@ class VaultArgs:
         """
         The set of arguments for constructing a Vault resource.
 
-        :param pulumi.Input[_builtins.str] display_name: The vault's display name, 1 to 255 characters.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
+        :param pulumi.Input[_builtins.str] display_name: The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
         """
         pulumi.set(__self__, "display_name", display_name)
         if metadata is not None:
@@ -35,7 +35,7 @@ class VaultArgs:
     @pulumi.getter(name="displayName")
     def display_name(self) -> pulumi.Input[_builtins.str]:
         """
-        The vault's display name, 1 to 255 characters.
+        The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
         """
         return pulumi.get(self, "display_name")
 
@@ -47,7 +47,7 @@ class VaultArgs:
     @pulumi.getter
     def metadata(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Arbitrary key-value pairs.
+        At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
         """
         return pulumi.get(self, "metadata")
 
@@ -66,14 +66,12 @@ class Vault(pulumi.CustomResource):
                  metadata: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  __props__=None):
         """
-        A Claude Managed Agents vault: a container for the credentials sessions use to reach MCP servers and other services. Add credentials with `VaultCredential`, and attach vaults to sessions or deployments by ID.
-
-        Deleting this resource deletes the vault and every credential in it.
+        A workspace-scoped Claude Managed Agents credential container. Add credentials with VaultCredential and reference the vault by ID. Deleting this resource permanently deletes the vault; it does not archive it. Archived vaults are treated as deleted.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] display_name: The vault's display name, 1 to 255 characters.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: Arbitrary key-value pairs.
+        :param pulumi.Input[_builtins.str] display_name: The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] metadata: At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
         """
         ...
     @overload
@@ -82,9 +80,7 @@ class Vault(pulumi.CustomResource):
                  args: VaultArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        A Claude Managed Agents vault: a container for the credentials sessions use to reach MCP servers and other services. Add credentials with `VaultCredential`, and attach vaults to sessions or deployments by ID.
-
-        Deleting this resource deletes the vault and every credential in it.
+        A workspace-scoped Claude Managed Agents credential container. Add credentials with VaultCredential and reference the vault by ID. Deleting this resource permanently deletes the vault; it does not archive it. Archived vaults are treated as deleted.
 
         :param str resource_name: The name of the resource.
         :param VaultArgs args: The arguments to use to populate this resource's properties.
@@ -164,7 +160,7 @@ class Vault(pulumi.CustomResource):
     @pulumi.getter(name="displayName")
     def display_name(self) -> pulumi.Output[_builtins.str]:
         """
-        The vault's display name, 1 to 255 characters.
+        The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming.
         """
         return pulumi.get(self, "display_name")
 
@@ -172,7 +168,7 @@ class Vault(pulumi.CustomResource):
     @pulumi.getter
     def metadata(self) -> pulumi.Output[Optional[Mapping[str, _builtins.str]]]:
         """
-        Arbitrary key-value pairs.
+        At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained.
         """
         return pulumi.get(self, "metadata")
 

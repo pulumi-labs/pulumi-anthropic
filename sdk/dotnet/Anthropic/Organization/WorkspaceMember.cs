@@ -11,19 +11,19 @@ using Pulumi;
 namespace Pulumi.Labs.Anthropic.Organization
 {
     /// <summary>
-    /// A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `&lt;workspaceId&gt;/&lt;userId&gt;`.
+    /// A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `&lt;workspaceId&gt;/&lt;userId&gt;`. Deleting this resource removes the workspace membership, not the user or workspace.
     /// </summary>
     [AnthropicResourceType("anthropic:organization:WorkspaceMember")]
     public partial class WorkspaceMember : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// The user's ID.
+        /// The user's ID. Changing this value replaces the membership.
         /// </summary>
         [Output("userId")]
         public Output<string> UserId { get; private set; } = null!;
 
         /// <summary>
-        /// The workspace's ID.
+        /// The workspace's ID. Changing this value replaces the membership.
         /// </summary>
         [Output("workspaceId")]
         public Output<string> WorkspaceId { get; private set; } = null!;
@@ -86,13 +86,13 @@ namespace Pulumi.Labs.Anthropic.Organization
     public sealed class WorkspaceMemberArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// The user's ID.
+        /// The user's ID. Changing this value replaces the membership.
         /// </summary>
         [Input("userId", required: true)]
         public Input<string> UserId { get; set; } = null!;
 
         /// <summary>
-        /// The workspace's ID.
+        /// The workspace's ID. Changing this value replaces the membership.
         /// </summary>
         [Input("workspaceId", required: true)]
         public Input<string> WorkspaceId { get; set; } = null!;

@@ -10,6 +10,10 @@ import java.lang.String;
 import java.util.Objects;
 
 
+/**
+ * The service account that tokens issued by a federation rule act as.
+ *
+ */
 public final class FederationTargetArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final FederationTargetArgs Empty = new FederationTargetArgs();

@@ -2,13 +2,16 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "../types/input";
+import * as outputs from "../types/output";
+import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 declare var exports: any;
 const __config = new pulumi.Config("anthropic");
 
 /**
- * An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.
+ * An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.
  */
 export declare const adminKey: string;
 Object.defineProperty(exports, "adminKey", {
@@ -19,7 +22,7 @@ Object.defineProperty(exports, "adminKey", {
 });
 
 /**
- * An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.
+ * An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.
  */
 export declare const apiKey: string;
 Object.defineProperty(exports, "apiKey", {
@@ -30,7 +33,7 @@ Object.defineProperty(exports, "apiKey", {
 });
 
 /**
- * An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.
+ * An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.
  */
 export declare const authToken: string;
 Object.defineProperty(exports, "authToken", {
@@ -52,7 +55,18 @@ Object.defineProperty(exports, "baseUrl", {
 });
 
 /**
- * The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace.
+ * Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions.
+ */
+export declare const federation: outputs.Federation | undefined;
+Object.defineProperty(exports, "federation", {
+    get() {
+        return __config.getObject<outputs.Federation>("federation");
+    },
+    enumerable: true,
+});
+
+/**
+ * The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace.
  */
 export declare const workspaceId: string | undefined;
 Object.defineProperty(exports, "workspaceId", {

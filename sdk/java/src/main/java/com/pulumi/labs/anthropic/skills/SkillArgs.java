@@ -18,14 +18,14 @@ public final class SkillArgs extends com.pulumi.resources.ResourceArgs {
     public static final SkillArgs Empty = new SkillArgs();
 
     /**
-     * A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+     * A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
      * 
      */
     @Import(name="displayName")
     private @Nullable Output<String> displayName;
 
     /**
-     * @return A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+     * @return A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
      * 
      */
     public Optional<Output<String>> displayName() {
@@ -33,14 +33,14 @@ public final class SkillArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+     * The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
      * 
      */
     @Import(name="source", required=true)
     private Output<Archive> source;
 
     /**
-     * @return The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+     * @return The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
      * 
      */
     public Output<Archive> source() {
@@ -73,7 +73,7 @@ public final class SkillArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param displayName A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+         * @param displayName A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
          * 
          * @return builder
          * 
@@ -84,7 +84,7 @@ public final class SkillArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param displayName A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.
+         * @param displayName A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.
          * 
          * @return builder
          * 
@@ -94,7 +94,7 @@ public final class SkillArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param source The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+         * @param source The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
          * 
          * @return builder
          * 
@@ -105,7 +105,7 @@ public final class SkillArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param source The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed.
+         * @param source The skill&#39;s files, such as a `FileArchive` of the skill&#39;s directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions.
          * 
          * @return builder
          * 

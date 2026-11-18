@@ -22,12 +22,12 @@ public final class Jwks {
      */
     private @Nullable String caCertPem;
     /**
-     * @return The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+     * @return The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
      * 
      */
     private @Nullable String discoveryBase;
     /**
-     * @return The signing keys, as JSON Web Keys. Required for `inline`.
+     * @return A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
      * 
      */
     private @Nullable List<Map<String,Object>> keys;
@@ -37,7 +37,7 @@ public final class Jwks {
      */
     private JwksType type;
     /**
-     * @return The JWKS URL. Required for `explicit_url`.
+     * @return The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
      * 
      */
     private @Nullable String url;
@@ -51,14 +51,14 @@ public final class Jwks {
         return Optional.ofNullable(this.caCertPem);
     }
     /**
-     * @return The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`.
+     * @return The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL.
      * 
      */
     public Optional<String> discoveryBase() {
         return Optional.ofNullable(this.discoveryBase);
     }
     /**
-     * @return The signing keys, as JSON Web Keys. Required for `inline`.
+     * @return A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted.
      * 
      */
     public List<Map<String,Object>> keys() {
@@ -72,7 +72,7 @@ public final class Jwks {
         return this.type;
     }
     /**
-     * @return The JWKS URL. Required for `explicit_url`.
+     * @return The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`.
      * 
      */
     public Optional<String> url() {

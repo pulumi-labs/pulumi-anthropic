@@ -12,23 +12,28 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.27'
-          cache-dependency-path: go.sum
+          cache-dependency-path: |
+            go.sum
+            test/go.sum
       - uses: pulumi/actions@v6
         with:
           # Keep in step with mise.toml. The SDK generator lives in the CLI, so
           # an unpinned version changes the generated SDKs on its own.
           pulumi-version: '3.274.0'
       - uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.15.0 # Keep in step with mise.toml.
       - run: make build test
+      - name: Check engine tests offline
+        working-directory: test
+        run: go test -mod=readonly -tags acceptance -race ./...
       - name: Check the schema is up to date
         run: |
           make schema
           git diff --exit-code -- provider/schema.json
 
   build_sdks:
-    # Each language generates and compiles in its own job. This replaces a byte
-    # comparison against the committed SDKs: that only proved the bytes matched,
-    # never that they compile, and it failed on every Pulumi codegen change.
+    # Generate and compile each language SDK in its own job.
     needs: test
     name: build_sdks (${{ matrix.language }})
     runs-on: ubuntu-latest
@@ -66,18 +71,20 @@ jobs:
       - run: make build_${{ matrix.language }}
 
   acceptance:
-    # Runs the examples against the live Anthropic API. Credentials are only available to
-    # pushes to main and to pull requests from this repository.
+    # Only workspace-developer scenarios belong in CI. Admin scenarios remain manual.
+    # GitHub OIDC is accepted only for main and same-repository pull requests.
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     needs: test
     runs-on: ubuntu-latest
     concurrency: acceptance
+    permissions:
+      contents: read
+      id-token: write
     env:
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      ANTHROPIC_ADMIN_KEY: ${{ secrets.ANTHROPIC_ADMIN_KEY }}
-      ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
-      ANTHROPIC_ACCEPTANCE_WORKSPACE_ID: ${{ vars.ANTHROPIC_ACCEPTANCE_WORKSPACE_ID }}
-      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      ANTHROPIC_ORGANIZATION_ID: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
+      ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
+      ANTHROPIC_SERVICE_ACCOUNT_ID: ${{ vars.ANTHROPIC_FEDERATION_SERVICE_ACCOUNT_ID }}
+      ANTHROPIC_FEDERATION_RULE_ID: ${{ github.event_name == 'pull_request' && vars.ANTHROPIC_FEDERATION_RULE_ID_PULL_REQUEST || vars.ANTHROPIC_FEDERATION_RULE_ID_MAIN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -87,10 +94,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
       - uses: pulumi/actions@v6
         with:
           pulumi-version: '3.274.0'
-      - run: make test_acceptance
+      - name: Run live acceptance tests with workload identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The provider and independent SDK clients each fetch a fresh JWT for
+          # every exchange, including after plugin restarts. No shared assertion file.
+          export ANTHROPIC_IDENTITY_TOKEN_COMMAND
+          ANTHROPIC_IDENTITY_TOKEN_COMMAND=$(jq -cn \
+            --arg script "${GITHUB_WORKSPACE}/.github/scripts/get-anthropic-oidc-token.sh" \
+            '["bash", $script]')
+          make test_acceptance \
+            ACCEPTANCE_CREDENTIAL_ENV=ANTHROPIC_IDENTITY_TOKEN_COMMAND \
+            ARGS="-organization-id ${ANTHROPIC_ORGANIZATION_ID} -workspace-id ${ANTHROPIC_WORKSPACE_ID} -federation-rule-id ${ANTHROPIC_FEDERATION_RULE_ID} -federation-service-account-id ${ANTHROPIC_SERVICE_ACCOUNT_ID}"

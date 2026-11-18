@@ -46,7 +46,7 @@
     "variables": {
       "adminKey": {
         "type": "string",
-        "description": "An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.",
+        "description": "An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.",
         "default": "",
         "defaultInfo": {
           "environment": [
@@ -57,7 +57,7 @@
       },
       "apiKey": {
         "type": "string",
-        "description": "An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.",
+        "description": "An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.",
         "default": "",
         "defaultInfo": {
           "environment": [
@@ -68,7 +68,7 @@
       },
       "authToken": {
         "type": "string",
-        "description": "An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.",
+        "description": "An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.",
         "default": "",
         "defaultInfo": {
           "environment": [
@@ -87,9 +87,13 @@
           ]
         }
       },
+      "federation": {
+        "$ref": "#/types/anthropic:index:Federation",
+        "description": "Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions."
+      },
       "workspaceId": {
         "type": "string",
-        "description": "The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace."
+        "description": "The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace."
       }
     }
   },
@@ -107,6 +111,47 @@
         }
       ]
     },
+    "anthropic:agents:AgentAdvisor": {
+      "description": "Controls whether the primary thread can consult an advisor model.",
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Advisor model ID, required when enabled. The model must be permitted as an advisor for the agent's model."
+        },
+        "type": {
+          "type": "string",
+          "description": "enabled or disabled."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:AgentDelegation": {
+      "description": "Controls subagent or workflow delegation independently.",
+      "properties": {
+        "inlineAgents": {
+          "type": "string",
+          "description": "enabled or disabled. Defaults to enabled; removing a configured value restores that default."
+        },
+        "predefinedAgents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/anthropic:agents:RosterEntry"
+          },
+          "description": "At most 20 agent or self references. Removing the list clears it. Advisor references are not supported here. Subagents and workflows have separate lists."
+        },
+        "type": {
+          "type": "string",
+          "description": "enabled or disabled. Disabled delegation cannot configure inline or predefined agents."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
     "anthropic:agents:AgentReference": {
       "properties": {
         "id": {
@@ -115,7 +160,7 @@
         },
         "version": {
           "type": "integer",
-          "description": "The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up."
+          "description": "The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically."
         }
       },
       "type": "object",
@@ -127,7 +172,7 @@
       "properties": {
         "maxListCost": {
           "$ref": "#/types/anthropic:agents:MonetaryAmount",
-          "description": "The most the deployment may spend, at list price."
+          "description": "The most each future session may spend at public list prices, rather than negotiated prices."
         }
       },
       "type": "object",
@@ -139,11 +184,11 @@
       "properties": {
         "name": {
           "type": "string",
-          "description": "The branch. Required for `branch`."
+          "description": "The branch. Required for branch."
         },
         "sha": {
           "type": "string",
-          "description": "The commit SHA. Required for `commit`."
+          "description": "The commit SHA. Required for commit."
         },
         "type": {
           "$ref": "#/types/anthropic:agents:CheckoutType",
@@ -175,7 +220,7 @@
         },
         "expiresAt": {
           "type": "string",
-          "description": "When the access token expires, in RFC 3339 format. For `mcp_oauth`."
+          "description": "When the OAuth access token expires, in RFC 3339 format. Must be in the future when you create or update the credential. Removing an expiration time you previously configured replaces the credential."
         },
         "injectionLocation": {
           "$ref": "#/types/anthropic:agents:InjectionLocation",
@@ -260,32 +305,32 @@
       "properties": {
         "access": {
           "$ref": "#/types/anthropic:agents:MemoryAccess",
-          "description": "Whether the agent can write to the memory store. For `memory_store`."
+          "description": "Whether the agent can write to the memory store. For memory_store; defaults to read_write."
         },
         "authorizationToken": {
           "type": "string",
-          "description": "A token that can read the repository. For `github_repository`.",
+          "description": "A token that can read the repository. For github_repository. Write-only; import cannot recover it. Supply it when configuring a private repository.",
           "secret": true
         },
         "checkout": {
           "$ref": "#/types/anthropic:agents:Checkout",
-          "description": "The branch or commit to check out. For `github_repository`; defaults to the default branch."
+          "description": "The branch or commit to check out. For github_repository; defaults to the default branch."
         },
         "fileId": {
           "type": "string",
-          "description": "The file's ID. Required for `file`."
+          "description": "The file's ID. Required for file."
         },
         "instructions": {
           "type": "string",
-          "description": "How the agent should use the memory store. For `memory_store`."
+          "description": "How the agent should use the memory store. For memory_store; at most 4096 characters."
         },
         "memoryStoreId": {
           "type": "string",
-          "description": "The memory store's ID. Required for `memory_store`."
+          "description": "The memory store's ID. Required for memory_store."
         },
         "mountPath": {
           "type": "string",
-          "description": "Where the resource is mounted in the sandbox. For `github_repository` and `file`."
+          "description": "Where the resource is mounted in the sandbox. For github_repository and file."
         },
         "type": {
           "$ref": "#/types/anthropic:agents:DeploymentResourceType",
@@ -293,7 +338,7 @@
         },
         "url": {
           "type": "string",
-          "description": "The repository's URL. Required for `github_repository`."
+          "description": "The repository's URL. Required for github_repository."
         }
       },
       "type": "object",
@@ -342,11 +387,11 @@
       "properties": {
         "networking": {
           "$ref": "#/types/anthropic:agents:EnvironmentNetworking",
-          "description": "The sandbox's network access. Applies to `cloud`."
+          "description": "The sandbox's network access. Applies to `cloud`. Removing this configuration replaces the environment."
         },
         "packages": {
           "$ref": "#/types/anthropic:agents:Packages",
-          "description": "Packages installed in the sandbox. Applies to `cloud`."
+          "description": "Packages to install in the sandbox. Applies to `cloud`. Any package-manager list you omit is treated as an empty list."
         },
         "type": {
           "$ref": "#/types/anthropic:agents:EnvironmentType",
@@ -363,18 +408,18 @@
       "properties": {
         "allowMcpServers": {
           "type": "boolean",
-          "description": "Whether the agent's MCP servers are reachable. Applies to `limited`."
+          "description": "Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access."
         },
         "allowPackageManagers": {
           "type": "boolean",
-          "description": "Whether package registries are reachable, which installing `packages` requires. Applies to `limited`."
+          "description": "Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access."
         },
         "allowedHosts": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "Hosts the sandbox can reach. Applies to `limited`."
+          "description": "Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect."
         },
         "type": {
           "$ref": "#/types/anthropic:agents:NetworkingType",
@@ -412,6 +457,61 @@
         }
       ]
     },
+    "anthropic:agents:ExecutionIdentity": {
+      "description": "Execution principal for agent runs. Configuring a principal does not grant its permissions.",
+      "properties": {
+        "roleArn": {
+          "type": "string",
+          "description": "AWS IAM role ARN. Required only for aws_role."
+        },
+        "type": {
+          "type": "string",
+          "description": "aws_role or service_account. service_account restores the default principal."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:FetchToolFilter": {
+      "description": "Selects tool results whose URLs may be fetched.",
+      "properties": {
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Exact case-sensitive tool names for only or except."
+        },
+        "type": {
+          "type": "string",
+          "description": "all, none, only or except. only and except require a tools list."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "anthropic:agents:FetchURLSources": {
+      "description": "Conversation sources allowed to contribute fetchable URLs.",
+      "properties": {
+        "clientToolResults": {
+          "$ref": "#/types/anthropic:agents:FetchToolFilter",
+          "description": "Filter for custom tool results. Tool names must refer to custom tools in this agent."
+        },
+        "serverToolResults": {
+          "$ref": "#/types/anthropic:agents:FetchToolFilter",
+          "description": "Filter for built-in tool results. Listed names must be web_search or web_fetch."
+        },
+        "userInput": {
+          "type": "string",
+          "description": "all or none, controlling URLs in user messages. Defaults to all."
+        }
+      },
+      "type": "object"
+    },
     "anthropic:agents:InjectionLocation": {
       "properties": {
         "body": {
@@ -426,6 +526,7 @@
       "type": "object"
     },
     "anthropic:agents:MCPServer": {
+      "description": "A named remote MCP endpoint available to the agent.",
       "properties": {
         "name": {
           "type": "string",
@@ -454,10 +555,11 @@
       ]
     },
     "anthropic:agents:Model": {
+      "description": "Model selection and inference settings for an agent.",
       "properties": {
         "effort": {
           "$ref": "#/types/anthropic:agents:Effort",
-          "description": "How much effort the model spends reasoning. Defaults to the model's own default, and is kept across changes that leave `id` unchanged."
+          "description": "How much effort the model spends reasoning. Defaults to the model's own default. Removing a configured effort may retain the stored effort; use replaceOnChanges on model.effort when a fresh agent is required."
         },
         "id": {
           "type": "string",
@@ -465,11 +567,11 @@
         },
         "inferenceGeo": {
           "type": "string",
-          "description": "Where inference runs, such as `us` or `global`."
+          "description": "Where inference runs, such as us or global. Removing a configured region falls back to the workspace default."
         },
         "speed": {
           "$ref": "#/types/anthropic:agents:Speed",
-          "description": "The inference speed tier."
+          "description": "The inference speed tier. Removing a configured tier restores standard."
         }
       },
       "type": "object",
@@ -481,11 +583,11 @@
       "properties": {
         "amount": {
           "type": "string",
-          "description": "The amount in the currency's minor units, as an integer string: `2500` is $25.00."
+          "description": "The amount in the currency's minor units, as an integer string: 2500 is $25.00."
         },
         "currency": {
           "type": "string",
-          "description": "The ISO 4217 currency code. Only `USD` is supported."
+          "description": "The ISO 4217 currency code. Only USD is supported."
         }
       },
       "type": "object",
@@ -495,19 +597,33 @@
       ]
     },
     "anthropic:agents:Multiagent": {
+      "description": "Legacy coordinator or independent advisor, subagent and workflow orchestration configuration.",
       "properties": {
+        "advisor": {
+          "$ref": "#/types/anthropic:agents:AgentAdvisor",
+          "description": "Advisor model configuration for multiagent_20261001. Defaults to disabled. Removing a previously configured advisor restores that default."
+        },
         "agents": {
           "type": "array",
           "items": {
             "$ref": "#/types/anthropic:agents:RosterEntry"
           },
-          "description": "The agents the coordinator can delegate to, between 1 and 20."
+          "description": "The agents the coordinator can delegate to, between 1 and 20. Only for coordinator mode."
+        },
+        "subagents": {
+          "$ref": "#/types/anthropic:agents:AgentDelegation",
+          "description": "Subagent delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults."
+        },
+        "type": {
+          "type": "string",
+          "description": "Orchestration mode: coordinator (the default) or multiagent_20261001. The latter configures advisor, subagents and workflows independently."
+        },
+        "workflows": {
+          "$ref": "#/types/anthropic:agents:AgentDelegation",
+          "description": "Workflow delegation for multiagent_20261001. Defaults to enabled with inline agents allowed and no predefined agents. Removing this configuration restores those defaults."
         }
       },
-      "type": "object",
-      "required": [
-        "agents"
-      ]
+      "type": "object"
     },
     "anthropic:agents:NetworkingType": {
       "type": "string",
@@ -531,7 +647,7 @@
         },
         "refreshToken": {
           "type": "string",
-          "description": "The OAuth refresh token.",
+          "description": "The OAuth refresh token, required when adding automatic token refresh. Anthropic does not return this token, so it cannot be recovered by importing a credential. Omit it to keep the current token.",
           "secret": true
         },
         "resource": {
@@ -541,7 +657,7 @@
         },
         "scope": {
           "type": "string",
-          "description": "The OAuth scope to request."
+          "description": "The OAuth scope to request. Removing this setting clears the stored scope."
         },
         "tokenEndpoint": {
           "type": "string",
@@ -556,7 +672,6 @@
       "type": "object",
       "required": [
         "clientId",
-        "refreshToken",
         "tokenEndpoint",
         "tokenEndpointAuth"
       ]
@@ -626,6 +741,7 @@
       ]
     },
     "anthropic:agents:RosterEntry": {
+      "description": "An agent, self reference or legacy coordinator advisor. Modern predefined-agent lists support only agent and self references.",
       "properties": {
         "id": {
           "type": "string",
@@ -670,11 +786,11 @@
       "properties": {
         "expression": {
           "type": "string",
-          "description": "A cron expression, such as `0 9 * * 1-5`."
+          "description": "A cron expression, such as 0 9 * * 1-5."
         },
         "timezone": {
           "type": "string",
-          "description": "The IANA time zone the expression is evaluated in, such as `America/New_York`."
+          "description": "The IANA time zone the expression is evaluated in, such as America/New_York."
         }
       },
       "type": "object",
@@ -683,7 +799,30 @@
         "timezone"
       ]
     },
+    "anthropic:agents:SearchLocation": {
+      "description": "Approximate user location for search localization.",
+      "properties": {
+        "city": {
+          "type": "string",
+          "description": "City name."
+        },
+        "country": {
+          "type": "string",
+          "description": "Uppercase two-letter ISO 3166-1 country code."
+        },
+        "region": {
+          "type": "string",
+          "description": "Region or state name."
+        },
+        "timezone": {
+          "type": "string",
+          "description": "IANA timezone identifier, such as America/Los_Angeles."
+        }
+      },
+      "type": "object"
+    },
     "anthropic:agents:SkillRef": {
+      "description": "An Anthropic-provided or organization-uploaded skill available to an agent.",
       "properties": {
         "skillId": {
           "type": "string",
@@ -737,7 +876,8 @@
         },
         "type": {
           "$ref": "#/types/anthropic:agents:TokenEndpointAuthType",
-          "description": "The authentication method."
+          "description": "The authentication method. Changing it replaces the credential.",
+          "replaceOnChanges": true
         }
       },
       "type": "object",
@@ -763,6 +903,7 @@
       ]
     },
     "anthropic:agents:Tool": {
+      "description": "An agent toolset, MCP toolset or client-executed custom tool. Only fields applicable to its type may be configured.",
       "properties": {
         "configs": {
           "type": "array",
@@ -805,10 +946,29 @@
       ]
     },
     "anthropic:agents:ToolConfig": {
+      "description": "Settings for one tool within an agent or MCP toolset.",
       "properties": {
+        "allowedDomains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains."
+        },
+        "blockedDomains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains."
+        },
         "enabled": {
           "type": "boolean",
           "description": "Whether the agent may use the tool."
+        },
+        "maxContentTokens": {
+          "type": "integer",
+          "description": "Maximum fetched content tokens, for web_fetch."
         },
         "name": {
           "type": "string",
@@ -817,6 +977,14 @@
         "permissionPolicy": {
           "$ref": "#/types/anthropic:agents:PermissionPolicy",
           "description": "Whether a tool call needs approval."
+        },
+        "urlSources": {
+          "$ref": "#/types/anthropic:agents:FetchURLSources",
+          "description": "Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source."
+        },
+        "userLocation": {
+          "$ref": "#/types/anthropic:agents:SearchLocation",
+          "description": "Approximate location used to localize web_search results."
         }
       },
       "type": "object",
@@ -825,6 +993,7 @@
       ]
     },
     "anthropic:agents:ToolDefaults": {
+      "description": "Default settings for tools without an individual override.",
       "properties": {
         "enabled": {
           "type": "boolean",
@@ -866,7 +1035,23 @@
         "status"
       ]
     },
+    "anthropic:agents:TunnelCertificateStatus": {
+      "type": "string",
+      "enum": [
+        {
+          "name": "Active",
+          "description": "The certificate is in the tunnel's trusted set.",
+          "value": "active"
+        },
+        {
+          "name": "Archived",
+          "description": "The certificate has been archived and is no longer trusted.",
+          "value": "archived"
+        }
+      ]
+    },
     "anthropic:identity:FederationMatch": {
+      "description": "Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.",
       "properties": {
         "audience": {
           "type": "string",
@@ -885,12 +1070,13 @@
         },
         "subjectPrefix": {
           "type": "string",
-          "description": "A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted."
+          "description": "Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically."
         }
       },
       "type": "object"
     },
     "anthropic:identity:FederationTarget": {
+      "description": "The service account that tokens issued by a federation rule act as.",
       "properties": {
         "serviceAccountId": {
           "type": "string",
@@ -903,6 +1089,7 @@
       ]
     },
     "anthropic:identity:Jwks": {
+      "description": "The complete source configuration for public signing keys. Only fields belonging to the selected type may be configured.",
       "properties": {
         "caCertPem": {
           "type": "string",
@@ -910,7 +1097,7 @@
         },
         "discoveryBase": {
           "type": "string",
-          "description": "The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`."
+          "description": "The base URL of the OIDC discovery document, when it differs from the issuer URL. For `discovery`; must be a public HTTPS URL with no credentials, query or fragment. Removing it returns discovery to the issuer URL."
         },
         "keys": {
           "type": "array",
@@ -920,7 +1107,7 @@
               "$ref": "pulumi.json#/Any"
             }
           },
-          "description": "The signing keys, as JSON Web Keys. Required for `inline`."
+          "description": "A nonempty array of public signing keys as JSON Web Keys. Required for `inline`; private key material and symmetric keys are not accepted."
         },
         "type": {
           "$ref": "#/types/anthropic:identity:JwksType",
@@ -928,7 +1115,7 @@
         },
         "url": {
           "type": "string",
-          "description": "The JWKS URL. Required for `explicit_url`."
+          "description": "The public HTTPS JWKS URL, without credentials, query or fragment. Required for `explicit_url`."
         }
       },
       "type": "object",
@@ -954,6 +1141,7 @@
       ]
     },
     "anthropic:identity:PollStatus": {
+      "description": "The health and schedule of automatic signing-key polling, when available.",
       "properties": {
         "consecutiveFailures": {
           "type": "integer",
@@ -1006,6 +1194,58 @@
           "value": "workspace_admin"
         }
       ]
+    },
+    "anthropic:index:Federation": {
+      "description": "Workload identity federation using an explicitly configured OIDC identity token source. Files are reread and commands are rerun when a new access token is needed. No default token file or authentication profile is used.",
+      "properties": {
+        "identityToken": {
+          "$ref": "#/types/anthropic:index:IdentityToken",
+          "description": "The OIDC assertion source. Specify exactly one of token, file or command. This configuration is secret; file contents and command output are not saved in provider state. Assertions with a jti claim must be fresh for each exchange; use a command that obtains a new assertion rather than sharing a previously exchanged token.",
+          "secret": true
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "The organization the federation rule belongs to. Required for the token exchange; this value does not select an organization for API-key operations."
+        },
+        "ruleId": {
+          "type": "string",
+          "description": "Federation rule ID (fdrl_...). The server's rule determines granted scopes; OAuth-only identity operations require org:admin."
+        },
+        "serviceAccountId": {
+          "type": "string",
+          "description": "Optional expected service-account target (svac_...). Omit for user-targeted rules."
+        }
+      },
+      "type": "object",
+      "required": [
+        "organizationId",
+        "ruleId",
+        "identityToken"
+      ]
+    },
+    "anthropic:index:IdentityToken": {
+      "description": "An OIDC identity token source. Specify exactly one of token, file or command.",
+      "properties": {
+        "command": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Executable followed by zero or more arguments, invoked whenever a new access token is needed. Must print one nonempty JWT to stdout, at most 64 KiB; surrounding whitespace is trimmed. Runs directly without a shell, inherits the provider process environment and working directory, and is stopped after 30 seconds or operation cancellation. Specify a shell explicitly for shell syntax. Command stdout and stderr are never logged or saved in provider state.",
+          "secret": true
+        },
+        "file": {
+          "type": "string",
+          "description": "Absolute path to an OIDC JWT file, reread whenever a new access token is needed. Rotate the file before each exchange if its JWT carries a single-use jti claim. The file contents are not saved in provider state.",
+          "secret": true
+        },
+        "token": {
+          "type": "string",
+          "description": "A literal OIDC JWT. It is reused for each exchange and cannot be renewed by the provider. A JWT with a jti claim can be exchanged only once when issuer replay protection is enabled.",
+          "secret": true
+        }
+      },
+      "type": "object"
     },
     "anthropic:index:ModelInfo": {
       "properties": {
@@ -1109,6 +1349,41 @@
         "value"
       ]
     },
+    "anthropic:organization:ApiKeyActor": {
+      "description": "A user or service account associated with a key.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The user or service account ID."
+        },
+        "type": {
+          "type": "string",
+          "description": "Either user or service_account."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ]
+    },
+    "anthropic:organization:ApiKeyScope": {
+      "description": "The organization or workspace to which a key belongs.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Either organization or workspace."
+        },
+        "workspaceId": {
+          "type": "string",
+          "description": "The actual workspace ID, including for the default workspace; absent for organization-scoped keys."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
     "anthropic:organization:ApiKeyStatus": {
       "type": "string",
       "enum": [
@@ -1133,15 +1408,15 @@
           "items": {
             "$ref": "#/types/anthropic:organization:InferenceGeo"
           },
-          "description": "The geographies inference may run in. Omit to allow any geography."
+          "description": "The geographies inference may run in. Omit to allow any geography. An explicit list must be nonempty and contain the default inference geography. Removing a configured list allows any geography."
         },
         "defaultInferenceGeo": {
           "$ref": "#/types/anthropic:organization:InferenceGeo",
-          "description": "The geography inference runs in when a request doesn't choose one."
+          "description": "The geography inference runs in when a request doesn't choose one. Defaults to `global`. Removing this setting resets it to `global`, which must be allowed by the inference geography list."
         },
         "workspaceGeo": {
           "$ref": "#/types/anthropic:organization:WorkspaceGeo",
-          "description": "Where the workspace's data is stored. It cannot change, so changing it replaces the workspace.",
+          "description": "Where the workspace's data is stored. It cannot change, so changing it replaces the workspace. Adding or removing an explicit storage geography, including by removing dataResidency, also replaces the workspace.",
           "replaceOnChanges": true
         }
       },
@@ -1200,6 +1475,7 @@
       ]
     },
     "anthropic:organization:SpendLimitScope": {
+      "description": "The user, workspace, or organization whose spending is capped. Specify only the ID matching the scope type.",
       "properties": {
         "type": {
           "$ref": "#/types/anthropic:organization:SpendLimitScopeType",
@@ -1325,10 +1601,11 @@
     }
   },
   "provider": {
+    "description": "Authentication and organization/workspace settings for the Anthropic provider.",
     "properties": {
       "adminKey": {
         "type": "string",
-        "description": "An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.",
+        "description": "An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.",
         "default": "",
         "defaultInfo": {
           "environment": [
@@ -1339,7 +1616,7 @@
       },
       "apiKey": {
         "type": "string",
-        "description": "An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.",
+        "description": "An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.",
         "default": "",
         "defaultInfo": {
           "environment": [
@@ -1350,7 +1627,7 @@
       },
       "authToken": {
         "type": "string",
-        "description": "An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.",
+        "description": "An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.",
         "default": "",
         "defaultInfo": {
           "environment": [
@@ -1369,15 +1646,19 @@
           ]
         }
       },
+      "federation": {
+        "$ref": "#/types/anthropic:index:Federation",
+        "description": "Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions."
+      },
       "workspaceId": {
         "type": "string",
-        "description": "The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace."
+        "description": "The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace."
       }
     },
     "inputProperties": {
       "adminKey": {
         "type": "string",
-        "description": "An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`.",
+        "description": "An Anthropic Admin API key (`sk-ant-admin...`), used for organization resources such as workspaces, members, and invites. Falls back to `ANTHROPIC_ADMIN_KEY`. Takes precedence over OAuth, including when read from the environment.",
         "default": "",
         "defaultInfo": {
           "environment": [
@@ -1388,7 +1669,7 @@
       },
       "apiKey": {
         "type": "string",
-        "description": "An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`.",
+        "description": "An Anthropic API key, used for workspace-scoped resources such as agents, environments, vaults, and skills. Falls back to `ANTHROPIC_API_KEY`. Takes precedence over OAuth, including when read from the environment.",
         "default": "",
         "defaultInfo": {
           "environment": [
@@ -1399,7 +1680,7 @@
       },
       "authToken": {
         "type": "string",
-        "description": "An OAuth access token, sent as a bearer token. It substitutes for either key, and is required for service accounts and workload identity federation, which need the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`.",
+        "description": "An OAuth access token. Used when the API key or Admin API key for an operation is not set. OAuth-only identity operations require the `org:admin` scope. Falls back to `ANTHROPIC_AUTH_TOKEN`. Not refreshed automatically; cannot be used together with `federation`.",
         "default": "",
         "defaultInfo": {
           "environment": [
@@ -1418,15 +1699,19 @@
           ]
         }
       },
+      "federation": {
+        "$ref": "#/types/anthropic:index:Federation",
+        "description": "Automatically renewed OAuth credentials obtained from an explicitly configured OIDC identity token source. Requires `federation.organizationId` and `workspaceId`. Used when the appropriate API key or Admin API key is not set, and for operations that require OAuth. The federation rule determines the available permissions."
+      },
       "workspaceId": {
         "type": "string",
-        "description": "The workspace that workspace-scoped resources are created in, sent as the `anthropic-workspace-id` header. Only needed when a credential can act on more than one workspace. To manage several workspaces, use one explicit provider per workspace."
+        "description": "The workspace used for workspace-scoped operations. Required with federation, where it selects the workspace during token exchange. Otherwise, it is sent in the `anthropic-workspace-id` header and is needed when a credential can act on more than one workspace. Changing this selection does not automatically replace resources. To manage several workspaces, use one explicit provider per workspace."
       }
     }
   },
   "resources": {
     "anthropic:agents:Agent": {
-      "description": "A Claude Managed Agents agent: the model, system prompt, tools, MCP servers, and skills that sessions run with.\n\nAgents are versioned. Every update that changes the configuration creates a new version, reported by the `version` output; sessions and deployments can pin a version, which makes canary and staged rollouts a matter of which version each deployment references.\n\nThe API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Running sessions continue; new sessions cannot use it.",
+      "description": "A Claude Managed Agents agent: the model, system prompt, tools, MCP servers, and skills that sessions run with.\n\nAgents are versioned. Every update that changes the configuration creates a new version, reported by the `version` output; sessions and deployments can pin a version, which makes canary and staged rollouts a matter of which version each deployment references.\n\nThe API cannot delete agents, so deleting this resource archives the agent, which makes it read-only. Archiving retains historical agent records and versions; this resource does not manage running sessions.",
       "properties": {
         "createdAt": {
           "type": "string",
@@ -1434,7 +1719,11 @@
         },
         "description": {
           "type": "string",
-          "description": "A description of the agent, up to 2,048 characters."
+          "description": "A description of the agent, up to 2,048 characters. Removing a configured description clears it."
+        },
+        "executionIdentity": {
+          "$ref": "#/types/anthropic:agents:ExecutionIdentity",
+          "description": "Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default."
         },
         "mcpServers": {
           "type": "array",
@@ -1448,7 +1737,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs, up to 16."
+          "description": "Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry."
         },
         "model": {
           "$ref": "#/types/anthropic:agents:Model",
@@ -1456,7 +1745,7 @@
         },
         "multiagent": {
           "$ref": "#/types/anthropic:agents:Multiagent",
-          "description": "Makes the agent a coordinator that delegates to other agents."
+          "description": "Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent."
         },
         "name": {
           "type": "string",
@@ -1471,14 +1760,14 @@
         },
         "system": {
           "type": "string",
-          "description": "The system prompt, up to 100,000 characters."
+          "description": "The system prompt, up to 100,000 characters. Removing a configured prompt clears it."
         },
         "tools": {
           "type": "array",
           "items": {
             "$ref": "#/types/anthropic:agents:Tool"
           },
-          "description": "The tools the agent can use, up to 128."
+          "description": "The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it."
         },
         "updatedAt": {
           "type": "string",
@@ -1499,7 +1788,11 @@
       "inputProperties": {
         "description": {
           "type": "string",
-          "description": "A description of the agent, up to 2,048 characters."
+          "description": "A description of the agent, up to 2,048 characters. Removing a configured description clears it."
+        },
+        "executionIdentity": {
+          "$ref": "#/types/anthropic:agents:ExecutionIdentity",
+          "description": "Principal carried by agent runs. Removing a configured principal restores the service-account default; omitting it initially uses that default."
         },
         "mcpServers": {
           "type": "array",
@@ -1513,7 +1806,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs, up to 16."
+          "description": "Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry."
         },
         "model": {
           "$ref": "#/types/anthropic:agents:Model",
@@ -1521,7 +1814,7 @@
         },
         "multiagent": {
           "$ref": "#/types/anthropic:agents:Multiagent",
-          "description": "Makes the agent a coordinator that delegates to other agents."
+          "description": "Multiagent orchestration: a legacy coordinator roster or independent advisor, subagent and workflow settings. Removing this configuration restores a single-threaded agent."
         },
         "name": {
           "type": "string",
@@ -1536,14 +1829,14 @@
         },
         "system": {
           "type": "string",
-          "description": "The system prompt, up to 100,000 characters."
+          "description": "The system prompt, up to 100,000 characters. Removing a configured prompt clears it."
         },
         "tools": {
           "type": "array",
           "items": {
             "$ref": "#/types/anthropic:agents:Tool"
           },
-          "description": "The tools the agent can use, up to 128."
+          "description": "The tools the agent can use, up to 256 tools across all toolsets. Removing the list clears it."
         }
       },
       "requiredInputs": [
@@ -1552,7 +1845,7 @@
       ]
     },
     "anthropic:agents:Deployment": {
-      "description": "A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, run on a cron schedule or on demand.\n\nA deployment runs one version of its agent. Set `agent.version` to the agent's `version` output to roll the deployment forward with every change to the agent, or to a fixed number to hold it back: updating the agent creates a new version, and deployments move to it one at a time as their `agent.version` changes.\n\nThe API cannot delete deployments, so deleting this resource archives the deployment, which stops its schedule and cannot be undone.",
+      "description": "A Claude Managed Agents deployment: an agent, an environment, and the events that start each session, on demand or on a cron schedule. Set agent.version to pin a version; otherwise the latest version is pinned whenever configuration is applied. This resource does not start on-demand sessions or manage pausing. Deleting it archives the deployment permanently and stops its schedule.",
       "properties": {
         "agent": {
           "$ref": "#/types/anthropic:agents:AgentReference",
@@ -1560,7 +1853,7 @@
         },
         "budget": {
           "$ref": "#/types/anthropic:agents:Budget",
-          "description": "A spending limit for the deployment."
+          "description": "A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped."
         },
         "createdAt": {
           "type": "string",
@@ -1568,7 +1861,7 @@
         },
         "description": {
           "type": "string",
-          "description": "A description of the deployment."
+          "description": "A description of the deployment. Removing a configured description clears it."
         },
         "environmentId": {
           "type": "string",
@@ -1582,37 +1875,33 @@
               "$ref": "pulumi.json#/Any"
             }
           },
-          "description": "The events that start each session, 1 to 50, in the API's event format. For example: `{type: \"user.message\", content: [{type: \"text\", text: \"Triage new issues.\"}]}`."
+          "description": "The events that start each session, 1 to 50, in the API's event format. For example: {type: \"user.message\", content: [{type: \"text\", text: \"Triage new issues.\"}]}."
         },
         "metadata": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs."
+          "description": "Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged."
         },
         "name": {
           "type": "string",
           "description": "The deployment's name."
-        },
-        "paused": {
-          "type": "boolean",
-          "description": "Whether the deployment is paused. Omit to leave pausing to other tools."
         },
         "resources": {
           "type": "array",
           "items": {
             "$ref": "#/types/anthropic:agents:DeploymentResource"
           },
-          "description": "Repositories, files, and memory stores mounted into each session, up to 500."
+          "description": "Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import."
         },
         "schedule": {
           "$ref": "#/types/anthropic:agents:Schedule",
-          "description": "When to run. Omit to run only on demand."
+          "description": "When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing."
         },
         "status": {
           "type": "string",
-          "description": "Whether the deployment is `active` or `paused`. The platform also pauses a deployment when it cannot run, for example because its agent was archived."
+          "description": "Whether the deployment is active or paused, as observed on the platform. The platform may pause deployments when dependencies cannot run. This resource does not change pause status."
         },
         "updatedAt": {
           "type": "string",
@@ -1623,7 +1912,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Vaults whose credentials sessions can use, up to 50."
+          "description": "Vaults whose credentials sessions can use, up to 50. Removing the list clears it."
         }
       },
       "required": [
@@ -1642,11 +1931,11 @@
         },
         "budget": {
           "$ref": "#/types/anthropic:agents:Budget",
-          "description": "A spending limit for the deployment."
+          "description": "A list-price spend ceiling copied to each future session, not a cumulative deployment limit. Changes do not affect existing sessions. The agent model must have a public list price. Removing a configured budget leaves future sessions uncapped."
         },
         "description": {
           "type": "string",
-          "description": "A description of the deployment."
+          "description": "A description of the deployment. Removing a configured description clears it."
         },
         "environmentId": {
           "type": "string",
@@ -1660,40 +1949,36 @@
               "$ref": "pulumi.json#/Any"
             }
           },
-          "description": "The events that start each session, 1 to 50, in the API's event format. For example: `{type: \"user.message\", content: [{type: \"text\", text: \"Triage new issues.\"}]}`."
+          "description": "The events that start each session, 1 to 50, in the API's event format. For example: {type: \"user.message\", content: [{type: \"text\", text: \"Triage new issues.\"}]}."
         },
         "metadata": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs."
+          "description": "Arbitrary key-value pairs, up to 16. Keys are 1–64 characters and values at most 512 characters. Removing an entry deletes that entry; entries added outside Pulumi are left unchanged."
         },
         "name": {
           "type": "string",
           "description": "The deployment's name."
-        },
-        "paused": {
-          "type": "boolean",
-          "description": "Whether the deployment is paused. Omit to leave pausing to other tools."
         },
         "resources": {
           "type": "array",
           "items": {
             "$ref": "#/types/anthropic:agents:DeploymentResource"
           },
-          "description": "Repositories, files, and memory stores mounted into each session, up to 500."
+          "description": "Repositories, files, and memory stores mounted into each session, up to 500. Removing the list clears it. Repository tokens are write-only and cannot be recovered on import."
         },
         "schedule": {
           "$ref": "#/types/anthropic:agents:Schedule",
-          "description": "When to run. Omit to run only on demand."
+          "description": "When to run automatically. Omit initially to run only on demand. Removing a configured schedule returns to on-demand operation. This resource does not manage pausing."
         },
         "vaultIds": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "Vaults whose credentials sessions can use, up to 50."
+          "description": "Vaults whose credentials sessions can use, up to 50. Removing the list clears it."
         }
       },
       "requiredInputs": [
@@ -1704,11 +1989,11 @@
       ]
     },
     "anthropic:agents:Environment": {
-      "description": "A Claude Managed Agents environment: where sessions run, either an Anthropic-managed cloud sandbox or a sandbox you host yourself.\n\nEnvironments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource deletes the environment. The API refuses to delete an environment that sessions still reference, in which case it is archived instead: it becomes read-only, running sessions continue, and new sessions cannot use it.",
+      "description": "A Claude Managed Agents environment: where sessions run, either an Anthropic-managed cloud sandbox or a sandbox you host yourself.\n\nEnvironments are not versioned; updates apply in place, and changing `config.type` replaces the environment. Deleting this resource permanently deletes the environment; it does not archive it.",
       "properties": {
         "config": {
           "$ref": "#/types/anthropic:agents:EnvironmentConfig",
-          "description": "Where and how sessions run. Defaults to a cloud sandbox."
+          "description": "Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment."
         },
         "createdAt": {
           "type": "string",
@@ -1716,14 +2001,14 @@
         },
         "description": {
           "type": "string",
-          "description": "A description of the environment, up to 1,024 characters."
+          "description": "A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it."
         },
         "metadata": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs."
+          "description": "Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged."
         },
         "name": {
           "type": "string",
@@ -1731,7 +2016,7 @@
         },
         "scope": {
           "$ref": "#/types/anthropic:agents:EnvironmentScope",
-          "description": "Who can use the environment. API organizations accept only `organization`."
+          "description": "Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment."
         },
         "updatedAt": {
           "type": "string",
@@ -1746,18 +2031,18 @@
       "inputProperties": {
         "config": {
           "$ref": "#/types/anthropic:agents:EnvironmentConfig",
-          "description": "Where and how sessions run. Defaults to a cloud sandbox."
+          "description": "Where and how sessions run. Omit to accept the platform default. Adding or removing this object or changing its type replaces the environment."
         },
         "description": {
           "type": "string",
-          "description": "A description of the environment, up to 1,024 characters."
+          "description": "A description of the environment, up to 1,024 characters. Removing a description you previously configured clears it."
         },
         "metadata": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs."
+          "description": "Arbitrary key-value pairs with nonempty values. Removing an entry from your configuration deletes that entry. Entries added outside Pulumi are left unchanged."
         },
         "name": {
           "type": "string",
@@ -1765,7 +2050,7 @@
         },
         "scope": {
           "$ref": "#/types/anthropic:agents:EnvironmentScope",
-          "description": "Who can use the environment. API organizations accept only `organization`."
+          "description": "Who can use the environment. API organizations accept only `organization`. Removing a scope you previously configured replaces the environment."
         }
       },
       "requiredInputs": [
@@ -1773,30 +2058,30 @@
       ]
     },
     "anthropic:agents:MemoryStore": {
-      "description": "A Claude Managed Agents memory store: persistent memory that agents read and write across sessions, attached to sessions or deployments as a resource. The memories themselves are data that agents write at runtime, so they are not managed here.\n\nDeleting this resource deletes the store along with all of its memories and their versions.",
+      "description": "A workspace-scoped persistent memory store. Runtime memories and versions are not managed here. Deleting this resource permanently deletes the store and all its memories and versions. Externally archived stores are treated as absent.",
       "properties": {
         "createdAt": {
           "type": "string",
-          "description": "When the store was created, in RFC 3339 format."
+          "description": "When the memory store was created, in RFC 3339 format."
         },
         "description": {
           "type": "string",
-          "description": "What the store holds, up to 1,024 characters. It is shown to the agent."
+          "description": "Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it."
         },
         "metadata": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs."
+          "description": "At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry."
         },
         "name": {
           "type": "string",
-          "description": "The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount."
+          "description": "A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts."
         },
         "updatedAt": {
           "type": "string",
-          "description": "When the store was last updated, in RFC 3339 format."
+          "description": "When the memory store's configuration was last changed, in RFC 3339 format."
         }
       },
       "required": [
@@ -1807,18 +2092,18 @@
       "inputProperties": {
         "description": {
           "type": "string",
-          "description": "What the store holds, up to 1,024 characters. It is shown to the agent."
+          "description": "Description shown to the agent, at most 1,024 characters. Removing a description you previously configured clears it."
         },
         "metadata": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs."
+          "description": "At most 16 key-value pairs, with keys 1–64 characters and values at most 512 characters. Removing an entry from your configuration deletes that entry."
         },
         "name": {
           "type": "string",
-          "description": "The store's name, 1 to 255 characters. It determines the path the store is mounted at in sessions, so renaming it moves the mount."
+          "description": "A non-unique name, 1–255 characters without control characters. New sessions derive the /mnt/memory/ slug by lowercasing and collapsing runs other than ASCII letters and digits to hyphens. Renaming affects new sessions, not existing mounts."
         }
       },
       "requiredInputs": [
@@ -1861,11 +2146,11 @@
       }
     },
     "anthropic:agents:TunnelCertificate": {
-      "description": "A CA certificate for an MCP tunnel, used to verify the certificates of MCP servers behind the tunnel. A tunnel holds at most two active certificates, which allows rotation.\n\nCertificates cannot be updated, so any change replaces the certificate. Deleting this resource archives the certificate. Its ID is `\u003ctunnelId\u003e/\u003ccertificateId\u003e`.",
+      "description": "A CA certificate trusted by an MCP tunnel when connecting to MCP servers. A tunnel holds at most two active certificates. Replacement creates the new certificate before archiving the old one, so rotation requires a free certificate slot. Deleting the last active certificate stops MCP traffic until another is registered.\n\nCertificates cannot be updated; changing either input replaces the certificate. Deletion archives it. Import uses `\u003ctunnelId\u003e/\u003ccertificateId\u003e` and cannot recover the original PEM; supplying a PEM after import replaces the certificate.",
       "properties": {
         "caCertificatePem": {
           "type": "string",
-          "description": "A single PEM-encoded CA certificate, up to 8,192 characters.",
+          "description": "A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.",
           "replaceOnChanges": true
         },
         "createdAt": {
@@ -1874,40 +2159,41 @@
         },
         "expiresAt": {
           "type": "string",
-          "description": "When the certificate expires, in RFC 3339 format."
+          "description": "When the certificate expires, in RFC 3339 format. Absent when the certificate does not expire."
         },
         "fingerprint": {
           "type": "string",
-          "description": "The certificate's SHA-256 fingerprint."
+          "description": "The lowercase hexadecimal SHA-256 fingerprint of the certificate's DER encoding."
+        },
+        "status": {
+          "$ref": "#/types/anthropic:agents:TunnelCertificateStatus",
+          "description": "Whether the confirmed certificate registration is active or archived. Unavailable when the registration's identity or trust status cannot be confirmed. Active registration does not verify MCP server reachability."
         },
         "tunnelId": {
           "type": "string",
-          "description": "The tunnel that trusts the certificate.",
+          "description": "The tunnel that trusts the certificate. Changing it replaces the certificate.",
           "replaceOnChanges": true
         }
       },
       "required": [
         "tunnelId",
-        "caCertificatePem",
         "fingerprint",
-        "expiresAt",
         "createdAt"
       ],
       "inputProperties": {
         "caCertificatePem": {
           "type": "string",
-          "description": "A single PEM-encoded CA certificate, up to 8,192 characters.",
+          "description": "A single PEM-encoded X.509 CA certificate, at most 8,192 bytes, with no private-key material. Required when creating a certificate. The original bytes are retained on refresh but cannot be recovered on import. Changing or removing this value replaces the certificate.",
           "replaceOnChanges": true
         },
         "tunnelId": {
           "type": "string",
-          "description": "The tunnel that trusts the certificate.",
+          "description": "The tunnel that trusts the certificate. Changing it replaces the certificate.",
           "replaceOnChanges": true
         }
       },
       "requiredInputs": [
-        "tunnelId",
-        "caCertificatePem"
+        "tunnelId"
       ]
     },
     "anthropic:agents:UserProfile": {
@@ -1915,7 +2201,7 @@
       "properties": {
         "accessType": {
           "$ref": "#/types/anthropic:agents:AccessType",
-          "description": "How your platform uses the API on the entity's behalf. Defaults to `application`."
+          "description": "How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`."
         },
         "createdAt": {
           "type": "string",
@@ -1923,22 +2209,22 @@
         },
         "externalId": {
           "type": "string",
-          "description": "Your platform's own identifier for the entity, up to 255 characters."
+          "description": "Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID."
         },
         "externalUserOnboardedAt": {
           "type": "string",
-          "description": "When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared."
+          "description": "When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID."
         },
         "metadata": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs, up to 16."
+          "description": "Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry."
         },
         "name": {
           "type": "string",
-          "description": "The entity's name, 1 to 255 characters."
+          "description": "The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID."
         },
         "trustGrants": {
           "type": "object",
@@ -1959,31 +2245,31 @@
       "inputProperties": {
         "accessType": {
           "$ref": "#/types/anthropic:agents:AccessType",
-          "description": "How your platform uses the API on the entity's behalf. Defaults to `application`."
+          "description": "How your platform uses the API on the entity's behalf. Defaults to `application`. Removing this setting resets it to `application`."
         },
         "externalId": {
           "type": "string",
-          "description": "Your platform's own identifier for the entity, up to 255 characters."
+          "description": "Your platform's own non-unique identifier for the entity, up to 255 characters. Removing an identifier you previously configured replaces the profile and changes its attribution ID."
         },
         "externalUserOnboardedAt": {
           "type": "string",
-          "description": "When the entity joined your platform, in RFC 3339 format. Once set, it cannot be cleared."
+          "description": "When the entity joined your platform, in RFC 3339 format, at most one minute in the future. Once set, it cannot be cleared in place: removing it replaces the profile and changes its attribution ID."
         },
         "metadata": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs, up to 16."
+          "description": "Up to 16 key-value pairs, keys up to 64 characters and nonempty values up to 512 characters. Removing an entry from your configuration deletes that entry."
         },
         "name": {
           "type": "string",
-          "description": "The entity's name, 1 to 255 characters."
+          "description": "The entity's name, up to 255 characters. Removing a name you previously configured replaces the profile and changes its attribution ID."
         }
       }
     },
     "anthropic:agents:Vault": {
-      "description": "A Claude Managed Agents vault: a container for the credentials sessions use to reach MCP servers and other services. Add credentials with `VaultCredential`, and attach vaults to sessions or deployments by ID.\n\nDeleting this resource deletes the vault and every credential in it.",
+      "description": "A workspace-scoped Claude Managed Agents credential container. Add credentials with VaultCredential and reference the vault by ID. Deleting this resource permanently deletes the vault; it does not archive it. Archived vaults are treated as deleted.",
       "properties": {
         "createdAt": {
           "type": "string",
@@ -1991,14 +2277,14 @@
         },
         "displayName": {
           "type": "string",
-          "description": "The vault's display name, 1 to 255 characters."
+          "description": "The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming."
         },
         "metadata": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs."
+          "description": "At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained."
         },
         "updatedAt": {
           "type": "string",
@@ -2013,14 +2299,14 @@
       "inputProperties": {
         "displayName": {
           "type": "string",
-          "description": "The vault's display name, 1 to 255 characters."
+          "description": "The mutable vault display name, 1 to 255 characters. The Pulumi logical name is not used for autonaming."
         },
         "metadata": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Arbitrary key-value pairs."
+          "description": "At most 16 key-value pairs; keys up to 64 characters and values up to 512 characters. Removing an entry from your configuration deletes that entry. Empty string values are retained."
         }
       },
       "requiredInputs": [
@@ -2028,7 +2314,7 @@
       ]
     },
     "anthropic:agents:VaultCredential": {
-      "description": "A credential in a Claude Managed Agents vault: an OAuth grant or bearer token for an MCP server, or a secret injected into outbound requests as an environment variable.\n\nSecret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `\u003cvaultId\u003e/\u003ccredentialId\u003e`.",
+      "description": "A credential in a Claude Managed Agents vault: an OAuth grant or bearer token for an MCP server, or a secret injected into outbound requests as an environment variable.\n\nSecret values are write-only: the API never returns them, so changes made to them outside of Pulumi cannot be detected. Changing the credential's type, MCP server URL, secret name, or OAuth client or token endpoint replaces it; because these must be unique within a vault, the old credential is deleted before the new one is created. Its ID is `\u003cvaultId\u003e/\u003ccredentialId\u003e`. Deletion permanently removes the credential, not archives it. Running sessions periodically re-resolve credentials; immediate revocation is not guaranteed.",
       "properties": {
         "auth": {
           "$ref": "#/types/anthropic:agents:CredentialAuth",
@@ -2040,7 +2326,7 @@
         },
         "displayName": {
           "type": "string",
-          "description": "The credential's display name."
+          "description": "The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential."
         },
         "metadata": {
           "type": "object",
@@ -2072,7 +2358,7 @@
         },
         "displayName": {
           "type": "string",
-          "description": "The credential's display name."
+          "description": "The credential's display name, 1–255 characters. Removing a name you previously configured replaces the credential."
         },
         "metadata": {
           "type": "object",
@@ -2093,11 +2379,11 @@
       ]
     },
     "anthropic:identity:FederationIssuer": {
-      "description": "A workload identity federation issuer: an OIDC identity provider, such as GitHub Actions, a Kubernetes cluster, or a cloud's workload identity service, whose signed tokens workloads exchange for short-lived Anthropic access tokens. Which tokens are accepted, and which service account they act as, is decided by `FederationRule`s.\n\nManaging federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).\n\nThe API cannot delete issuers, so deleting this resource archives the issuer. Archiving is refused while a live rule references the issuer.",
+      "description": "A workload identity federation issuer: an OIDC identity provider, such as GitHub Actions, a Kubernetes cluster, or a cloud's workload identity service, whose signed tokens workloads exchange for short-lived Anthropic access tokens. Which tokens are accepted, and which service account they act as, is decided by `FederationRule`s.\n\nManaging federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. Issuers backing rules with scopes other than `workspace:developer` or `workspace:inference` must be updated in the Console. Creation registers trust configuration; it does not wait for signing-key polling or verify token exchange.\n\nOptional settings omitted from the start use platform defaults at creation; later changes to those settings outside this resource are preserved until you configure them. Import by issuer ID recovers the current settings.\n\nThe API cannot delete issuers, so deleting this resource archives the issuer. Archiving is refused while a live rule references the issuer.",
       "properties": {
         "checkJti": {
           "type": "boolean",
-          "description": "Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`."
+          "description": "Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`."
         },
         "createdAt": {
           "type": "string",
@@ -2105,23 +2391,27 @@
         },
         "issuerUrl": {
           "type": "string",
-          "description": "The issuer URL, which must match the `iss` claim of accepted tokens."
+          "description": "The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment."
         },
         "jwks": {
           "$ref": "#/types/anthropic:identity:Jwks",
-          "description": "Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL."
+          "description": "Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward."
+        },
+        "jwksPollingDisabledAt": {
+          "type": "string",
+          "description": "When signing-key polling was automatically paused after repeated failures, in RFC 3339 format. After repairing the key endpoint, resume polling outside this resource using the Console or the issuer update API; this resource does not automatically resume it."
         },
         "maxJwtLifetimeSeconds": {
           "type": "integer",
-          "description": "The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600."
+          "description": "The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600."
         },
         "name": {
           "type": "string",
-          "description": "A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters."
+          "description": "A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer."
         },
         "pollStatus": {
           "$ref": "#/types/anthropic:identity:PollStatus",
-          "description": "The health of the platform's polling of the issuer's signing keys."
+          "description": "The health of signing-key polling, when available. Usually absent for inline keys or before polling starts."
         },
         "updatedAt": {
           "type": "string",
@@ -2137,23 +2427,23 @@
       "inputProperties": {
         "checkJti": {
           "type": "boolean",
-          "description": "Whether to reject tokens whose `jti` claim has been seen before. Defaults to `true`."
+          "description": "Whether to reject tokens whose `jti` claim has been seen before. Tokens without a `jti` claim are still accepted. Defaults to `true`; removing a previously configured value restores `true`."
         },
         "issuerUrl": {
           "type": "string",
-          "description": "The issuer URL, which must match the `iss` claim of accepted tokens."
+          "description": "The exact `iss` claim of accepted tokens, including case and trailing slashes. In discovery mode without a discovery base, this must be a public HTTPS URL with no credentials, query or fragment."
         },
         "jwks": {
           "$ref": "#/types/anthropic:identity:Jwks",
-          "description": "Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL."
+          "description": "Where the issuer's signing keys come from. Defaults to OIDC discovery from the issuer URL. Removing a previously configured key source restores discovery from the issuer URL with system TLS trust. Changing the key source replaces its entire configuration; removed overrides do not carry forward."
         },
         "maxJwtLifetimeSeconds": {
           "type": "integer",
-          "description": "The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Defaults to 3,600."
+          "description": "The longest lifetime, in seconds, a token may have to be accepted, between 1 and 176,400. Tokens must carry both `iat` and `exp`. Defaults to 3,600; removing a previously configured value restores 3,600."
         },
         "name": {
           "type": "string",
-          "description": "A lowercase slug that uniquely names the issuer in the organization, 1 to 255 characters."
+          "description": "A lowercase slug that uniquely names the issuer in the organization, 1 to 255 lowercase letters, digits or hyphens. Renaming updates the existing issuer."
         }
       },
       "requiredInputs": [
@@ -2162,11 +2452,11 @@
       ]
     },
     "anthropic:identity:FederationRule": {
-      "description": "A workload identity federation rule: tokens from an issuer that satisfy the rule's `match` are exchanged for access tokens that act as the rule's target service account, with the rule's OAuth scope.\n\nA rule applies either to all workspaces (`appliesToAllWorkspaces`) or to the workspace it is created in (`workspaceId`); bind it to further workspaces with `FederationRuleWorkspace`.\n\nManaging federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).\n\nThe API cannot delete rules, so deleting this resource archives the rule.",
+      "description": "A workload identity federation rule: tokens from an issuer that satisfy the rule's `match` are exchanged for access tokens that act as the rule's target service account, with the rule's OAuth scope.\n\nA rule applies either to all workspaces (`appliesToAllWorkspaces`) or to the workspace it is created in (`workspaceId`); bind it to further workspaces with `FederationRuleWorkspace`.\n\nManaging federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`); Admin API keys are not accepted. OAuth callers can configure only `workspace:developer` or `workspace:inference` scopes; higher-privilege rules require the Console. Creating a rule does not verify token exchange.\n\nDeleting this resource archives the rule, preventing new exchanges but not revoking tokens already issued. Changing the issuer or creation workspace replaces the rule by archiving it before creating its replacement; this interrupts new exchanges. Optional settings omitted from the start remain unconfigured, preserving later external changes. Import by rule ID recovers current settings but cannot recover the original creation workspace; configure workspace bindings separately with FederationRuleWorkspace.",
       "properties": {
         "appliesToAllWorkspaces": {
           "type": "boolean",
-          "description": "Whether the rule applies to every workspace. Otherwise `workspaceId` is required."
+          "description": "Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains."
         },
         "createdAt": {
           "type": "string",
@@ -2174,7 +2464,7 @@
         },
         "description": {
           "type": "string",
-          "description": "A description of the rule, up to 2,000 characters."
+          "description": "A description of the rule, up to 2,000 characters. Removing a previously configured description clears it."
         },
         "issuerId": {
           "type": "string",
@@ -2191,7 +2481,7 @@
         },
         "name": {
           "type": "string",
-          "description": "A lowercase slug that uniquely names the rule in the organization."
+          "description": "A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule."
         },
         "oauthScope": {
           "type": "string",
@@ -2203,7 +2493,7 @@
         },
         "tokenLifetimeSeconds": {
           "type": "integer",
-          "description": "The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600."
+          "description": "The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600."
         },
         "updatedAt": {
           "type": "string",
@@ -2235,11 +2525,11 @@
       "inputProperties": {
         "appliesToAllWorkspaces": {
           "type": "boolean",
-          "description": "Whether the rule applies to every workspace. Otherwise `workspaceId` is required."
+          "description": "Whether the rule applies to every workspace. Otherwise `workspaceId` is required at creation. Removing a configured value restores false; this is rejected if no enabled workspace remains."
         },
         "description": {
           "type": "string",
-          "description": "A description of the rule, up to 2,000 characters."
+          "description": "A description of the rule, up to 2,000 characters. Removing a previously configured description clears it."
         },
         "issuerId": {
           "type": "string",
@@ -2252,7 +2542,7 @@
         },
         "name": {
           "type": "string",
-          "description": "A lowercase slug that uniquely names the rule in the organization."
+          "description": "A slug of 1 to 255 lowercase letters, digits or hyphens that uniquely names the rule in the organization. Renaming updates the existing rule."
         },
         "oauthScope": {
           "type": "string",
@@ -2264,7 +2554,7 @@
         },
         "tokenLifetimeSeconds": {
           "type": "integer",
-          "description": "The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600."
+          "description": "The lifetime, in seconds, of the access tokens the rule issues, between 60 and 86,400. Defaults to 3,600; removing a configured value restores 3,600."
         },
         "workspaceId": {
           "type": "string",
@@ -2281,42 +2571,40 @@
       ]
     },
     "anthropic:identity:FederationRuleWorkspace": {
-      "description": "Binds a federation rule to a workspace, so that the rule's access tokens can act in it. The resource's ID is `\u003cfederation-rule-id\u003e/\u003cworkspace-id\u003e`.\n\nDo not also bind the workspace the rule was created in (its `workspaceId`): that binding belongs to the rule.\n\nManaging federation requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).",
+      "description": "Binds a federation rule to an additional workspace. The resource ID is `\u003cfederation-rule-id\u003e/\u003cworkspace-id\u003e` and supports import. Changing either ID replaces the binding. Deleting the resource removes this explicit binding, not the rule or workspace. Other grants, including all-workspace access, are unaffected.\n\nDo not also manage the workspace the rule was created in with this resource. Manage each rule/workspace pair with only one resource: deleting either duplicate removes the shared binding.\n\nRequires an OAuth token with `org:admin` (`anthropic:authToken`). The rule and workspace must belong to your organization; the rule must grant `workspace:developer` or `workspace:inference`. Enabling a workspace does not enroll the target service account: token exchange requires its membership in that workspace.",
       "properties": {
         "createdAt": {
           "type": "string",
-          "description": "When the binding was created, in RFC 3339 format."
+          "description": "When the binding was created, in RFC 3339 format, when available."
         },
         "federationRuleId": {
           "type": "string",
-          "description": "The federation rule's ID.",
+          "description": "The federation rule's nonempty ID. Changing it replaces the binding.",
           "replaceOnChanges": true
         },
         "workspaceId": {
           "type": "string",
-          "description": "The workspace's ID.",
+          "description": "The workspace's nonempty ID. Changing it replaces the binding.",
           "replaceOnChanges": true
         },
         "workspaceName": {
           "type": "string",
-          "description": "The workspace's name when the binding was created."
+          "description": "The workspace name reported when the binding is read. Not available immediately after enabling the binding."
         }
       },
       "required": [
         "federationRuleId",
-        "workspaceId",
-        "workspaceName",
-        "createdAt"
+        "workspaceId"
       ],
       "inputProperties": {
         "federationRuleId": {
           "type": "string",
-          "description": "The federation rule's ID.",
+          "description": "The federation rule's nonempty ID. Changing it replaces the binding.",
           "replaceOnChanges": true
         },
         "workspaceId": {
           "type": "string",
-          "description": "The workspace's ID.",
+          "description": "The workspace's nonempty ID. Changing it replaces the binding.",
           "replaceOnChanges": true
         }
       },
@@ -2326,7 +2614,7 @@
       ]
     },
     "anthropic:identity:RbacGroup": {
-      "description": "A role-based access control group of users. Add users with `RbacGroupMember`. Roles are attached to groups in the organization's admin settings, and are reported by `roleIds`.\n\nRBAC groups are available to Claude Enterprise organizations. Groups provisioned by SCIM cannot be changed or deleted while SCIM provisioning is active.",
+      "description": "A role-based access control group of users. Add users with `RbacGroupMember`. Roles are attached to groups in the organization's admin settings, and are reported by `roleIds`.\n\nRBAC groups are available to Claude Enterprise organizations. Groups provisioned by SCIM cannot be changed or deleted while SCIM provisioning is active. Destroying this resource permanently deletes the group; owner-access protections may prevent deletion.",
       "properties": {
         "createdAt": {
           "type": "string",
@@ -2334,14 +2622,14 @@
         },
         "name": {
           "type": "string",
-          "description": "The group's name, 1 to 255 characters. Names need not be unique."
+          "description": "The group's name. Names need not be unique and can be changed without replacing the group."
         },
         "roleIds": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "The IDs of the roles attached to the group."
+          "description": "The IDs of the roles attached to the group. An empty list means no roles are attached. If this value is absent, role information is temporarily unavailable; refresh again rather than treating it as an empty list."
         },
         "sourceType": {
           "type": "string",
@@ -2361,7 +2649,7 @@
       "inputProperties": {
         "name": {
           "type": "string",
-          "description": "The group's name, 1 to 255 characters. Names need not be unique."
+          "description": "The group's name. Names need not be unique and can be changed without replacing the group."
         }
       },
       "requiredInputs": [
@@ -2369,7 +2657,7 @@
       ]
     },
     "anthropic:identity:RbacGroupMember": {
-      "description": "Adds a user to an RBAC group. The resource's ID is `\u003crbac-group-id\u003e/\u003cuser-id\u003e`.\n\nRBAC groups are available to Claude Enterprise organizations.",
+      "description": "Adds a user to an RBAC group. The resource's ID is `\u003crbac-group-id\u003e/\u003cuser-id\u003e`.\n\nRBAC groups are available to Claude Enterprise organizations. Deleting this resource removes only the membership, not the user or group. Membership of SCIM-provisioned groups cannot be changed while SCIM provisioning is active in the tenant. Owner-access protections can prevent adding or removing members.",
       "properties": {
         "createdAt": {
           "type": "string",
@@ -2381,12 +2669,12 @@
         },
         "rbacGroupId": {
           "type": "string",
-          "description": "The group's ID.",
+          "description": "The group's ID. Changing this value replaces the membership.",
           "replaceOnChanges": true
         },
         "userId": {
           "type": "string",
-          "description": "The user's ID.",
+          "description": "The user's ID. Changing this value replaces the membership.",
           "replaceOnChanges": true
         }
       },
@@ -2399,12 +2687,12 @@
       "inputProperties": {
         "rbacGroupId": {
           "type": "string",
-          "description": "The group's ID.",
+          "description": "The group's ID. Changing this value replaces the membership.",
           "replaceOnChanges": true
         },
         "userId": {
           "type": "string",
-          "description": "The user's ID.",
+          "description": "The user's ID. Changing this value replaces the membership.",
           "replaceOnChanges": true
         }
       },
@@ -2422,16 +2710,16 @@
         },
         "description": {
           "type": "string",
-          "description": "A description of the service account, up to 2,000 characters."
+          "description": "A description of the service account, up to 2,000 characters. Removing a previously configured description clears it."
         },
         "name": {
           "type": "string",
-          "description": "A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.",
+          "description": "A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.",
           "replaceOnChanges": true
         },
         "organizationRole": {
           "$ref": "#/types/anthropic:identity:ServiceAccountRole",
-          "description": "The service account's organization role. Defaults to `developer`."
+          "description": "The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits."
         },
         "updatedAt": {
           "type": "string",
@@ -2446,16 +2734,16 @@
       "inputProperties": {
         "description": {
           "type": "string",
-          "description": "A description of the service account, up to 2,000 characters."
+          "description": "A description of the service account, up to 2,000 characters. Removing a previously configured description clears it."
         },
         "name": {
           "type": "string",
-          "description": "A slug that uniquely names the service account in the organization. It cannot be changed; changing it replaces the service account.",
+          "description": "A unique organization slug of 1–255 lowercase letters, digits or hyphens. It cannot be changed; changing it replaces the service account.",
           "replaceOnChanges": true
         },
         "organizationRole": {
           "$ref": "#/types/anthropic:identity:ServiceAccountRole",
-          "description": "The service account's organization role. Defaults to `developer`."
+          "description": "The service account's organization role. Defaults to `developer` when created. Omitting or removing this property leaves the current role unchanged; explicitly set `developer` to demote an admin. Configuring `admin` requires an interactive credential on every update, including description-only edits."
         }
       },
       "requiredInputs": [
@@ -2463,21 +2751,21 @@
       ]
     },
     "anthropic:identity:ServiceAccountWorkspace": {
-      "description": "Grants a service account a role in a workspace. The resource's ID is `\u003cworkspace-id\u003e/\u003cservice-account-id\u003e`.\n\nEvery service account is implicitly a `workspace_user` of the organization's default workspace; that membership cannot be removed, so do not manage it with this resource.\n\nManaging service accounts requires an OAuth token with the `org:admin` scope (`anthropic:authToken`).",
+      "description": "Grants a service account a role in a workspace. The resource ID is `\u003cworkspace-id\u003e/\u003cservice-account-id\u003e` and supports import of explicit grants. Changing either ID replaces the grant. Manage each pair with only one resource: creating a grant for an existing pair replaces its role, and deleting either duplicate removes the shared explicit grant.\n\nEvery service account has implicit `workspace_user` access to the organization's default workspace. Creating this resource there makes an explicit grant; deleting it restores implicit access rather than revoking all access. Implicit memberships cannot be imported. If an explicit grant becomes implicit, refresh reports the explicit grant as absent. Deleting this resource does not delete the service account or workspace.\n\nRequires an OAuth token with `org:admin` (`anthropic:authToken`).",
       "properties": {
         "serviceAccountId": {
           "type": "string",
-          "description": "The service account's ID.",
+          "description": "The service account's nonempty ID. Changing it replaces the grant.",
           "replaceOnChanges": true
         },
         "workspaceId": {
           "type": "string",
-          "description": "The workspace's ID.",
+          "description": "The workspace's nonempty ID. Changing it replaces the grant.",
           "replaceOnChanges": true
         },
         "workspaceRole": {
           "$ref": "#/types/anthropic:identity:WorkspaceRole",
-          "description": "The service account's role in the workspace."
+          "description": "The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role."
         }
       },
       "required": [
@@ -2488,17 +2776,17 @@
       "inputProperties": {
         "serviceAccountId": {
           "type": "string",
-          "description": "The service account's ID.",
+          "description": "The service account's nonempty ID. Changing it replaces the grant.",
           "replaceOnChanges": true
         },
         "workspaceId": {
           "type": "string",
-          "description": "The workspace's ID.",
+          "description": "The workspace's nonempty ID. Changing it replaces the grant.",
           "replaceOnChanges": true
         },
         "workspaceRole": {
           "$ref": "#/types/anthropic:identity:WorkspaceRole",
-          "description": "The service account's role in the workspace."
+          "description": "The service account's role in the workspace. Required; service accounts cannot hold the workspace billing role. Changing this value changes the explicit grant's role."
         }
       },
       "requiredInputs": [
@@ -2508,36 +2796,52 @@
       ]
     },
     "anthropic:organization:ApiKey": {
-      "description": "An API key's name and status.\n\nAPI keys cannot be created through the API, only in the Claude Console, and their secret values are never returned. Creating this resource adopts an existing key by ID; fields left undeclared are left as they are.\n\nDeleting this resource archives the key, which permanently revokes it. To stop managing a key without revoking it, set the `retainOnDelete` resource option.",
+      "description": "Manages an existing API key's name and status. Create the key in the Claude Console and supply its ID; secret key material is never returned. Omitted name or status leaves that value unchanged. Removing either from configuration stops managing it without clearing it.\n\nDeleting this resource archives and permanently revokes the key. Use retainOnDelete to stop managing it without revocation. Changing apiKeyId adopts the new key before revoking the old one. Archived and expired keys remain readable.",
       "properties": {
         "apiKeyId": {
           "type": "string",
-          "description": "The ID of the existing API key to manage.",
+          "description": "The existing key's nonempty ID. Changing this value replaces the resource and revokes the previously managed key.",
           "replaceOnChanges": true
         },
         "createdAt": {
           "type": "string",
           "description": "When the key was created, in RFC 3339 format."
         },
+        "createdBy": {
+          "$ref": "#/types/anthropic:organization:ApiKeyActor",
+          "description": "The actor that created the key, if recorded."
+        },
         "expiresAt": {
           "type": "string",
-          "description": "When the key expires, in RFC 3339 format, if it does."
+          "description": "When the key expires, in RFC 3339 format, or an empty string if it never expires."
         },
         "name": {
           "type": "string",
-          "description": "The key's name, 1 to 500 characters."
+          "description": "The key's name, 1 to 500 characters. Omission leaves the current name unchanged."
+        },
+        "observedStatus": {
+          "type": "string",
+          "description": "The current status, including active, inactive, archived or expired. An expired key's status is not recovered as a writable input on import."
         },
         "partialKeyHint": {
           "type": "string",
-          "description": "A redacted hint of the key's value, for recognizing it."
+          "description": "A redacted hint for recognizing the key; empty if unavailable."
+        },
+        "principal": {
+          "$ref": "#/types/anthropic:organization:ApiKeyActor",
+          "description": "The user or service account the key acts as, if bound to a principal."
+        },
+        "scope": {
+          "$ref": "#/types/anthropic:organization:ApiKeyScope",
+          "description": "Where the key belongs: an organization or a workspace."
         },
         "status": {
           "$ref": "#/types/anthropic:organization:ApiKeyStatus",
-          "description": "The key's status. An archived key cannot be reactivated."
+          "description": "The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only."
         },
         "workspaceId": {
           "type": "string",
-          "description": "The ID of the workspace the key belongs to."
+          "description": "The key's actual workspace ID, or an empty string for organization scope. See scope for the ownership boundary."
         }
       },
       "required": [
@@ -2545,21 +2849,22 @@
         "partialKeyHint",
         "workspaceId",
         "createdAt",
-        "expiresAt"
+        "expiresAt",
+        "observedStatus"
       ],
       "inputProperties": {
         "apiKeyId": {
           "type": "string",
-          "description": "The ID of the existing API key to manage.",
+          "description": "The existing key's nonempty ID. Changing this value replaces the resource and revokes the previously managed key.",
           "replaceOnChanges": true
         },
         "name": {
           "type": "string",
-          "description": "The key's name, 1 to 500 characters."
+          "description": "The key's name, 1 to 500 characters. Omission leaves the current name unchanged."
         },
         "status": {
           "$ref": "#/types/anthropic:organization:ApiKeyStatus",
-          "description": "The key's status. An archived key cannot be reactivated."
+          "description": "The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only."
         }
       },
       "requiredInputs": [
@@ -2588,7 +2893,7 @@
       ]
     },
     "anthropic:organization:Invite": {
-      "description": "An invitation to join the organization. Invitations cannot be changed, so any change replaces the invitation, and they expire 21 days after they are sent. Once accepted, the person is a user of the organization; manage their role with `anthropic.organization.User`.",
+      "description": "An invitation to join the organization. Invitations cannot be changed, so any change deletes the old pending invitation before sending a new one. Expiry is reported by expiresAt. Deleting this resource revokes pending invitations; accepted, expired and deleted invitations are only removed from Pulumi state. Deleting an invitation never removes an organization user. Once accepted, the person is a user of the organization; manage their role with `anthropic.organization.User`.",
       "properties": {
         "email": {
           "type": "string",
@@ -2654,11 +2959,11 @@
       ]
     },
     "anthropic:organization:SpendLimit": {
-      "description": "A spend limit: the most a user, a workspace, or the whole organization may spend in a period.\n\nThere is at most one limit per scope and period, and the API sets a limit by overwriting whatever limit that scope and period already has, so creating this resource takes over an existing limit rather than failing. Changing the scope or period replaces the limit.\n\nUser limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount.",
+      "description": "A spend limit: the most a user, a workspace, or the whole organization may spend in a period.\n\nThere is at most one limit per scope and period, and the API sets a limit by overwriting whatever limit that scope and period already has, so creating this resource takes over an existing limit rather than failing. Changing the scope or period replaces the limit.\n\nUser limits apply to Claude Enterprise organizations. Organization and workspace limits for Console organizations are in early-access preview, and must be monthly with an amount. Deleting a user limit restores any inherited cap for that period; deleting a limit may increase permitted spending. Import accepts a writable limit's spl_ ID.",
       "properties": {
         "amount": {
           "type": "string",
-          "description": "The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `\"50000\"` is $500.00. Omit for an explicit \"no limit\" override of this scope and period."
+          "description": "The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `\"50000\"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount."
         },
         "createdAt": {
           "type": "string",
@@ -2667,6 +2972,10 @@
         "currency": {
           "type": "string",
           "description": "The ISO 4217 code of the organization's billing currency, which `amount` is denominated in."
+        },
+        "isEnabled": {
+          "type": "boolean",
+          "description": "Whether the configured limit is enabled. Organization limits are disabled while extra usage is off; the amount is retained for when extra usage is enabled again. Other periods and inherited limits may still apply."
         },
         "period": {
           "$ref": "#/types/anthropic:organization:SpendLimitPeriod",
@@ -2687,12 +2996,13 @@
         "scope",
         "currency",
         "createdAt",
-        "updatedAt"
+        "updatedAt",
+        "isEnabled"
       ],
       "inputProperties": {
         "amount": {
           "type": "string",
-          "description": "The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `\"50000\"` is $500.00. Omit for an explicit \"no limit\" override of this scope and period."
+          "description": "The limit, as a non-negative integer string in the minor unit of the organization's billing currency: `\"50000\"` is $500.00. For user limits, omitting or removing this value sets an explicit no-limit override for this period, not for other periods. Organization and workspace limits require an amount."
         },
         "period": {
           "$ref": "#/types/anthropic:organization:SpendLimitPeriod",
@@ -2710,7 +3020,7 @@
       ]
     },
     "anthropic:organization:User": {
-      "description": "A user of the organization, and their organization role.\n\nUsers cannot be created through the API: people join by accepting an `anthropic.organization.Invite`. Creating this resource adopts an existing user by ID and sets their role.\n\nDeleting this resource removes the user from the organization. To stop managing a user without removing them, set the `retainOnDelete` resource option.",
+      "description": "Manages an existing user's organization membership and role. People join by accepting an `anthropic.organization.Invite`; creating this resource adopts an existing user by ID and assigns the configured role. Deleting this resource removes the user from the organization, including when replacing userId. Use retainOnDelete to stop managing a user without removing them. Import uses the user ID; privileged roles can be observed but cannot be assigned, so select an assignable role before managing an imported privileged user.",
       "properties": {
         "addedAt": {
           "type": "string",
@@ -2725,30 +3035,26 @@
           "description": "The user's name."
         },
         "role": {
-          "$ref": "#/types/anthropic:organization:OrganizationRole",
-          "description": "The user's organization role. The `admin` role cannot be granted through the API."
+          "type": "string",
+          "description": "The observed organization role, including privileged administrator or owner roles that cannot be assigned."
         },
         "userId": {
           "type": "string",
-          "description": "The ID of the existing user to manage.",
-          "replaceOnChanges": true
+          "description": "The existing user's ID."
         }
       },
       "required": [
         "userId",
-        "role",
-        "email",
-        "name",
-        "addedAt"
+        "role"
       ],
       "inputProperties": {
         "role": {
           "$ref": "#/types/anthropic:organization:OrganizationRole",
-          "description": "The user's organization role. The `admin` role cannot be granted through the API."
+          "description": "The role to assign. Console organizations support user, developer, billing and claude_code_user; Enterprise organizations support user and managed. Assigning managed additionally requires write:rbac_groups permission. Administrator and owner roles cannot be assigned."
         },
         "userId": {
           "type": "string",
-          "description": "The ID of the existing user to manage.",
+          "description": "The existing user's ID. Changing this adopts another user and removes the old membership unless retainOnDelete is set.",
           "replaceOnChanges": true
         }
       },
@@ -2770,11 +3076,11 @@
         },
         "dataResidency": {
           "$ref": "#/types/anthropic:organization:DataResidency",
-          "description": "Where the workspace's data is stored and where inference may run."
+          "description": "Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography."
         },
         "displayColor": {
           "type": "string",
-          "description": "The color the Console shows the workspace in, as `#RRGGBB`."
+          "description": "The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared."
         },
         "externalKeyId": {
           "type": "string",
@@ -2782,14 +3088,18 @@
         },
         "name": {
           "type": "string",
-          "description": "The workspace's name, 1 to 40 characters."
+          "description": "The workspace's nonempty name."
         },
         "tags": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Tags for the workspace. Keys may not start with `anthropic`."
+          "description": "Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment."
         }
       },
       "required": [
@@ -2800,11 +3110,11 @@
       "inputProperties": {
         "dataResidency": {
           "$ref": "#/types/anthropic:organization:DataResidency",
-          "description": "Where the workspace's data is stored and where inference may run."
+          "description": "Where the workspace's data is stored and where inference may run. Removing previously configured mutable inference settings allows any geography and resets the default to `global`; this does not change the storage geography."
         },
         "displayColor": {
           "type": "string",
-          "description": "The color the Console shows the workspace in, as `#RRGGBB`."
+          "description": "The color the Console shows the workspace in, as `#RRGGBB`. Removing this setting leaves the last color in place; it cannot be cleared."
         },
         "externalKeyId": {
           "type": "string",
@@ -2812,14 +3122,18 @@
         },
         "name": {
           "type": "string",
-          "description": "The workspace's name, 1 to 40 characters."
+          "description": "The workspace's nonempty name."
         },
         "tags": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Tags for the workspace. Keys may not start with `anthropic`."
+          "description": "Tags for the workspace. Keys may not start with `anthropic`. Removing a previously configured entry deletes that entry. Tags added outside this resource are preserved."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "The user profile attached to this workspace. Every inference request must name that profile. It can be attached to a workspace that has none, except the default workspace. Once attached, changing or removing this setting replaces the workspace. Deleting the profile itself clears the attachment."
         }
       },
       "requiredInputs": [
@@ -2827,16 +3141,16 @@
       ]
     },
     "anthropic:organization:WorkspaceMember": {
-      "description": "A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `\u003cworkspaceId\u003e/\u003cuserId\u003e`.",
+      "description": "A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `\u003cworkspaceId\u003e/\u003cuserId\u003e`. Deleting this resource removes the workspace membership, not the user or workspace.",
       "properties": {
         "userId": {
           "type": "string",
-          "description": "The user's ID.",
+          "description": "The user's ID. Changing this value replaces the membership.",
           "replaceOnChanges": true
         },
         "workspaceId": {
           "type": "string",
-          "description": "The workspace's ID.",
+          "description": "The workspace's ID. Changing this value replaces the membership.",
           "replaceOnChanges": true
         },
         "workspaceRole": {
@@ -2852,12 +3166,12 @@
       "inputProperties": {
         "userId": {
           "type": "string",
-          "description": "The user's ID.",
+          "description": "The user's ID. Changing this value replaces the membership.",
           "replaceOnChanges": true
         },
         "workspaceId": {
           "type": "string",
-          "description": "The workspace's ID.",
+          "description": "The workspace's ID. Changing this value replaces the membership.",
           "replaceOnChanges": true
         },
         "workspaceRole": {
@@ -2872,7 +3186,7 @@
       ]
     },
     "anthropic:security:ExternalKey": {
-      "description": "A customer-managed encryption key (CMEK) held in AWS KMS, Google Cloud KMS, or Azure Key Vault. A workspace encrypts its data with the key once the workspace's `externalKeyId` refers to it.\n\nCreating the key validates it with a round trip to the KMS, and fails, leaving nothing behind, if Anthropic cannot use it. The key's provider configuration and geography cannot change once a workspace uses the key, so changing either replaces the key.\n\nDeleting the key is refused while a workspace uses it.",
+      "description": "A customer-managed encryption key (CMEK) held in AWS KMS, Google Cloud KMS, or Azure Key Vault. A workspace encrypts its data with the key once the workspace's `externalKeyId` refers to it.\n\nCreating the key validates it with a round trip to the KMS. Failed validation attempts to delete the configuration. If deletion also fails, the configuration may remain and require manual cleanup. Changing the provider configuration, geography or customer binding replaces the configuration.\n\nDeleting this resource deletes only the configuration, never the underlying cloud key. Deletion is refused while a live or archived workspace uses it.",
       "properties": {
         "attachment": {
           "type": "string",
@@ -2884,7 +3198,7 @@
         },
         "displayName": {
           "type": "string",
-          "description": "A display name for the key, 1 to 255 characters."
+          "description": "A display name for the key, 1 to 255 characters. Removing a configured name clears it."
         },
         "geo": {
           "type": "string",
@@ -2893,12 +3207,17 @@
         },
         "providerConfig": {
           "$ref": "#/types/anthropic:security:ProviderConfig",
-          "description": "Where the key is held.",
+          "description": "Where the key is held. Changing any of these coordinates replaces the configuration.",
           "replaceOnChanges": true
         },
         "updatedAt": {
           "type": "string",
           "description": "When the key was last updated, in RFC 3339 format."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.",
+          "replaceOnChanges": true
         }
       },
       "required": [
@@ -2910,7 +3229,7 @@
       "inputProperties": {
         "displayName": {
           "type": "string",
-          "description": "A display name for the key, 1 to 255 characters."
+          "description": "A display name for the key, 1 to 255 characters. Removing a configured name clears it."
         },
         "geo": {
           "type": "string",
@@ -2919,7 +3238,12 @@
         },
         "providerConfig": {
           "$ref": "#/types/anthropic:security:ProviderConfig",
-          "description": "Where the key is held.",
+          "description": "Where the key is held. Changing any of these coordinates replaces the configuration.",
+          "replaceOnChanges": true
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "The customer user profile to bind this key to. Only workspaces with the same user profile can use a bound key. Omit only for your organization's own key: an unbound key can be used by any workspace, including another customer's. Changing or removing the binding replaces the configuration.",
           "replaceOnChanges": true
         }
       },
@@ -2928,7 +3252,7 @@
       ]
     },
     "anthropic:skills:Skill": {
-      "description": "A custom Agent Skill: a directory of instructions, scripts, and resources, with a `SKILL.md` at its root, that Claude loads when relevant. Skills can be attached to Managed Agents and used from the Messages API.\n\nSkills are versioned. When the content of `source` changes, a new immutable version is uploaded and becomes `latestVersionId`; earlier versions are kept, so agents that pin one keep working. Deleting the resource deletes the skill and all of its versions.",
+      "description": "A custom Agent Skill: a directory of instructions, scripts, and resources, with a `SKILL.md` at its root, that Claude loads when relevant. Skills can be attached to Managed Agents and used from the Messages API.\n\nContent changes upload a new immutable version; earlier versions remain available to pinned agents. The skill name in SKILL.md is immutable; changing it requires replacing the resource. Deleting the resource deletes the skill and all of its versions. Imported skills require a local source archive before they can be updated; their files cannot be downloaded through this resource.",
       "properties": {
         "createdAt": {
           "type": "string",
@@ -2936,16 +3260,20 @@
         },
         "displayName": {
           "type": "string",
-          "description": "A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.",
+          "description": "A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.",
           "replaceOnChanges": true
         },
         "latestVersionId": {
           "type": "string",
-          "description": "The ID of the newest version (`skver_...`), which agents can pin in a skill reference's `version`."
+          "description": "The version created by the most recent upload, which agents can pin in a skill reference's `version`. Refresh reports the skill's current newest version."
+        },
+        "name": {
+          "type": "string",
+          "description": "The skill's immutable name, taken from the initial SKILL.md frontmatter or its enclosing directory. Changing this name in your source archive replaces the skill."
         },
         "source": {
           "$ref": "pulumi.json#/Archive",
-          "description": "The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed."
+          "description": "The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions."
         },
         "updatedAt": {
           "type": "string",
@@ -2954,6 +3282,7 @@
       },
       "required": [
         "source",
+        "name",
         "latestVersionId",
         "createdAt",
         "updatedAt"
@@ -2961,12 +3290,12 @@
       "inputProperties": {
         "displayName": {
           "type": "string",
-          "description": "A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. The API cannot rename a skill, so changing this replaces it.",
+          "description": "A human-readable label for the skill, up to 255 characters. Defaults to the `name` in the `SKILL.md` frontmatter. Changing or removing a configured label replaces the skill.",
           "replaceOnChanges": true
         },
         "source": {
           "$ref": "pulumi.json#/Archive",
-          "description": "The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed."
+          "description": "The skill's files, such as a `FileArchive` of the skill's directory. `SKILL.md` must sit at the root of the archive, or at the root of its single top-level directory. Up to 30 MB uncompressed. The skill name must remain unchanged for subsequent versions."
         }
       },
       "requiredInputs": [
@@ -3020,7 +3349,7 @@
       }
     },
     "anthropic:index:getRateLimits": {
-      "description": "Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Rate limits are set by Anthropic and cannot be managed through the API.",
+      "description": "Reads the rate limits that apply to the organization or, given a `workspaceId`, to one workspace. Workspace results include inherited organization limits. This lookup does not change limits; the platform also offers a workspace limit update API.",
       "inputs": {
         "properties": {
           "workspaceId": {

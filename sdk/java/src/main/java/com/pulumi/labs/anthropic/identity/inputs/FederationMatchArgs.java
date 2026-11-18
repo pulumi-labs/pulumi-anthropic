@@ -12,6 +12,10 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 
+/**
+ * Conditions on verified identity tokens; every configured condition must pass. Removing a configured condition or claim stops requiring it, so review matcher edits carefully. At least one subject, claim or CEL condition is required; audience alone is insufficient.
+ *
+ */
 public final class FederationMatchArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final FederationMatchArgs Empty = new FederationMatchArgs();
@@ -62,14 +66,14 @@ public final class FederationMatchArgs extends com.pulumi.resources.ResourceArgs
     }
 
     /**
-     * A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+     * Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
      * 
      */
     @Import(name="subjectPrefix")
     private @Nullable Output<String> subjectPrefix;
 
     /**
-     * @return A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+     * @return Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
      * 
      */
     public Optional<Output<String>> subjectPrefix() {
@@ -167,7 +171,7 @@ public final class FederationMatchArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param subjectPrefix A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+         * @param subjectPrefix Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
          * 
          * @return builder
          * 
@@ -178,7 +182,7 @@ public final class FederationMatchArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param subjectPrefix A prefix the `sub` claim must start with, up to 1,024 characters. A bare `*` is not accepted.
+         * @param subjectPrefix Matches the `sub` claim exactly unless it ends in `*`, which enables prefix matching. Up to 1,024 characters; a bare `*` is not accepted. No wildcard is added automatically.
          * 
          * @return builder
          * 

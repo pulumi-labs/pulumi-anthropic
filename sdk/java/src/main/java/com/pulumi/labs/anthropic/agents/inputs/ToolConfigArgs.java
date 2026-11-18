@@ -7,42 +7,95 @@ import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import com.pulumi.labs.anthropic.agents.enums.PermissionPolicy;
+import com.pulumi.labs.anthropic.agents.inputs.FetchURLSourcesArgs;
+import com.pulumi.labs.anthropic.agents.inputs.SearchLocationArgs;
 import java.lang.Boolean;
+import java.lang.Integer;
 import java.lang.String;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
 
+/**
+ * Settings for one tool within an agent or MCP toolset.
+ *
+ */
 public final class ToolConfigArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final ToolConfigArgs Empty = new ToolConfigArgs();
 
     /**
+     * Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+     *
+     */
+    @Import(name="allowedDomains")
+    private @Nullable Output<List<String>> allowedDomains;
+
+    /**
+     * @return Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+     *
+     */
+    public Optional<Output<List<String>>> allowedDomains() {
+        return Optional.ofNullable(this.allowedDomains);
+    }
+
+    /**
+     * Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+     *
+     */
+    @Import(name="blockedDomains")
+    private @Nullable Output<List<String>> blockedDomains;
+
+    /**
+     * @return Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+     *
+     */
+    public Optional<Output<List<String>>> blockedDomains() {
+        return Optional.ofNullable(this.blockedDomains);
+    }
+
+    /**
      * Whether the agent may use the tool.
-     * 
+     *
      */
     @Import(name="enabled")
     private @Nullable Output<Boolean> enabled;
 
     /**
      * @return Whether the agent may use the tool.
-     * 
+     *
      */
     public Optional<Output<Boolean>> enabled() {
         return Optional.ofNullable(this.enabled);
     }
 
     /**
+     * Maximum fetched content tokens, for web_fetch.
+     *
+     */
+    @Import(name="maxContentTokens")
+    private @Nullable Output<Integer> maxContentTokens;
+
+    /**
+     * @return Maximum fetched content tokens, for web_fetch.
+     *
+     */
+    public Optional<Output<Integer>> maxContentTokens() {
+        return Optional.ofNullable(this.maxContentTokens);
+    }
+
+    /**
      * The tool&#39;s name, such as `bash` or `web_fetch`.
-     * 
+     *
      */
     @Import(name="name", required=true)
     private Output<String> name;
 
     /**
      * @return The tool&#39;s name, such as `bash` or `web_fetch`.
-     * 
+     *
      */
     public Output<String> name() {
         return this.name;
@@ -50,25 +103,60 @@ public final class ToolConfigArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Whether a tool call needs approval.
-     * 
+     *
      */
     @Import(name="permissionPolicy")
     private @Nullable Output<PermissionPolicy> permissionPolicy;
 
     /**
      * @return Whether a tool call needs approval.
-     * 
+     *
      */
     public Optional<Output<PermissionPolicy>> permissionPolicy() {
         return Optional.ofNullable(this.permissionPolicy);
     }
 
+    /**
+     * Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+     *
+     */
+    @Import(name="urlSources")
+    private @Nullable Output<FetchURLSourcesArgs> urlSources;
+
+    /**
+     * @return Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+     *
+     */
+    public Optional<Output<FetchURLSourcesArgs>> urlSources() {
+        return Optional.ofNullable(this.urlSources);
+    }
+
+    /**
+     * Approximate location used to localize web_search results.
+     *
+     */
+    @Import(name="userLocation")
+    private @Nullable Output<SearchLocationArgs> userLocation;
+
+    /**
+     * @return Approximate location used to localize web_search results.
+     *
+     */
+    public Optional<Output<SearchLocationArgs>> userLocation() {
+        return Optional.ofNullable(this.userLocation);
+    }
+
     private ToolConfigArgs() {}
 
     private ToolConfigArgs(ToolConfigArgs $) {
+        this.allowedDomains = $.allowedDomains;
+        this.blockedDomains = $.blockedDomains;
         this.enabled = $.enabled;
+        this.maxContentTokens = $.maxContentTokens;
         this.name = $.name;
         this.permissionPolicy = $.permissionPolicy;
+        this.urlSources = $.urlSources;
+        this.userLocation = $.userLocation;
     }
 
     public static Builder builder() {
@@ -90,10 +178,72 @@ public final class ToolConfigArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param enabled Whether the agent may use the tool.
-         * 
+         * @param allowedDomains Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+         *
          * @return builder
-         * 
+         *
+         */
+        public Builder allowedDomains(@Nullable Output<List<String>> allowedDomains) {
+            $.allowedDomains = allowedDomains;
+            return this;
+        }
+
+        /**
+         * @param allowedDomains Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+         *
+         * @return builder
+         *
+         */
+        public Builder allowedDomains(List<String> allowedDomains) {
+            return allowedDomains(Output.of(allowedDomains));
+        }
+
+        /**
+         * @param allowedDomains Domains the web_fetch or web_search tool may access. Cannot be combined with blockedDomains.
+         *
+         * @return builder
+         *
+         */
+        public Builder allowedDomains(String... allowedDomains) {
+            return allowedDomains(List.of(allowedDomains));
+        }
+
+        /**
+         * @param blockedDomains Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+         *
+         * @return builder
+         *
+         */
+        public Builder blockedDomains(@Nullable Output<List<String>> blockedDomains) {
+            $.blockedDomains = blockedDomains;
+            return this;
+        }
+
+        /**
+         * @param blockedDomains Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+         *
+         * @return builder
+         *
+         */
+        public Builder blockedDomains(List<String> blockedDomains) {
+            return blockedDomains(Output.of(blockedDomains));
+        }
+
+        /**
+         * @param blockedDomains Domains the web_fetch or web_search tool must not access. Cannot be combined with allowedDomains.
+         *
+         * @return builder
+         *
+         */
+        public Builder blockedDomains(String... blockedDomains) {
+            return blockedDomains(List.of(blockedDomains));
+        }
+
+        /**
+         * @param enabled Whether the agent may use the tool.
+         *
+         * @return builder
+         *
          */
         public Builder enabled(@Nullable Output<Boolean> enabled) {
             $.enabled = enabled;
@@ -102,19 +252,40 @@ public final class ToolConfigArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param enabled Whether the agent may use the tool.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder enabled(Boolean enabled) {
             return enabled(Output.of(enabled));
         }
 
         /**
-         * @param name The tool&#39;s name, such as `bash` or `web_fetch`.
-         * 
+         * @param maxContentTokens Maximum fetched content tokens, for web_fetch.
+         *
          * @return builder
-         * 
+         *
+         */
+        public Builder maxContentTokens(@Nullable Output<Integer> maxContentTokens) {
+            $.maxContentTokens = maxContentTokens;
+            return this;
+        }
+
+        /**
+         * @param maxContentTokens Maximum fetched content tokens, for web_fetch.
+         *
+         * @return builder
+         *
+         */
+        public Builder maxContentTokens(Integer maxContentTokens) {
+            return maxContentTokens(Output.of(maxContentTokens));
+        }
+
+        /**
+         * @param name The tool&#39;s name, such as `bash` or `web_fetch`.
+         *
+         * @return builder
+         *
          */
         public Builder name(Output<String> name) {
             $.name = name;
@@ -123,9 +294,9 @@ public final class ToolConfigArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param name The tool&#39;s name, such as `bash` or `web_fetch`.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder name(String name) {
             return name(Output.of(name));
@@ -133,9 +304,9 @@ public final class ToolConfigArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param permissionPolicy Whether a tool call needs approval.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder permissionPolicy(@Nullable Output<PermissionPolicy> permissionPolicy) {
             $.permissionPolicy = permissionPolicy;
@@ -144,12 +315,54 @@ public final class ToolConfigArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param permissionPolicy Whether a tool call needs approval.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder permissionPolicy(PermissionPolicy permissionPolicy) {
             return permissionPolicy(Output.of(permissionPolicy));
+        }
+
+        /**
+         * @param urlSources Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+         *
+         * @return builder
+         *
+         */
+        public Builder urlSources(@Nullable Output<FetchURLSourcesArgs> urlSources) {
+            $.urlSources = urlSources;
+            return this;
+        }
+
+        /**
+         * @param urlSources Conversation sources whose URLs web_fetch may fetch. Each omitted source allows all URLs from that source.
+         *
+         * @return builder
+         *
+         */
+        public Builder urlSources(FetchURLSourcesArgs urlSources) {
+            return urlSources(Output.of(urlSources));
+        }
+
+        /**
+         * @param userLocation Approximate location used to localize web_search results.
+         *
+         * @return builder
+         *
+         */
+        public Builder userLocation(@Nullable Output<SearchLocationArgs> userLocation) {
+            $.userLocation = userLocation;
+            return this;
+        }
+
+        /**
+         * @param userLocation Approximate location used to localize web_search results.
+         *
+         * @return builder
+         *
+         */
+        public Builder userLocation(SearchLocationArgs userLocation) {
+            return userLocation(Output.of(userLocation));
         }
 
         public ToolConfigArgs build() {

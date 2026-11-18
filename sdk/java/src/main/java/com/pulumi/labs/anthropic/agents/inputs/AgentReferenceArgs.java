@@ -33,14 +33,14 @@ public final class AgentReferenceArgs extends com.pulumi.resources.ResourceArgs 
     }
 
     /**
-     * The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+     * The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
      * 
      */
     @Import(name="version")
     private @Nullable Output<Integer> version;
 
     /**
-     * @return The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+     * @return The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
      * 
      */
     public Optional<Output<Integer>> version() {
@@ -94,7 +94,7 @@ public final class AgentReferenceArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param version The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+         * @param version The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
          * 
          * @return builder
          * 
@@ -105,7 +105,7 @@ public final class AgentReferenceArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param version The agent version to run. If omitted, the version that is latest when the deployment is created or updated is pinned; later versions are not picked up.
+         * @param version The agent version to run. If omitted, the latest version is pinned whenever deployment configuration is applied; later versions are not picked up automatically.
          * 
          * @return builder
          * 

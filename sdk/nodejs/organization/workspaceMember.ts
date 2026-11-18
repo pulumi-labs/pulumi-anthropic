@@ -8,7 +8,7 @@ import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 /**
- * A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `<workspaceId>/<userId>`.
+ * A user's membership of a workspace, with a workspace role. The user must already be a member of the organization. The resource's ID is `<workspaceId>/<userId>`. Deleting this resource removes the workspace membership, not the user or workspace.
  */
 export class WorkspaceMember extends pulumi.CustomResource {
     /**
@@ -48,11 +48,11 @@ export class WorkspaceMember extends pulumi.CustomResource {
     }
 
     /**
-     * The user's ID.
+     * The user's ID. Changing this value replaces the membership.
      */
     declare public readonly userId: pulumi.Output<string>;
     /**
-     * The workspace's ID.
+     * The workspace's ID. Changing this value replaces the membership.
      */
     declare public readonly workspaceId: pulumi.Output<string>;
     /**
@@ -100,11 +100,11 @@ export class WorkspaceMember extends pulumi.CustomResource {
  */
 export interface WorkspaceMemberArgs {
     /**
-     * The user's ID.
+     * The user's ID. Changing this value replaces the membership.
      */
     userId: pulumi.Input<string>;
     /**
-     * The workspace's ID.
+     * The workspace's ID. Changing this value replaces the membership.
      */
     workspaceId: pulumi.Input<string>;
     /**

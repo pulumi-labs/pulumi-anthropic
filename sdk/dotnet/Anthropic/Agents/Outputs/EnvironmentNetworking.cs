@@ -15,15 +15,15 @@ namespace Pulumi.Labs.Anthropic.Agents.Outputs
     public sealed class EnvironmentNetworking
     {
         /// <summary>
-        /// Whether the agent's MCP servers are reachable. Applies to `limited`.
+        /// Whether the agent's MCP servers are reachable. Applies to `limited`. Removing this setting disables access.
         /// </summary>
         public readonly bool? AllowMcpServers;
         /// <summary>
-        /// Whether package registries are reachable, which installing `packages` requires. Applies to `limited`.
+        /// Whether package registries are reachable, which installing `packages` requires. Applies to `limited`. Must be enabled when packages are configured. Removing this setting disables access.
         /// </summary>
         public readonly bool? AllowPackageManagers;
         /// <summary>
-        /// Hosts the sandbox can reach. Applies to `limited`.
+        /// Hosts the sandbox can reach. Applies to `limited`. An empty list allows no listed hosts. Removing a previously configured list has the same effect.
         /// </summary>
         public readonly ImmutableArray<string> AllowedHosts;
         /// <summary>

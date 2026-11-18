@@ -8,11 +8,9 @@ import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 /**
- * An API key's name and status.
+ * Manages an existing API key's name and status. Create the key in the Claude Console and supply its ID; secret key material is never returned. Omitted name or status leaves that value unchanged. Removing either from configuration stops managing it without clearing it.
  *
- * API keys cannot be created through the API, only in the Claude Console, and their secret values are never returned. Creating this resource adopts an existing key by ID; fields left undeclared are left as they are.
- *
- * Deleting this resource archives the key, which permanently revokes it. To stop managing a key without revoking it, set the `retainOnDelete` resource option.
+ * Deleting this resource archives and permanently revokes the key. Use retainOnDelete to stop managing it without revocation. Changing apiKeyId adopts the new key before revoking the old one. Archived and expired keys remain readable.
  */
 export class ApiKey extends pulumi.CustomResource {
     /**
@@ -52,7 +50,7 @@ export class ApiKey extends pulumi.CustomResource {
     }
 
     /**
-     * The ID of the existing API key to manage.
+     * The existing key's nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
      */
     declare public readonly apiKeyId: pulumi.Output<string>;
     /**
@@ -60,23 +58,39 @@ export class ApiKey extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
-     * When the key expires, in RFC 3339 format, if it does.
+     * The actor that created the key, if recorded.
+     */
+    declare public /*out*/ readonly createdBy: pulumi.Output<outputs.organization.ApiKeyActor | undefined>;
+    /**
+     * When the key expires, in RFC 3339 format, or an empty string if it never expires.
      */
     declare public /*out*/ readonly expiresAt: pulumi.Output<string>;
     /**
-     * The key's name, 1 to 500 characters.
+     * The key's name, 1 to 500 characters. Omission leaves the current name unchanged.
      */
     declare public readonly name: pulumi.Output<string | undefined>;
     /**
-     * A redacted hint of the key's value, for recognizing it.
+     * The current status, including active, inactive, archived or expired. An expired key's status is not recovered as a writable input on import.
+     */
+    declare public /*out*/ readonly observedStatus: pulumi.Output<string>;
+    /**
+     * A redacted hint for recognizing the key; empty if unavailable.
      */
     declare public /*out*/ readonly partialKeyHint: pulumi.Output<string>;
     /**
-     * The key's status. An archived key cannot be reactivated.
+     * The user or service account the key acts as, if bound to a principal.
+     */
+    declare public /*out*/ readonly principal: pulumi.Output<outputs.organization.ApiKeyActor | undefined>;
+    /**
+     * Where the key belongs: an organization or a workspace.
+     */
+    declare public /*out*/ readonly scope: pulumi.Output<outputs.organization.ApiKeyScope | undefined>;
+    /**
+     * The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
      */
     declare public readonly status: pulumi.Output<enums.organization.ApiKeyStatus | undefined>;
     /**
-     * The ID of the workspace the key belongs to.
+     * The key's actual workspace ID, or an empty string for organization scope. See scope for the ownership boundary.
      */
     declare public /*out*/ readonly workspaceId: pulumi.Output<string>;
 
@@ -98,15 +112,23 @@ export class ApiKey extends pulumi.CustomResource {
             resourceInputs["name"] = args?.name;
             resourceInputs["status"] = args?.status;
             resourceInputs["createdAt"] = undefined /*out*/;
+            resourceInputs["createdBy"] = undefined /*out*/;
             resourceInputs["expiresAt"] = undefined /*out*/;
+            resourceInputs["observedStatus"] = undefined /*out*/;
             resourceInputs["partialKeyHint"] = undefined /*out*/;
+            resourceInputs["principal"] = undefined /*out*/;
+            resourceInputs["scope"] = undefined /*out*/;
             resourceInputs["workspaceId"] = undefined /*out*/;
         } else {
             resourceInputs["apiKeyId"] = undefined /*out*/;
             resourceInputs["createdAt"] = undefined /*out*/;
+            resourceInputs["createdBy"] = undefined /*out*/;
             resourceInputs["expiresAt"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
+            resourceInputs["observedStatus"] = undefined /*out*/;
             resourceInputs["partialKeyHint"] = undefined /*out*/;
+            resourceInputs["principal"] = undefined /*out*/;
+            resourceInputs["scope"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
             resourceInputs["workspaceId"] = undefined /*out*/;
         }
@@ -122,15 +144,15 @@ export class ApiKey extends pulumi.CustomResource {
  */
 export interface ApiKeyArgs {
     /**
-     * The ID of the existing API key to manage.
+     * The existing key's nonempty ID. Changing this value replaces the resource and revokes the previously managed key.
      */
     apiKeyId: pulumi.Input<string>;
     /**
-     * The key's name, 1 to 500 characters.
+     * The key's name, 1 to 500 characters. Omission leaves the current name unchanged.
      */
     name?: pulumi.Input<string | undefined>;
     /**
-     * The key's status. An archived key cannot be reactivated.
+     * The desired status: active, inactive or archived. Archived keys cannot be reactivated. Omission leaves the current status unchanged; expired is observation-only.
      */
     status?: pulumi.Input<enums.organization.ApiKeyStatus | undefined>;
 }
