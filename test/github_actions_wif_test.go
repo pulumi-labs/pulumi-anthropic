@@ -6,9 +6,37 @@ import (
 	"os"
 	"testing"
 
+	"github.com/pulumi-labs/pulumi-anthropic/test/internal/enginetest"
+	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/encoding"
 	"github.com/stretchr/testify/require"
 )
+
+// Preview both programs using the real engine and installed provider, without up,
+// real credentials, token commands or Anthropic requests.
+func TestGitHubWIFExamplePreviews(t *testing.T) {
+	for dir, inputs := range map[string]map[string]string{
+		"configure": {
+			"anthropic:authToken": "synthetic-preview-token",
+			"organizationId":      "preview-org", "workspaceId": "wrkspc_preview",
+			"githubSubject": "repo:example@123/demo@456:ref:refs/heads/main",
+		},
+		"workload": {
+			"organizationId": "preview-org", "workspaceId": "wrkspc_preview",
+			"federationRuleId": "fdrl_preview", "serviceAccountId": "svac_preview",
+		},
+	} {
+		t.Run(dir, func(t *testing.T) {
+			opts := enginetest.PreviewOptions(t, "../examples/github-actions-wif/"+dir, inputs)
+			require.True(t, opts.SkipUpdate, "example checks must never run up")
+			require.True(t, opts.SkipRefresh)
+			require.True(t, opts.SkipExportImport)
+			require.True(t, opts.SkipEmptyPreviewUpdate)
+			require.Empty(t, opts.EditDirs)
+			integration.ProgramTest(t, &opts)
+		})
+	}
+}
 
 // Check the two programs' handoff without credentials or platform operations.
 func TestGitHubWIFExamplePrograms(t *testing.T) {

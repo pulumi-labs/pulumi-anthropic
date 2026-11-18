@@ -20,6 +20,8 @@ jobs:
           # Keep in step with mise.toml. The SDK generator lives in the CLI, so
           # an unpinned version changes the generated SDKs on its own.
           pulumi-version: '3.274.0'
+      - name: Lint workflows and the GitHub WIF example template
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 .github/workflows/*.yml examples/github-actions-wif/workload/workflow.yml
       - uses: golangci/golangci-lint-action@v8
         with:
           version: v2.15.0 # Keep in step with mise.toml.

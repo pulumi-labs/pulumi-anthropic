@@ -131,6 +131,13 @@ that prints its output, or copy runner credentials into stack configuration.
 If an exchange fails, inspect Anthropic's [authentication history](https://platform.claude.com/settings/workload-identity-federation?tab=history).
 A `match_subject_prefix` failure means the actual subject differs from `githubSubject`.
 
+## Validation
+
+CI runs `pulumi preview` for both programs using synthetic configuration, an isolated
+local backend and the locally built provider. These checks never run `pulumi up` or
+contact Anthropic; unexpected API requests fail the test. They validate the programs,
+not the live federation exchange. CI also runs `actionlint` on the workflow template.
+
 ## Cleanup
 
 First run the workload workflow on the trusted branch with `command: destroy` to delete
