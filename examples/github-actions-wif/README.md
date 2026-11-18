@@ -17,23 +17,22 @@ workload program; it never receives the administrator's credential.
 ## 1. Configure Anthropic
 
 You need an existing Anthropic workspace and an OAuth token with the `org:admin`
-scope. Admin API keys cannot manage federation. The organization ID must identify the
+scope; see [Anthropic's `ant` CLI admin-access instructions](https://platform.claude.com/docs/en/cli-sdks-libraries/cli/authentication#admin-access).
+Admin API keys cannot manage federation. The organization ID must identify the
 organization that your administrator credential acts in, and the workspace must belong
 to that organization.
-
-When running from this provider repository, build and install the provider first:
 
 ```sh
 make install
 cd examples/github-actions-wif/configure
 pulumi stack init YOUR_ORG/github-actions-wif-configure/setup
-pulumi config set --secret anthropic:authToken
+export ANTHROPIC_AUTH_TOKEN="$(ant auth print-credentials --profile admin --access-token)"
 pulumi config set organizationId YOUR_ANTHROPIC_ORGANIZATION_ID
 pulumi config set workspaceId YOUR_WORKSPACE_ID
 ```
 
-Enter the OAuth token at the secret prompt. Do not put it in a workflow or commit stack
-configuration containing credentials.
+The provider reads the OAuth token from `ANTHROPIC_AUTH_TOKEN`. Do not put it in a
+workflow or stack configuration. Unset the variable when you finish administration.
 
 ### Choose the exact GitHub subject
 
