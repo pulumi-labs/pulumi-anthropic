@@ -22,9 +22,10 @@ Admin API keys cannot manage federation. The organization ID must identify the
 organization that your administrator credential acts in, and the workspace must belong
 to that organization.
 
+Run from this example directory:
+
 ```sh
-make install
-cd examples/github-actions-wif/configure
+cd configure
 pulumi stack init YOUR_ORG/github-actions-wif-configure/setup
 export ANTHROPIC_AUTH_TOKEN="$(ant auth print-credentials --profile admin --access-token)"
 pulumi config set organizationId YOUR_ANTHROPIC_ORGANIZATION_ID
