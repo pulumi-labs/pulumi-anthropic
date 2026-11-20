@@ -1,6 +1,0 @@
-{
-  "resource": true,
-  "name": "anthropic",
-  "version": "0.1.0-dev",
-  "server": "github://api.github.com/pulumi-labs/pulumi-anthropic"
-}
